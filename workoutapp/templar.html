@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KNIGHT TEMPLAR STRENGTH — ALDO ELITE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Cinzel', serif;
+    background: #06000a;
+    color: #ede0e8;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 130px;
+}
+
+/* === HERO === */
+.hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    overflow: hidden;
+}
+.hero-img {
+    position: absolute; inset: 0;
+    background: url('gym_templar.png') no-repeat center top / cover;
+}
+.hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom,
+        rgba(0,0,0,0.1) 0%,
+        rgba(6,0,10,0.45) 40%,
+        rgba(6,0,10,0.88) 70%,
+        rgba(6,0,10,1) 100%);
+}
+.back-link {
+    position: absolute; top: 22px; left: 22px; z-index: 10;
+    color: rgba(220,100,120,0.8); text-decoration: none;
+    font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s;
+}
+.back-link:hover { color: #dc143c; }
+
+.hero-content {
+    position: relative; z-index: 2;
+    padding: 60px 32px 56px; max-width: 800px;
+}
+.hero-eyebrow { font-size: 0.68rem; letter-spacing: 5px; text-transform: uppercase; color: rgba(220,80,100,0.7); margin-bottom: 10px; }
+.hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.05;
+    color: #e8a0b0;
+    text-shadow: 0 0 60px rgba(200,0,40,0.55), 3px 3px 0 rgba(0,0,0,0.8);
+    margin-bottom: 16px;
+}
+.hero-sub {
+    font-family: 'IM Fell English', serif; font-style: italic; font-size: 1.05rem; line-height: 1.6;
+    color: rgba(220,190,200,0.75); max-width: 500px;
+}
+.hero-rule { display: flex; align-items: center; gap: 12px; margin: 24px 0; max-width: 380px; }
+.hero-rule-line { flex:1; height:1px; background: linear-gradient(90deg, rgba(200,0,40,0.55), transparent); }
+.hero-rule-icon { color: #dc143c; font-size: 0.9rem; }
+.rank-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+.rank-badge { padding: 7px 16px; border-radius: 3px; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; border: 1px solid rgba(200,20,40,0.3); background: rgba(200,20,40,0.1); color: rgba(255,120,140,0.8); }
+.rank-badge.active { background: linear-gradient(135deg, #8b0000, #5c0015); border-color: #dc143c; color: #fff; box-shadow: 0 0 16px rgba(200,0,40,0.4); }
+
+/* === MAIN === */
+.main { max-width: 900px; margin: 0 auto; padding: 0 22px; position: relative; z-index: 2; }
+
+.setup-panel { background: rgba(180,0,40,0.05); border: 1px solid rgba(180,0,40,0.18); border-radius: 8px; padding: 30px; margin: 30px 0; }
+.panel-title { font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: #e8a0b0; letter-spacing: 2px; margin-bottom: 22px; text-align: center; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+@media (max-width: 520px){ .form-grid { grid-template-columns: 1fr; } }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,120,140,0.7); }
+.form-field input, .form-field select { background: rgba(0,0,0,0.4); border: 1px solid rgba(180,0,40,0.25); color: #ede0e8; padding: 10px 14px; border-radius: 5px; font-family: 'Cinzel', serif; font-size: 0.9rem; width: 100%; }
+.form-field input:focus, .form-field select:focus { outline: none; border-color: rgba(220,20,60,0.55); box-shadow: 0 0 10px rgba(180,0,40,0.15); }
+
+.rank-selector { margin-bottom: 22px; }
+.rank-selector label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,120,140,0.7); display: block; margin-bottom: 10px; }
+.rank-options { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+@media (max-width: 520px){ .rank-options { grid-template-columns: repeat(2,1fr); } }
+.rank-opt { padding: 10px 8px; border-radius: 5px; text-align: center; cursor: pointer; border: 1px solid rgba(180,0,40,0.2); background: rgba(180,0,40,0.06); transition: all 0.2s; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: rgba(220,120,140,0.7); }
+.rank-opt:hover { border-color: rgba(180,0,40,0.45); background: rgba(180,0,40,0.12); }
+.rank-opt.rank-active { background: linear-gradient(135deg, rgba(180,0,40,0.35), rgba(100,0,20,0.3)); border-color: #dc143c; color: #e8a0b0; box-shadow: 0 0 12px rgba(180,0,40,0.25); }
+.rank-opt .rk-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+.rank-opt .rk-name { font-weight: 700; display: block; font-size: 0.65rem; }
+.rank-opt .rk-freq { font-size: 0.58rem; opacity: 0.65; }
+
+.jump-selector { margin-bottom: 22px; }
+.jump-label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,120,140,0.7); display: block; margin-bottom: 10px; }
+.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.jump-btn { flex:1; min-width: 80px; padding: 10px 8px; border-radius: 5px; border: 1px solid rgba(180,0,40,0.2); background: rgba(180,0,40,0.06); color: rgba(220,120,140,0.75); font-size: 0.72rem; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.2s; }
+.jump-btn:hover { border-color: rgba(180,0,40,0.4); background: rgba(180,0,40,0.1); }
+.jump-btn.jump-active { background: linear-gradient(135deg, #8b0000, #5c0015); border-color: #dc143c; color: #fff; box-shadow: 0 0 14px rgba(180,0,40,0.35); }
+.jump-btn .jp { font-size: 1.05rem; display: block; }
+.jump-btn .jt { font-size: 0.58rem; opacity: 0.78; }
+
+.build-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #8b0000, #5c0015); color: #fff; border: none; border-radius: 6px; font-family: 'Cinzel Decorative', serif; font-size: 1rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; box-shadow: 0 4px 20px rgba(180,0,40,0.35); transition: transform 0.2s, box-shadow 0.2s; }
+.build-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(180,0,40,0.55); }
+
+/* === WORKOUT VIEW === */
+.workout-view { display: none; }
+.selectors { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
+.selectors label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,120,140,0.65); }
+.selectors select { background: rgba(0,0,0,0.5); border: 1px solid rgba(180,0,40,0.25); color: #ede0e8; padding: 8px 14px; border-radius: 5px; font-family: 'Cinzel', serif; font-size: 0.88rem; }
+.reset-btn { margin-left: auto; padding: 8px 18px; background: transparent; border: 1px solid rgba(180,0,40,0.3); color: rgba(220,120,140,0.7); border-radius: 5px; font-size: 0.72rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; font-family: 'Cinzel', serif; }
+.reset-btn:hover { background: rgba(180,0,40,0.1); color: #e8a0b0; }
+
+.ex-table { width: 100%; border-collapse: collapse; background: rgba(180,0,40,0.04); border-radius: 8px; overflow: hidden; margin-bottom: 30px; }
+.ex-table th { background: rgba(140,0,30,0.3); padding: 12px 16px; text-align: left; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,150,165,0.9); }
+.ex-table td { padding: 13px 16px; border-bottom: 1px solid rgba(180,0,40,0.1); font-size: 0.9rem; }
+.ex-table tr:last-child td { border-bottom: none; }
+.ex-table tr:hover td { background: rgba(180,0,40,0.07); }
+.type-main { color: #e8a0b0; font-weight: 700; font-size: 0.78rem; letter-spacing: 1px; }
+.type-acc  { color: rgba(220,160,175,0.65); font-size: 0.78rem; }
+
+/* === CROSS FOOTER === */
+.cross-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 110px; overflow: hidden; pointer-events: none; z-index: 100;
+    background: linear-gradient(to top, rgba(60,0,15,0.35), transparent);
+}
+.cross-footer canvas { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+@media (max-width: 640px){ .hero-content { padding: 40px 18px 44px; } .main { padding: 0 14px; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-img"></div>
+    <div class="hero-overlay"></div>
+    <a href="medieval.html" class="back-link">← Warrior Library</a>
+    <div class="hero-content">
+        <div class="hero-eyebrow">Order of Iron · Aldo Elite</div>
+        <div class="hero-title">KNIGHT<br>TEMPLAR</div>
+        <p class="hero-sub">Endurance beneath armor. Rucking, carries, functional strength, and combat conditioning. For God and iron.</p>
+        <div class="hero-rule"><div class="hero-rule-line"></div><div class="hero-rule-icon">✝</div></div>
+        <div class="rank-badges">
+            <span class="rank-badge">Initiate</span>
+            <span class="rank-badge">Sergeant</span>
+            <span class="rank-badge active">Knight</span>
+            <span class="rank-badge">Preceptor</span>
+            <span class="rank-badge">Grand Master</span>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="setup-panel" id="setupPanel">
+        <div class="panel-title">✝ TAKE THE OATH</div>
+
+        <div class="form-grid">
+            <div class="form-field"><label>Squat 1RM (lbs)</label><input type="number" id="sq" value="315" min="45"></div>
+            <div class="form-field"><label>Bench 1RM (lbs)</label><input type="number" id="bn" value="225" min="45"></div>
+            <div class="form-field"><label>OHP 1RM (lbs)</label><input type="number" id="op" value="185" min="45"></div>
+            <div class="form-field"><label>Deadlift 1RM (lbs)</label><input type="number" id="dl" value="405" min="45"></div>
+            <div class="form-field">
+                <label>Program Weeks</label>
+                <select id="numWeeks">
+                    <option value="8">8 Weeks</option><option value="10">10 Weeks</option>
+                    <option value="12" selected>12 Weeks</option><option value="16">16 Weeks</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Ruck Distance</label>
+                <select id="ruckDist">
+                    <option value="1">1–2 miles (Initiate)</option>
+                    <option value="3" selected>3 miles (Knight)</option>
+                    <option value="5">5 miles (Preceptor)</option>
+                    <option value="8">8–10 miles (Grand Master)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="rank-selector">
+            <label>Choose Your Rank</label>
+            <div class="rank-options">
+                <div class="rank-opt" data-rank="Initiate" onclick="selectRank(this)"><span class="rk-icon">🕊️</span><span class="rk-name">Initiate</span><span class="rk-freq">3x / week</span></div>
+                <div class="rank-opt" data-rank="Sergeant" onclick="selectRank(this)"><span class="rk-icon">⚔️</span><span class="rk-name">Sergeant</span><span class="rk-freq">3x / week</span></div>
+                <div class="rank-opt rank-active" data-rank="Knight" onclick="selectRank(this)"><span class="rk-icon">🛡️</span><span class="rk-name">Knight</span><span class="rk-freq">4x / week</span></div>
+                <div class="rank-opt" data-rank="Preceptor" onclick="selectRank(this)"><span class="rk-icon">✝️</span><span class="rk-name">Preceptor</span><span class="rk-freq">4–5x / week</span></div>
+                <div class="rank-opt" data-rank="GrandMaster" onclick="selectRank(this)"><span class="rk-icon">👑</span><span class="rk-name">Grand Master</span><span class="rk-freq">5x / week</span></div>
+            </div>
+        </div>
+
+        <div class="jump-selector">
+            <span class="jump-label">⚡ Weekly Progression — How hungry are you?</span>
+            <div class="jump-options">
+                <button class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jp">5%</span><span class="jt">Steady Grind</span></button>
+                <button class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jp">10%</span><span class="jt">Standard Push</span></button>
+                <button class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jp">15%</span><span class="jt">Aggressive</span></button>
+                <button class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jp">20%</span><span class="jt">ARE YOU INSANE?! 🔥</span></button>
+            </div>
+        </div>
+
+        <button class="build-btn" onclick="buildProgram()">SWEAR THE OATH — BUILD PROGRAM</button>
+    </div>
+
+    <div class="workout-view" id="workoutView">
+        <div class="selectors">
+            <label>Week</label><select id="weekSel" onchange="renderWorkout()"></select>
+            <label>Day</label><select id="daySel" onchange="renderWorkout()"></select>
+            <button class="reset-btn" onclick="resetSetup()">← New Program</button>
+        </div>
+        <table class="ex-table">
+            <thead><tr><th>Type</th><th>Exercise</th><th>Sets × Reps</th><th>Weight / Load</th></tr></thead>
+            <tbody id="exBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CROSS FOOTER -->
+<div class="cross-footer"><canvas id="crossCanvas"></canvas></div>
+
+<script>
+var ranks = {
+    Initiate:    { days:3, mainSets:3, accSets:2 },
+    Sergeant:    { days:3, mainSets:3, accSets:3 },
+    Knight:      { days:4, mainSets:4, accSets:3 },
+    Preceptor:   { days:4, mainSets:4, accSets:4 },
+    GrandMaster: { days:5, mainSets:5, accSets:4 }
+};
+
+var exercises = {
+    1: { name:"Squat / Front Squat",   key:"sq", pcts:[[0.60,5],[0.70,5],[0.80,5],[0.85,3]] },
+    2: { name:"Bench / Spoto Press",   key:"bn", pcts:[[0.60,5],[0.70,5],[0.80,5],[0.85,3]] },
+    3: { name:"OHP / Push Press",      key:"op", pcts:[[0.60,5],[0.70,5],[0.80,3],[0.90,2]] },
+    4: { name:"Deadlift / Rack Pull",  key:"dl", pcts:[[0.60,5],[0.70,5],[0.80,3],[0.90,1]] }
+};
+
+var accessories = {
+    1: ["Ruck March — conditioning","Farmer's Carry 4×40m","Walking Lunges 3×12/leg","Bulgarian Split Squat 3×10","Kettlebell Swing 4×20","Box Step-Up 3×12"],
+    2: ["Dips 4×12","Incline DB Press 3×12","Push-Up Circuit 3×20","Cable Fly 3×15","Rear Delt Fly 3×15","Overhead Carry 3×30m"],
+    3: ["Lateral Raise 4×15","Arnolds 3×12","Battle Rope 4×30s","Plate Front Raise 3×12","IYTs 3×12","Farmer Hold — 3×30s"],
+    4: ["Barbell Row 4×8","Lat Pulldown 3×12","Back Extension 3×15","Chest-Supported Row 3×12","Shrug 4×12","Plank 3×60s"]
+};
+
+var currentRank = "Knight";
+var weeklyJump  = 0.10;
+var program     = [];
+var baseTM      = {};
+
+function selectRank(el){ document.querySelectorAll('.rank-opt').forEach(function(b){ b.classList.remove('rank-active'); }); el.classList.add('rank-active'); currentRank = el.getAttribute('data-rank'); }
+function selectJump(el){ document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); }); el.classList.add('jump-active'); weeklyJump = parseFloat(el.getAttribute('data-pct')); }
+function round5(v){ return Math.max(45, Math.round(v/5)*5); }
+
+function buildProgram(){
+    var nWeeks = parseInt(document.getElementById('numWeeks').value);
+    var raw = { sq:parseInt(document.getElementById('sq').value)||315, bn:parseInt(document.getElementById('bn').value)||225, op:parseInt(document.getElementById('op').value)||185, dl:parseInt(document.getElementById('dl').value)||405 };
+    baseTM = {};
+    for(var k in raw) baseTM[k] = Math.round(raw[k]*0.9);
+
+    var rk = ranks[currentRank];
+    program = [];
+
+    for(var w=1; w<=nWeeks; w++){
+        var mult = Math.pow(1+weeklyJump, w-1);
+        for(var d=1; d<=rk.days; d++){
+            var liftIdx = ((d-1)%4)+1;
+            var ex = exercises[liftIdx];
+            var tm = round5(baseTM[ex.key]*mult);
+            var sets = [];
+            var usePcts = ex.pcts.slice(0, Math.min(rk.mainSets, ex.pcts.length));
+            usePcts.forEach(function(p){ sets.push({ type:"Main", name:ex.name, scheme:p[1]+" reps", weight:round5(tm*p[0]) }); });
+            var accList = accessories[liftIdx];
+            var shuffled = accList.slice().sort(function(){ return Math.random()-0.5; }).slice(0, Math.min(rk.accSets, accList.length));
+            shuffled.forEach(function(a){ sets.push({ type:"Accessory", name:a, scheme:"As prescribed", weight:"Moderate" }); });
+            program.push({ week:w, day:d, sets:sets });
+        }
+    }
+
+    var ws = document.getElementById('weekSel'); ws.innerHTML='';
+    for(var i=1;i<=nWeeks;i++) ws.innerHTML+='<option value="'+i+'">Week '+i+'</option>';
+    var ds = document.getElementById('daySel'); ds.innerHTML='';
+    for(var i=1;i<=rk.days;i++) ds.innerHTML+='<option value="'+i+'">Day '+i+'</option>';
+
+    document.getElementById('setupPanel').style.display='none';
+    document.getElementById('workoutView').style.display='block';
+    renderWorkout();
+}
+
+function renderWorkout(){
+    var w=parseInt(document.getElementById('weekSel').value), d=parseInt(document.getElementById('daySel').value);
+    var entry=program.find(function(p){ return p.week===w&&p.day===d; });
+    var tbody=document.getElementById('exBody'); tbody.innerHTML='';
+    if(!entry) return;
+    entry.sets.forEach(function(s){
+        var wt=typeof s.weight==='number'?s.weight+' lbs':s.weight;
+        var cls=s.type==='Main'?'type-main':'type-acc';
+        tbody.innerHTML+='<tr><td class="'+cls+'">'+s.type+'</td><td>'+s.name+'</td><td>'+s.scheme+'</td><td>'+wt+'</td></tr>';
+    });
+}
+
+function resetSetup(){ document.getElementById('setupPanel').style.display='block'; document.getElementById('workoutView').style.display='none'; }
+
+// ============ CROSS ANIMATION ============
+(function(){
+    var canvas = document.getElementById('crossCanvas');
+    var ctx    = canvas.getContext('2d');
+    var W, H;
+    var crosses = [];
+
+    function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = 110; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function Cross(){
+        this.reset();
+    }
+    Cross.prototype.reset = function(){
+        this.x    = Math.random() * W;
+        this.y    = H + 20;
+        this.size = 6 + Math.random() * 18;
+        this.vy   = -(0.3 + Math.random() * 0.8);
+        this.vx   = (Math.random()-0.5) * 0.4;
+        this.rot  = Math.random() * Math.PI * 2;
+        this.vrot = (Math.random()-0.5) * 0.02;
+        this.life = 0;
+        this.maxLife = 80 + Math.random() * 100;
+    };
+    Cross.prototype.update = function(){
+        this.x   += this.vx;
+        this.y   += this.vy;
+        this.rot += this.vrot;
+        this.life++;
+        if(this.life > this.maxLife || this.y < -30) this.reset();
+    };
+    Cross.prototype.draw = function(){
+        var t   = this.life / this.maxLife;
+        var a   = (1-t) * 0.55;
+        var s   = this.size;
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.strokeStyle = 'rgba(200,0,40,'+a+')';
+        ctx.lineWidth   = Math.max(1, s * 0.18);
+        ctx.lineCap     = 'round';
+
+        // Vertical bar
+        ctx.beginPath();
+        ctx.moveTo(0, -s); ctx.lineTo(0, s);
+        ctx.stroke();
+        // Horizontal bar
+        ctx.beginPath();
+        ctx.moveTo(-s*0.65, -s*0.2); ctx.lineTo(s*0.65, -s*0.2);
+        ctx.stroke();
+
+        ctx.restore();
+    };
+
+    for(var i=0; i<60; i++){
+        var c = new Cross();
+        c.life = Math.random() * c.maxLife;
+        c.y    = Math.random() * H;
+        crosses.push(c);
+    }
+
+    function loop(){
+        ctx.clearRect(0,0,W,H);
+        crosses.forEach(function(c){ c.update(); c.draw(); });
+        requestAnimationFrame(loop);
+    }
+    loop();
+})();
+</script>
+</body>
+</html>

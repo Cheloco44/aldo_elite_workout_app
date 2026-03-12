@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALDO ELITE WORKOUTS</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 60px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('gorillavsbull.png') no-repeat center center;
+    background-size: contain;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.landing {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.logo {
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    margin-bottom: 25px;
+    object-fit: cover;
+}
+
+h1 {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.65;
+    margin-bottom: 40px;
+}
+
+/* ===== SECTION LABELS ===== */
+.section-label {
+    width: 100%;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin: 30px 0 14px 6px;
+}
+
+/* ===== CARDS GRID ===== */
+.cards {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.card {
+    width: 260px;
+    padding: 30px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.0);
+    transition: background 0.3s;
+    border-radius: 20px;
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.03);
+}
+.card:hover::after { background: rgba(255,255,255,0.06); }
+
+.card-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.card h2 { font-size: 1.2rem; margin-bottom: 8px; letter-spacing: 1px; }
+.card p { font-size: 0.88rem; opacity: 0.85; line-height: 1.5; }
+
+.card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+}
+
+/* ===== CARD COLORS ===== */
+.card-531 {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    box-shadow: 0 8px 25px rgba(255,81,47,0.3);
+}
+.card-531:hover { box-shadow: 0 15px 40px rgba(255,81,47,0.45); }
+
+.card-oms {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    box-shadow: 0 8px 25px rgba(17,153,142,0.3);
+}
+.card-oms:hover { box-shadow: 0 15px 40px rgba(17,153,142,0.45); }
+
+.card-sl {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    box-shadow: 0 8px 25px rgba(15,52,96,0.5);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.card-sl:hover { box-shadow: 0 15px 40px rgba(15,52,96,0.7); }
+
+.card-jug {
+    background: linear-gradient(135deg, #b92b27, #1565c0);
+    box-shadow: 0 8px 25px rgba(185,43,39,0.35);
+}
+.card-jug:hover { box-shadow: 0 15px 40px rgba(185,43,39,0.5); }
+
+.card-west {
+    background: linear-gradient(135deg, #232526, #414345);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,215,0,0.2);
+}
+.card-west:hover { box-shadow: 0 15px 40px rgba(255,215,0,0.2); }
+
+.card-sm531 {
+    background: linear-gradient(135deg, #6a3093, #a044ff);
+    box-shadow: 0 8px 25px rgba(106,48,147,0.4);
+}
+.card-sm531:hover { box-shadow: 0 15px 40px rgba(160,68,255,0.5); }
+
+.card-cube {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    box-shadow: 0 8px 25px rgba(247,151,30,0.35);
+    color: #1a1a1a;
+}
+.card-cube:hover { box-shadow: 0 15px 40px rgba(247,151,30,0.55); }
+.card-cube p { opacity: 0.75; }
+
+.card-events {
+    background: linear-gradient(135deg, #134e5e, #71b280);
+    box-shadow: 0 8px 25px rgba(19,78,94,0.4);
+}
+.card-events:hover { box-shadow: 0 15px 40px rgba(113,178,128,0.4); }
+
+.card-arnold {
+    background: linear-gradient(135deg, #c94b4b, #4b134f);
+    box-shadow: 0 8px 25px rgba(201,75,75,0.35);
+}
+.card-arnold:hover { box-shadow: 0 15px 40px rgba(201,75,75,0.5); }
+
+.card-bro {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    box-shadow: 0 8px 25px rgba(71,118,230,0.35);
+}
+.card-bro:hover { box-shadow: 0 15px 40px rgba(142,84,233,0.5); }
+
+.card-coach {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    box-shadow: 0 8px 25px rgba(44,83,100,0.4);
+    border: 2px solid rgba(255,255,255,0.15);
+}
+.card-coach:hover { box-shadow: 0 15px 40px rgba(44,83,100,0.6); }
+
+@media (max-width: 640px) {
+    h1 { font-size: 1.8rem; }
+    .card { width: 100%; max-width: 340px; padding: 26px 20px; }
+    .logo { width: 110px; height: 110px; }
+}
+</style>
+</head>
+<body>
+
+<div class="landing">
+    <img src="gorillavsbull.png" alt="Aldo Elite Logo" class="logo">
+    <h1>ALDO ELITE WORKOUTS</h1>
+    <p class="subtitle">Choose Your Program</p>
+
+    <!-- CORE PROGRAMS -->
+    <div class="section-label">⚡ Core Programs</div>
+    <div class="cards">
+        <a href="531.html" class="card card-531">
+            <div class="card-icon">🏋️</div>
+            <h2>5/3/1 PROGRAM</h2>
+            <p>Wendler's proven strength program. Build your cycle based on your maxes.</p>
+        </a>
+        <a href="oldman.html" class="card card-oms">
+            <div class="card-icon">💪</div>
+            <h2>OLD MAN STRENGTH</h2>
+            <p>Age-adapted DB &amp; Band workouts. Smart progression based on your numbers.</p>
+        </a>
+        <a href="stronglifts.html" class="card card-sl">
+            <div class="card-badge">Beginner Friendly</div>
+            <div class="card-icon">🔩</div>
+            <h2>STRONGLIFTS 5×5</h2>
+            <p>Two alternating workouts. Add weight every session. Simple, brutal, effective.</p>
+        </a>
+        <a href="juggernaut.html" class="card card-jug">
+            <div class="card-badge">Intermediate</div>
+            <div class="card-icon">🌊</div>
+            <h2>JUGGERNAUT METHOD</h2>
+            <p>Wave-based auto-regulation built for powerlifters who also want size.</p>
+        </a>
+        <a href="westside.html" class="card card-west">
+            <div class="card-badge">Advanced</div>
+            <div class="card-icon">⚡</div>
+            <h2>WESTSIDE CONJUGATE</h2>
+            <p>Max Effort &amp; Dynamic Effort. The Louie Simmons system for elite strength.</p>
+        </a>
+    </div>
+
+    <!-- STRONGMAN -->
+    <div class="section-label">🪨 Strongman</div>
+    <div class="cards">
+        <a href="strongman531.html" class="card card-sm531">
+            <div class="card-badge">Strength + Events</div>
+            <div class="card-icon">🏔️</div>
+            <h2>5/3/1 FOR STRONGMAN</h2>
+            <p>Wendler's framework adapted with event-specific training. Compete &amp; conquer.</p>
+        </a>
+        <a href="cube.html" class="card card-cube">
+            <div class="card-badge">Competition Prep</div>
+            <div class="card-icon">🧊</div>
+            <h2>CUBE METHOD</h2>
+            <p>Rotate heavy, explosive, and rep days around the big three. Peak for the platform.</p>
+        </a>
+        <a href="strongmanevents.html" class="card card-events">
+            <div class="card-badge">Custom Events</div>
+            <div class="card-icon">🪝</div>
+            <h2>STRONGMAN EVENT BUILDER</h2>
+            <p>Pick your events, set your timeline &amp; weights. Your comp prep, your way.</p>
+        </a>
+    </div>
+
+    <!-- BODYBUILDING -->
+    <div class="section-label">💎 Bodybuilding</div>
+    <div class="cards">
+        <a href="arnoldsplit.html" class="card card-arnold">
+            <div class="card-badge">Hypertrophy</div>
+            <div class="card-icon">🦁</div>
+            <h2>ARNOLD SPLIT</h2>
+            <p>6-day chest/back, shoulders/arms, legs rotation straight from the Oak's playbook.</p>
+        </a>
+        <a href="brosplit.html" class="card card-bro">
+            <div class="card-badge">Classic</div>
+            <div class="card-icon">🪞</div>
+            <h2>BRO SPLIT</h2>
+            <p>One muscle group, maximum damage, every day. Old school works — end of discussion.</p>
+        </a>
+    </div>
+
+    <!-- COACH TOOLS -->
+    <div class="section-label">🛠️ Coach Tools</div>
+    <div class="cards">
+        <a href="coachimport.html" class="card card-coach">
+            <div class="card-badge">AI Powered</div>
+            <div class="card-icon">📋</div>
+            <h2>COACH IMPORT TOOL</h2>
+            <p>Drop in your Word or Excel program. AI converts it instantly — share with any client.</p>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
