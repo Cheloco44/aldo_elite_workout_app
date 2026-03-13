@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5/3/1 FOR STRONGMAN</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a0a2e, #16213e, #0f1a3a);
+    color: #fff;
+    min-height: 100vh;
+}
+body::before {
+    content: "";
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: url('gorillavsbull.png') no-repeat center center;
+    background-size: contain; opacity: 0.07; pointer-events: none; z-index: 0;
+}
+.header {
+    background: linear-gradient(135deg, #6a3093, #a044ff);
+    padding: 25px 20px; text-align: center;
+    box-shadow: 0 6px 20px rgba(106,48,147,0.5);
+    border-bottom: 4px solid rgba(255,255,255,0.15);
+    position: relative; z-index: 1;
+}
+.header-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; }
+.header img.logo { height: 70px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.header-text { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+.back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #fff; text-decoration: none; font-size: 1.4rem; opacity: 0.8; }
+.back-link:hover { opacity: 1; }
+
+.setup-panel {
+    max-width: 580px; margin: 30px auto; padding: 30px;
+    background: rgba(255,255,255,0.07); border-radius: 15px;
+    backdrop-filter: blur(6px); position: relative; z-index: 1;
+    border: 1px solid rgba(160,68,255,0.2);
+}
+.program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #ce93d8; }
+.program-summary p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 12px; }
+.program-summary ul { list-style: none; padding: 0; }
+.program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.88; }
+.program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #ce93d8; font-size: 1rem; }
+.summary-divider { border: none; border-top: 1px solid rgba(160,68,255,0.2); margin: 22px 0; }
+
+.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #ce93d8; font-size: 1.2rem; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
+.form-row label { font-weight: 600; min-width: 170px; }
+.form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
+.jump-selector { margin: 18px 0 6px; }
+.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #ce93d8; }
+.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.jump-btn { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; border: 2px solid rgba(160,68,255,0.2); background: rgba(160,68,255,0.06); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.3; }
+.jump-btn:hover { border-color: rgba(206,147,216,0.5); background: rgba(206,147,216,0.1); }
+.jump-btn.jump-active { background: linear-gradient(135deg, #6a3093, #a044ff); border-color: #ce93d8; box-shadow: 0 0 12px rgba(206,147,216,0.3); }
+.jump-btn .jump-pct { font-size: 1.1rem; display: block; }
+.jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
+.check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+.check-row input[type="checkbox"] { width: 20px; height: 20px; }
+
+.btn {
+    display: block; width: 100%; padding: 14px; margin-top: 22px;
+    background: linear-gradient(135deg, #6a3093, #a044ff);
+    color: #fff; border: none; border-radius: 10px; font-size: 17px; font-weight: bold;
+    cursor: pointer; letter-spacing: 1px; transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(160,68,255,0.45); }
+.btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; }
+
+.controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
+.controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
+.controls label { font-weight: 700; margin-left: 10px; }
+
+.day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 18px;
+    width: 92%;
+    max-width: 1050px;
+    margin: 20px auto 50px;
+    position: relative; z-index: 1;
+    display: none;
+}
+
+.day-card { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; border: 1px solid rgba(160,68,255,0.15); }
+.day-card-header { padding: 14px 18px; font-weight: 800; font-size: 1rem; letter-spacing: 1px; background: linear-gradient(135deg, rgba(106,48,147,0.6), rgba(160,68,255,0.3)); border-bottom: 2px solid rgba(160,68,255,0.4); }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 10px 14px; text-align: left; font-size: 0.85rem; opacity: 0.65; }
+td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.91rem; }
+tr:last-child td { border-bottom: none; }
+.t-main { color: #ce93d8; font-weight: 700; }
+.t-event { color: #80cbc4; font-weight: 700; }
+.t-acc { color: #aaa; }
+
+@media (max-width:600px) {
+    .header-text { font-size: 1.3rem; }
+    .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
+    .form-row { flex-direction: column; align-items: flex-start; }
+    .form-row input, .form-row select { width: 100%; }
+    .day-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+    <a href="index.html" class="back-link">&larr; Home</a>
+    <div class="header-inner">
+        <img src="gorillavsbull.png" alt="Logo" class="logo">
+        <div class="header-text">5/3/1 FOR STRONGMAN</div>
+    </div>
+</div>
+
+<div class="setup-panel" id="setupPanel">
+    <div class="program-summary">
+        <h2>5/3/1 FOR THE PLATFORM</h2>
+        <p>Wendler's wave-based strength foundation <strong>built for strongman competitors</strong>. Get brutally strong on the base lifts, then take that strength straight into your events.</p>
+        <ul>
+            <li><strong>4 training days:</strong> Log/OHP, Deadlift, Bench, Squat</li>
+            <li>Standard 5/3/1 waves on the base lifts with event-specific work added</li>
+            <li><strong>Event day:</strong> Dedicated event training 1–2x per week (use the Event Builder)</li>
+            <li>Accessory work targets strongman-specific weaknesses: grip, posterior chain, overhead</li>
+            <li>Built for athletes who train <strong>to win competitions</strong>, not just move numbers</li>
+        </ul>
+    </div>
+    <hr class="summary-divider">
+    <h2 class="form-title">ENTER YOUR MAXES</h2>
+    <div class="form-row"><label>Log / OHP 1RM (lbs)</label><input type="number" id="log1rm" value="185" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" value="500" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" value="315" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" value="405" min="45"></div>
+    <div class="check-row"><input type="checkbox" id="useTM" checked><label for="useTM">Use 90% Training Max</label></div>
+    <div class="form-row"><label>Number of Waves</label>
+        <select id="numWaves">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+        </select>
+    </div>
+    <div class="jump-selector">
+        <label class="jump-label">&#9889; TRAINING MAX INCREASE PER WAVE &mdash; How hungry are you?</label>
+        <div class="jump-options">
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
+            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
+        </div>
+    </div>
+    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+</div>
+
+<div class="controls" id="controls">
+    <label>Wave</label><select id="waveSel" onchange="renderDays()"></select>
+    <label>Week</label>
+    <select id="weekSel" onchange="renderDays()">
+        <option value="5s">5s Week</option>
+        <option value="3s">3s Week</option>
+        <option value="531">5/3/1 Week</option>
+        <option value="Deload">Deload</option>
+    </select>
+    <br><br>
+    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+</div>
+
+<div class="day-grid" id="dayGrid"></div>
+
+<script>
+var percentSchemes = {
+    "5s":     [[0.65,"5"],[0.75,"5"],[0.85,"5+"]],
+    "3s":     [[0.70,"3"],[0.80,"3"],[0.90,"3+"]],
+    "531":    [[0.75,"5"],[0.85,"3"],[0.95,"1+"]],
+    "Deload": [[0.40,"5"],[0.50,"5"],[0.60,"5"]]
+};
+
+var days = [
+    {
+        label: "Day 1 — LOG / OHP",
+        lift: "Log Press",
+        key: "log",
+        eventWork: [
+            ["Log Press technique","5 × 3","Light — continental practice"],
+            ["Axle Clean & Press","3 × 5","Event variation"],
+            ["Band Pull-Apart","3 × 20","Shoulder health"]
+        ],
+        accs: [
+            ["Face Pull","3 × 20","Rotator cuff & rear delts"],
+            ["Skull Crusher","3 × 12","Tricep lockout"],
+            ["Dumbbell Lateral Raise","4 × 15","Shoulder stability"]
+        ]
+    },
+    {
+        label: "Day 2 — DEADLIFT",
+        lift: "Deadlift",
+        key: "dead",
+        eventWork: [
+            ["Car Deadlift Sim (rack pull)","3 × 5","Harness height practice"],
+            ["Farmer's Walk","3 × 50ft","Grip & posterior chain"],
+            ["Suitcase Carry","3 × 30ft","Lateral core"]
+        ],
+        accs: [
+            ["GHR or Ham Curl","3 × 12","Hamstring health"],
+            ["Barbell Row","4 × 8","Upper back strength"],
+            ["Reverse Hyper","3 × 15","Low back recovery"]
+        ]
+    },
+    {
+        label: "Day 3 — BENCH",
+        lift: "Bench",
+        key: "bench",
+        eventWork: [
+            ["Circus Dumbbell","4 × 3/arm","Competition simulation"],
+            ["Dumbbell Press","3 × 10–12","Volume"],
+            ["Close Grip Bench","3 × 8","Tricep lockout"]
+        ],
+        accs: [
+            ["Dips","3 × 12","Chest & triceps"],
+            ["Cable Fly","3 × 15","Chest pump"],
+            ["EZ Bar Curl","3 × 12","Elbow health"]
+        ]
+    },
+    {
+        label: "Day 4 — SQUAT",
+        lift: "Squat",
+        key: "squat",
+        eventWork: [
+            ["Yoke Walk","3 × 50ft","Main event carry"],
+            ["Atlas Stone Simulator (sandbag)","4 × 3","Loading practice"],
+            ["Box Squat","3 × 5","Posterior chain emphasis"]
+        ],
+        accs: [
+            ["Leg Press","3 × 15","Quad volume"],
+            ["Leg Curl","3 × 12","Hamstring balance"],
+            ["Ab Wheel","3 × 10","Core strength"]
+        ]
+    }
+];
+
+var tms = {};
+var baseTms = {};
+var weeklyJump = 0.10;
+
+function selectJump(btn){
+    document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
+    btn.classList.add('jump-active');
+    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+}
+
+function round5(v){ return Math.max(45,Math.round(v/5)*5); }
+
+function generateProgram(){
+    var useTM = document.getElementById("useTM").checked;
+    var raw = {
+        log:   parseInt(document.getElementById("log1rm").value)||185,
+        dead:  parseInt(document.getElementById("dead1rm").value)||500,
+        bench: parseInt(document.getElementById("bench1rm").value)||315,
+        squat: parseInt(document.getElementById("squat1rm").value)||405
+    };
+    for(var k in raw) baseTms[k] = useTM ? Math.round(raw[k]*0.9) : raw[k];
+    tms = Object.assign({}, baseTms);
+
+    var nw = parseInt(document.getElementById("numWaves").value)||3;
+    var ws = document.getElementById("waveSel");
+    ws.innerHTML = "";
+    for(var i=1;i<=nw;i++) ws.innerHTML += '<option value="'+i+'">Wave '+i+'</option>';
+
+    document.getElementById("setupPanel").style.display = "none";
+    document.getElementById("controls").style.display   = "block";
+    document.getElementById("dayGrid").style.display    = "grid";
+    renderDays();
+}
+
+function renderDays(){
+    var wave = parseInt(document.getElementById("waveSel").value)||1;
+    var wk = document.getElementById("weekSel").value;
+    var grid = document.getElementById("dayGrid");
+    grid.innerHTML = "";
+
+    days.forEach(function(d){
+        // Scale TM based on current wave and user jump selection
+        var tm = Math.round(baseTms[d.key] * Math.pow(1 + weeklyJump, wave - 1));
+        var card = document.createElement("div");
+        card.className = "day-card";
+        var html = '<div class="day-card-header">'+d.label+'</div>';
+        html += '<table><thead><tr><th>Type</th><th>Exercise</th><th>Scheme</th><th>Weight</th></tr></thead><tbody>';
+
+        // Main lift sets
+        percentSchemes[wk].forEach(function(p){
+            html += '<tr><td class="t-main">Main Lift</td><td>'+d.lift+'</td><td>'+Math.round(p[0]*100)+'% × '+p[1]+'</td><td>'+round5(tm*p[0])+' lbs</td></tr>';
+        });
+
+        // Event work
+        d.eventWork.forEach(function(ev){
+            html += '<tr><td class="t-event">Event Work</td><td>'+ev[0]+'</td><td>'+ev[1]+'</td><td style="opacity:0.65;font-size:0.85rem">'+ev[2]+'</td></tr>';
+        });
+
+        // Accessories
+        d.accs.forEach(function(acc){
+            html += '<tr><td class="t-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td style="opacity:0.55;font-size:0.83rem">'+acc[2]+'</td></tr>';
+        });
+
+        html += '</tbody></table>';
+        card.innerHTML = html;
+        grid.appendChild(card);
+    });
+}
+
+function resetSetup(){
+    document.getElementById("setupPanel").style.display = "block";
+    document.getElementById("controls").style.display   = "none";
+    document.getElementById("dayGrid").style.display    = "none";
+}
+</script>
+</body>
+</html>

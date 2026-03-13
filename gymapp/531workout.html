@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALDO ELITE 5/3/1 BUILDER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: #fff;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('gorillavsbull.png') no-repeat center center;
+    background-size: contain;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    padding: 25px 20px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    border-bottom: 4px solid #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header img.logo {
+    height: 75px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.header-text {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+}
+
+.back-link {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.4rem;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.back-link:hover { opacity: 1; }
+
+/* ===== SETUP FORM ===== */
+.setup-panel {
+    max-width: 550px;
+    margin: 30px auto;
+    padding: 30px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 15px;
+    backdrop-filter: blur(6px);
+    position: relative;
+    z-index: 1;
+}
+
+.setup-panel h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff8c42;
+    font-size: 1.3rem;
+}
+
+.program-summary {
+    margin-bottom: 20px;
+}
+
+.program-summary h2 {
+    text-align: center;
+    margin-bottom: 14px;
+    font-size: 1.4rem;
+}
+
+.program-summary p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    opacity: 0.92;
+    margin-bottom: 12px;
+}
+
+.program-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.program-summary ul li {
+    position: relative;
+    padding-left: 22px;
+    margin: 8px 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.88;
+}
+
+.program-summary ul li::before {
+    content: "\25B8";
+    position: absolute;
+    left: 0;
+    color: #ff8c42;
+    font-size: 1rem;
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 22px 0;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 14px 0;
+    gap: 10px;
+}
+
+.form-row label {
+    font-weight: 600;
+    min-width: 170px;
+}
+
+.form-row input[type="number"],
+.form-row select {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    width: 110px;
+    text-align: center;
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.check-row input[type="checkbox"] { width: 20px; height: 20px; }
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(255,81,47,0.4);
+}
+
+.btn-sm {
+    width: auto;
+    display: inline-block;
+    padding: 10px 22px;
+    font-size: 14px;
+    margin-top: 0;
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+    text-align: center;
+    margin: 25px auto;
+    position: relative;
+    z-index: 1;
+    display: none;
+}
+
+.controls select {
+    padding: 10px 14px;
+    margin: 6px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.controls label {
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+/* ===== WORKOUT TABLE ===== */
+.table-wrap {
+    width: 92%;
+    max-width: 900px;
+    margin: 20px auto;
+    position: relative;
+    z-index: 1;
+    display: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th {
+    background: #ff512f;
+    padding: 13px 14px;
+    text-align: left;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+tr:hover { background: rgba(255,255,255,0.08); }
+
+.type-main { color: #ff8c42; font-weight: 700; }
+.type-alt  { color: #ffa07a; font-weight: 600; }
+.type-acc  { color: #ccc; }
+
+/* ===== CHART ===== */
+.chart-wrap {
+    width: 92%;
+    max-width: 900px;
+    margin: 30px auto 50px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(6px);
+    position: relative;
+    z-index: 1;
+    display: none;
+}
+
+.chart-toggle {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.chart-toggle button {
+    padding: 8px 18px;
+    margin: 0 5px;
+    border: 2px solid #ff8c42;
+    background: transparent;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.chart-toggle button:hover {
+    background: rgba(255,140,66,0.2);
+}
+
+.chart-toggle button.active {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    border-color: transparent;
+}
+
+@media (max-width: 600px) {
+    .header-text { font-size: 1.3rem; }
+    .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
+    .form-row { flex-direction: column; align-items: flex-start; }
+    .form-row input[type="number"], .form-row select { width: 100%; }
+}
+
+/* ===== WEIGHT JUMP SELECTOR ===== */
+.jump-selector { margin: 18px 0 6px; }
+.jump-selector label.jump-label {
+    display: block; font-weight: 700; font-size: 0.95rem;
+    margin-bottom: 10px; color: #ff8c42;
+}
+.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.jump-btn {
+    flex: 1; min-width: 90px; padding: 11px 8px; border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+    color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; text-align: center; line-height: 1.4;
+}
+.jump-btn:hover { border-color: rgba(255,140,66,0.55); background: rgba(255,140,66,0.12); }
+.jump-btn.jump-active {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    border-color: #ff8c42;
+    box-shadow: 0 0 14px rgba(255,81,47,0.4);
+}
+.jump-btn .jump-pct { font-size: 1.15rem; display: block; }
+.jump-btn .jump-tag { font-size: 0.68rem; opacity: 0.78; font-weight: 600; letter-spacing: 0.3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <a href="index.html" class="back-link">&larr; Home</a>
+    <div class="header-inner">
+        <img src="gorillavsbull.png" alt="Logo" class="logo">
+        <div class="header-text">ALDO ELITE 5/3/1 BUILDER</div>
+    </div>
+</div>
+
+<!-- SETUP FORM -->
+<div class="setup-panel" id="setupPanel">
+    <div class="program-summary">
+        <h2>THE 5/3/1 PROGRAM</h2>
+        <p>Built for <strong>novice to advanced lifters</strong> who want to get strong as hell &mdash; whether you compete or just want to move serious weight on a schedule.</p>
+        <ul>
+            <li>Each session is designed to take <strong>~1 hour</strong> in the gym</li>
+            <li>One <strong>wave = 4-week block</strong> (5s, 3s, 5/3/1, Deload)</li>
+            <li><strong>12 weeks (3 waves)</strong> recommended to reach peak strength</li>
+            <li>Weights shown are a <strong>minimum standard</strong> &mdash; if you've got more in the tank, thoughtfully increase the load</li>
+        </ul>
+    </div>
+    <hr class="summary-divider">
+    <h2>ENTER YOUR MAXES</h2>
+
+    <div class="form-row">
+        <label>Squat 1RM (lbs)</label>
+        <input type="number" id="squat1rm" value="315" min="45">
+    </div>
+    <div class="form-row">
+        <label>Deadlift 1RM (lbs)</label>
+        <input type="number" id="deadlift1rm" value="405" min="45">
+    </div>
+    <div class="form-row">
+        <label>Bench 1RM (lbs)</label>
+        <input type="number" id="bench1rm" value="225" min="45">
+    </div>
+    <div class="form-row">
+        <label>OHP 1RM (lbs)</label>
+        <input type="number" id="ohp1rm" value="135" min="45">
+    </div>
+
+    <div class="check-row">
+        <input type="checkbox" id="useTM" checked>
+        <label for="useTM">Use 90% Training Max</label>
+    </div>
+
+    <div class="form-row">
+        <label>Number of Waves</label>
+        <select id="numWaves">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+
+    <div class="check-row">
+        <input type="checkbox" id="increaseTM" checked>
+        <label for="increaseTM">Increase TM Each Wave</label>
+    </div>
+
+    <div class="jump-selector">
+        <label class="jump-label">&#9889; TM INCREASE PER WAVE &mdash; How hungry are you?</label>
+        <div class="jump-options">
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)">
+                <span class="jump-pct">5%</span>
+                <span class="jump-tag">Steady Grind</span>
+            </button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)">
+                <span class="jump-pct">10%</span>
+                <span class="jump-tag">Standard Push</span>
+            </button>
+            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)">
+                <span class="jump-pct">15%</span>
+                <span class="jump-tag">Aggressive</span>
+            </button>
+            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)">
+                <span class="jump-pct">20%</span>
+                <span class="jump-tag">ARE YOU INSANE?! &#128293;</span>
+            </button>
+        </div>
+    </div>
+
+    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls" id="controls">
+    <label>Wave</label>
+    <select id="wave" onchange="loadWorkout()"></select>
+
+    <label>Week</label>
+    <select id="week" onchange="loadWorkout()">
+        <option value="5s">5s Week</option>
+        <option value="3s">3s Week</option>
+        <option value="531">5/3/1 Week</option>
+        <option value="Deload">Deload</option>
+    </select>
+
+    <label>Day</label>
+    <select id="day" onchange="loadWorkout()">
+        <option value="1">Day 1 &ndash; OHP</option>
+        <option value="2">Day 2 &ndash; Deadlift</option>
+        <option value="3">Day 3 &ndash; Bench</option>
+        <option value="4">Day 4 &ndash; Squat</option>
+    </select>
+
+    <br><br>
+    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+</div>
+
+<!-- WORKOUT TABLE -->
+<div class="table-wrap" id="tableWrap">
+    <table id="workoutTable">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Exercise</th>
+                <th>Scheme</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- CHART -->
+<div class="chart-wrap" id="chartWrap">
+    <div class="chart-toggle">
+        <button class="active" id="btnVolume" onclick="setChartMode('volume')">Weekly Volume</button>
+        <button id="btnTopset" onclick="setChartMode('topset')">Top Set Weight</button>
+    </div>
+    <canvas id="progressChart"></canvas>
+</div>
+
+<script>
+// ===== 531 LOGIC (ported from 531workout.py) =====
+
+var percentSchemes = {
+    "5s":     [[0.65,"5"],[0.75,"5"],[0.85,"5+"]],
+    "3s":     [[0.70,"3"],[0.80,"3"],[0.90,"3+"]],
+    "531":    [[0.75,"5"],[0.85,"3"],[0.95,"1+"]],
+    "Deload": [[0.40,"5"],[0.50,"5"],[0.60,"5"]]
+};
+
+var altProg = {"5s":0.50,"3s":0.55,"531":0.60,"Deload":0.40};
+
+var altLifts = {
+    "Squat":    ["Front Squat","Hack Squat","Pause Squat","Box Squat"],
+    "Deadlift": ["Deficit Deadlift","Sumo Deadlift","Rack Pull","Paused Deadlift"],
+    "Bench":    ["Close Grip Bench","Incline Bench","Spoto Press","Larsen Press"],
+    "OHP":      ["Military Press","Push Press","Z Press","Seated Barbell Press"]
+};
+
+var accessories = {
+    "OHP":      ["IYTs","Lateral Raises","Rear Delt Fly","Tricep Pushdowns","Skull Crushers","DB Curls"],
+    "Bench":    ["Cable Fly","Dips","Overhead Tricep Extension","JM Press"],
+    "Deadlift": ["Lat Pulldown","Barbell Row","Back Extension","Chest Supported Row"],
+    "Squat":    ["Leg Extension","Hamstring Curl","Walking Lunges","Bulgarian Split Squat"]
+};
+
+var split = ["OHP","Deadlift","Bench","Squat"];
+var weekOrder = ["5s","3s","531","Deload"];
+
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function sample(a,n){ var s=[].concat(a); for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;} return s.slice(0,n); }
+
+var program = [];
+var chart = null;
+var weeklyJump = 0.10;
+var baseTM = {};
+
+function selectJump(btn){
+    document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
+    btn.classList.add('jump-active');
+    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+}
+
+function generateProgram(){
+    var gm = {
+        Squat:    parseInt(document.getElementById("squat1rm").value)||315,
+        Deadlift: parseInt(document.getElementById("deadlift1rm").value)||405,
+        Bench:    parseInt(document.getElementById("bench1rm").value)||225,
+        OHP:      parseInt(document.getElementById("ohp1rm").value)||135
+    };
+    var useTM = document.getElementById("useTM").checked;
+    var nw    = parseInt(document.getElementById("numWaves").value);
+    var incTM = document.getElementById("increaseTM").checked;
+
+    var tm = {};
+    for(var k in gm) tm[k] = useTM ? Math.round(gm[k]*0.9) : gm[k];
+    // Store base TMs so % jump is always relative to starting point
+    baseTM = {};
+    for(var k in tm) baseTM[k] = tm[k];
+
+    program = [];
+
+    for(var w=1; w<=nw; w++){
+        for(var wi=0; wi<weekOrder.length; wi++){
+            var wk = weekOrder[wi];
+            for(var di=0; di<split.length; di++){
+                var lift = split[di];
+                var d = di+1;
+                var curTM = tm[lift];
+
+                // Main lift sets
+                for(var si=0; si<percentSchemes[wk].length; si++){
+                    var pct = percentSchemes[wk][si][0];
+                    var reps = percentSchemes[wk][si][1];
+                    program.push({
+                        Wave:w, Week:wk, Day:d,
+                        Type:"Main Lift", Exercise:lift,
+                        Scheme:Math.round(pct*100)+"% x "+reps,
+                        Weight:Math.round(curTM*pct)
+                    });
+                }
+
+                // Alt lift
+                program.push({
+                    Wave:w, Week:wk, Day:d,
+                    Type:"Alt Lift", Exercise:pick(altLifts[lift]),
+                    Scheme:"3 x 5\u201310",
+                    Weight:Math.round(curTM*altProg[wk])
+                });
+
+                // 2 accessories
+                var accs = sample(accessories[lift],2);
+                for(var ai=0; ai<accs.length; ai++){
+                    program.push({
+                        Wave:w, Week:wk, Day:d,
+                        Type:"Accessory", Exercise:accs[ai],
+                        Scheme:"3 x 8\u201315",
+                        Weight:"Moderate"
+                    });
+                }
+            }
+        }
+
+        if(incTM){
+            // Increase each lift's TM by the user-selected % of its BASE training max
+            tm.Squat    = Math.round(baseTM.Squat    * Math.pow(1 + weeklyJump, w));
+            tm.Deadlift = Math.round(baseTM.Deadlift * Math.pow(1 + weeklyJump, w));
+            tm.Bench    = Math.round(baseTM.Bench    * Math.pow(1 + weeklyJump, w));
+            tm.OHP      = Math.round(baseTM.OHP      * Math.pow(1 + weeklyJump, w));
+        }
+    }
+
+    // populate wave selector
+    var ws = document.getElementById("wave");
+    ws.innerHTML = "";
+    for(var i=1;i<=nw;i++) ws.innerHTML += '<option value="'+i+'">Wave '+i+'</option>';
+
+    // show workout view
+    document.getElementById("setupPanel").style.display = "none";
+    document.getElementById("controls").style.display   = "block";
+    document.getElementById("tableWrap").style.display   = "block";
+    document.getElementById("chartWrap").style.display   = "block";
+    loadWorkout();
+}
+
+function loadWorkout(){
+    var w  = document.getElementById("wave").value;
+    var wk = document.getElementById("week").value;
+    var d  = document.getElementById("day").value;
+    var tb = document.querySelector("#workoutTable tbody");
+    tb.innerHTML = "";
+
+    var rows = program.filter(function(r){
+        return r.Wave==w && r.Week==wk && r.Day==d;
+    });
+
+    rows.forEach(function(r){
+        var tr = document.createElement("tr");
+        var cls = r.Type==="Main Lift"?"type-main":r.Type==="Alt Lift"?"type-alt":"type-acc";
+        var wt  = typeof r.Weight==="number" ? r.Weight+" lbs" : r.Weight;
+        tr.innerHTML = '<td class="'+cls+'">'+r.Type+'</td><td>'+r.Exercise+'</td><td>'+r.Scheme+'</td><td>'+wt+'</td>';
+        tb.appendChild(tr);
+    });
+
+    updateChart();
+}
+
+var chartMode = "volume";
+
+function setChartMode(mode){
+    chartMode = mode;
+    document.getElementById("btnVolume").classList.toggle("active", mode==="volume");
+    document.getElementById("btnTopset").classList.toggle("active", mode==="topset");
+    updateChart();
+}
+
+function updateChart(){
+    var lifts = ["Squat","Deadlift","Bench","OHP"];
+    var colors = {"Squat":"#ff512f","Deadlift":"#dd2476","Bench":"#ff8c42","OHP":"#ffa07a"};
+
+    // Build ordered list of unique wave-week combos
+    var labels = [];
+    var seen = {};
+    program.forEach(function(r){
+        var key = r.Wave+"-"+r.Week;
+        if(!seen[key]){ seen[key]=true; labels.push({wave:r.Wave,week:r.Week}); }
+    });
+
+    // Current selection for highlighting
+    var curWave = document.getElementById("wave").value;
+    var curWeek = document.getElementById("week").value;
+
+    var datasets = lifts.map(function(lift){
+        var data = labels.map(function(l){
+            var rows = program.filter(function(r){
+                return r.Wave==l.wave && r.Week==l.week && r.Exercise===lift && r.Type==="Main Lift";
+            });
+            if(chartMode==="volume"){
+                var vol = 0;
+                rows.forEach(function(r){
+                    var repStr = r.Scheme.split("x")[1].trim().replace("+","");
+                    var reps = parseInt(repStr)||0;
+                    vol += r.Weight * reps;
+                });
+                return vol;
+            } else {
+                return rows.length ? rows[rows.length-1].Weight : 0;
+            }
+        });
+
+        // Highlight current week with bigger points
+        var radii = labels.map(function(l){
+            return (l.wave==curWave && l.week==curWeek) ? 9 : 4;
+        });
+
+        return {
+            label: lift,
+            data: data,
+            borderColor: colors[lift],
+            backgroundColor: colors[lift]+"33",
+            tension: 0.3,
+            pointRadius: radii,
+            pointHoverRadius: radii.map(function(r){ return r+3; }),
+            fill: false,
+            borderWidth: 2.5
+        };
+    });
+
+    // Format x-axis labels
+    var weekLabels = {"5s":"5s","3s":"3s","531":"5/3/1","Deload":"Deload"};
+    var xLabels = labels.map(function(l){ return "W"+l.wave+": "+weekLabels[l.week]; });
+
+    var ctx = document.getElementById("progressChart").getContext("2d");
+    if(chart) chart.destroy();
+    chart = new Chart(ctx,{
+        type:"line",
+        data:{ labels:xLabels, datasets:datasets },
+        options:{
+            responsive:true,
+            interaction:{ mode:"index", intersect:false },
+            plugins:{
+                legend:{ labels:{ color:"#fff", font:{ size:13 } } },
+                title:{
+                    display:true,
+                    text: chartMode==="volume"
+                        ? "Weekly Volume Progression (Weight \u00d7 Reps)"
+                        : "Top Set Weight Progression Across Waves",
+                    color:"#ff8c42",
+                    font:{ size:16 }
+                },
+                tooltip:{
+                    callbacks:{
+                        label: function(ctx){
+                            var val = ctx.parsed.y;
+                            if(chartMode==="volume"){
+                                return ctx.dataset.label+": "+val.toLocaleString()+" lbs total vol";
+                            }
+                            return ctx.dataset.label+": "+val+" lbs";
+                        }
+                    }
+                }
+            },
+            scales:{
+                y:{ beginAtZero:false, ticks:{color:"#ccc"}, grid:{color:"rgba(255,255,255,0.1)"},
+                    title:{ display:true, text: chartMode==="volume" ? "Volume (lbs \u00d7 reps)" : "Weight (lbs)", color:"#ccc" }
+                },
+                x:{ ticks:{color:"#ccc"}, grid:{color:"rgba(255,255,255,0.1)"},
+                    title:{ display:true, text:"Program Week", color:"#ccc" }
+                }
+            }
+        }
+    });
+}
+
+function resetSetup(){
+    document.getElementById("setupPanel").style.display = "block";
+    document.getElementById("controls").style.display   = "none";
+    document.getElementById("tableWrap").style.display   = "none";
+    document.getElementById("chartWrap").style.display   = "none";
+}
+</script>
+</body>
+</html>
