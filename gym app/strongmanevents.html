@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRONGMAN EVENT BUILDER</title>
+<style>
+* { box-sizing: border-box; }
+body { margin:0; font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(135deg,#0a1a0e,#0d2b1a,#0a1a0e); color:#fff; min-height:100vh; }
+body::before { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background:url('gorillavsbull.png') no-repeat center center; background-size:contain; opacity:0.07; pointer-events:none; z-index:0; }
+.header { background:linear-gradient(135deg,#134e5e,#71b280); padding:25px 20px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.5); border-bottom:4px solid rgba(255,255,255,0.2); position:relative; z-index:1; }
+.header-inner { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:15px; }
+.header img.logo { height:70px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+.header-text { font-size:1.8rem; font-weight:900; letter-spacing:2px; text-shadow:2px 2px 8px rgba(0,0,0,0.6); }
+.back-link { position:absolute; left:20px; top:50%; transform:translateY(-50%); color:#fff; text-decoration:none; font-size:1.4rem; opacity:0.8; }
+.back-link:hover { opacity:1; }
+
+.setup-panel { max-width:950px; margin:28px auto; padding:28px 30px; background:rgba(255,255,255,0.07); border-radius:15px; backdrop-filter:blur(6px); position:relative; z-index:1; border:1px solid rgba(113,178,128,0.2); }
+.setup-panel > h2 { text-align:center; margin:0 0 8px; font-size:1.35rem; color:#71b280; }
+.intro { font-size:0.9rem; line-height:1.6; opacity:0.8; margin-bottom:22px; text-align:center; }
+.divider { border:none; border-top:1px solid rgba(113,178,128,0.18); margin:20px 0; }
+.section-heading { font-size:1rem; color:#71b280; margin:0 0 13px; font-weight:800; }
+
+/* CATEGORY */
+.cat-section { margin-bottom:20px; }
+.cat-badge { font-size:0.7rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:3px 10px; border-radius:20px; display:inline-block; margin-bottom:10px; }
+.c-strength { background:rgba(255,81,47,0.22);  color:#ff8c42; border:1px solid rgba(255,140,66,0.3); }
+.c-loading  { background:rgba(251,191,36,0.18); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); }
+.c-carry    { background:rgba(59,130,246,0.18); color:#93c5fd; border:1px solid rgba(147,197,253,0.3); }
+.c-grip     { background:rgba(168,85,247,0.18); color:#d8b4fe; border:1px solid rgba(216,180,254,0.3); }
+.c-medley   { background:rgba(236,72,153,0.18); color:#f9a8d4; border:1px solid rgba(249,168,212,0.3); }
+.c-odd      { background:rgba(20,184,166,0.18); color:#5eead4; border:1px solid rgba(94,234,212,0.3); }
+.c-pulling  { background:rgba(239,68,68,0.18);  color:#fca5a5; border:1px solid rgba(252,165,165,0.3); }
+
+.events-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:8px; }
+.ev-card { padding:10px 12px; border-radius:9px; cursor:pointer; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); transition:all 0.18s; }
+.ev-card:hover { border-color:rgba(113,178,128,0.4); background:rgba(113,178,128,0.09); }
+.ev-card.selected { border-color:#71b280; background:rgba(113,178,128,0.18); }
+.ev-name { font-weight:700; font-size:0.85rem; margin-bottom:2px; line-height:1.3; }
+.ev-type { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:0.65; }
+
+/* CONFIG CARDS */
+.cfg-card { background:rgba(255,255,255,0.05); border-radius:11px; padding:15px 17px; margin:9px 0; border-left:3px solid #71b280; }
+.cfg-title { font-weight:800; font-size:0.97rem; color:#71b280; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.cfg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; align-items:end; }
+.cfg-field { display:flex; flex-direction:column; gap:4px; }
+.cfg-field label { font-size:0.75rem; opacity:0.6; font-weight:700; }
+.cfg-field input, .cfg-field select { padding:7px 10px; border-radius:7px; border:none; font-size:14px; color:#222; width:100%; }
+
+/* SERIES */
+.series-wrap { margin-top:13px; }
+.series-title { font-size:0.72rem; font-weight:800; opacity:0.5; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.t-badge { display:inline-flex;align-items:center;gap:4px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.22);border-radius:20px;padding:2px 9px;font-size:0.68rem;font-weight:700;color:#fbbf24; }
+.series-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.series-row:last-child { border-bottom:none; }
+.s-num { font-size:0.72rem; font-weight:800; opacity:0.45; min-width:18px; }
+.series-row input[type="text"]   { padding:6px 9px; border-radius:7px; border:none; font-size:13px; color:#222; width:120px; }
+.series-row input[type="number"] { padding:6px 8px; border-radius:7px; border:none; font-size:13px; color:#222; width:80px; }
+.series-row label { font-size:0.75rem; opacity:0.6; }
+.s-remove { background:rgba(239,68,68,0.15); border:none; color:#fca5a5; border-radius:5px; padding:4px 8px; font-size:0.72rem; cursor:pointer; }
+.add-btn { margin-top:8px; padding:6px 13px; border-radius:7px; background:rgba(113,178,128,0.18); border:1px solid rgba(113,178,128,0.28); color:#71b280; font-size:0.8rem; font-weight:700; cursor:pointer; }
+.add-btn:hover { background:rgba(113,178,128,0.3); }
+
+/* ===== INTENSITY SELECTOR ===== */
+.intensity-selector { margin:18px 0 6px; }
+.intensity-selector .int-label { display:block; font-weight:800; font-size:0.95rem; margin-bottom:10px; color:#71b280; }
+.int-options { display:flex; gap:8px; flex-wrap:wrap; }
+.int-btn {
+    flex:1; min-width:100px; padding:12px 8px; border-radius:10px;
+    border:2px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.07);
+    color:#fff; font-size:0.85rem; font-weight:700; cursor:pointer;
+    transition:all 0.2s; text-align:center; line-height:1.4;
+}
+.int-btn:hover { border-color:rgba(113,178,128,0.5); background:rgba(113,178,128,0.12); }
+.int-btn.int-active { background:linear-gradient(135deg,#134e5e,#71b280); border-color:#71b280; box-shadow:0 0 14px rgba(113,178,128,0.35); }
+.int-btn .int-pct  { font-size:1.2rem; display:block; }
+.int-btn .int-tag  { font-size:0.68rem; opacity:0.78; font-weight:600; letter-spacing:0.3px; }
+
+/* BOTTOM FORM */
+.form-row { display:flex; align-items:center; justify-content:space-between; margin:13px 0; gap:10px; }
+.form-row label { font-weight:600; min-width:155px; }
+.form-row select { padding:9px 13px; border-radius:8px; border:none; font-size:15px; width:155px; text-align:center; color:#222; }
+
+.btn { display:block; width:100%; padding:14px; margin-top:20px; background:linear-gradient(135deg,#134e5e,#71b280); color:#fff; border:none; border-radius:10px; font-size:17px; font-weight:bold; cursor:pointer; letter-spacing:1px; transition:transform 0.2s,box-shadow 0.2s; }
+.btn:hover { transform:scale(1.02); box-shadow:0 5px 20px rgba(113,178,128,0.35); }
+.btn-sm { width:auto; display:inline-block; padding:10px 22px; font-size:14px; margin-top:0; }
+
+/* CONTROLS */
+.controls { text-align:center; margin:18px auto; position:relative; z-index:1; display:none; }
+.controls select { padding:10px 13px; margin:5px; border-radius:10px; border:none; font-size:15px; font-weight:600; color:#222; }
+.controls label { font-weight:700; margin-left:8px; }
+
+/* OUTPUT */
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(305px,1fr)); gap:15px; padding:15px; max-width:1200px; margin:8px auto 50px; position:relative; z-index:1; }
+.out-card { background:linear-gradient(135deg,rgba(19,78,94,0.45),rgba(113,178,128,0.12)); border:1px solid rgba(113,178,128,0.2); border-radius:14px; padding:17px; transition:transform 0.2s,box-shadow 0.2s; }
+.out-card:hover { transform:translateY(-3px); box-shadow:0 8px 22px rgba(0,0,0,0.35); }
+.out-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:9px; gap:8px; }
+.out-header h4 { margin:0; font-size:1.02rem; color:#71b280; line-height:1.3; }
+.phase-pill { font-size:0.63rem; font-weight:800; padding:3px 9px; border-radius:20px; white-space:nowrap; letter-spacing:0.5px; flex-shrink:0; }
+.ph-build { background:rgba(59,130,246,0.22); color:#93c5fd; border:1px solid rgba(147,197,253,0.28); }
+.ph-peak  { background:rgba(251,191,36,0.22); color:#fbbf24; border:1px solid rgba(251,191,36,0.28); }
+.ph-comp  { background:rgba(255,81,47,0.28);  color:#ff8c42; border:1px solid rgba(255,140,66,0.35); }
+.d-row { font-size:0.85rem; margin:4px 0; display:flex; gap:6px; align-items:baseline; }
+.d-row b { color:rgba(255,255,255,0.6); min-width:105px; font-size:0.78rem; font-weight:700; }
+.time-strip { margin-top:9px; padding-top:9px; border-top:1px solid rgba(255,255,255,0.09); display:flex; gap:7px; flex-wrap:wrap; }
+.tc { display:inline-flex;align-items:center;gap:4px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.22);border-radius:20px;padding:3px 10px;font-size:0.76rem;font-weight:700;color:#fbbf24; }
+.tc-lbl { opacity:0.6; font-weight:600; margin-right:1px; }
+.series-out { margin-top:9px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:8px; }
+.series-out .so-hd { font-size:0.72rem; opacity:0.5; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.s-item { display:flex; justify-content:space-between; align-items:center; font-size:0.83rem; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.s-item:last-child { border-bottom:none; }
+.s-item .s-nm { opacity:0.8; }
+.s-item .s-wt { font-weight:700; color:#71b280; }
+.s-item .s-sp { font-size:0.74rem; color:#fbbf24; }
+.note-row { font-size:0.78rem; opacity:0.45; margin-top:7px; font-style:italic; }
+.cat-out-tag { display:inline-block; font-size:0.66rem; font-weight:800; padding:2px 8px; border-radius:10px; margin-top:7px; letter-spacing:0.5px; }
+.int-indicator { display:inline-flex; align-items:center; gap:4px; background:rgba(113,178,128,0.15); border:1px solid rgba(113,178,128,0.3); border-radius:20px; padding:2px 9px; font-size:0.7rem; font-weight:700; color:#71b280; margin-left:6px; }
+
+@media (max-width:640px) {
+    .header-text { font-size:1.3rem; }
+    .back-link { position:static; transform:none; display:block; margin-bottom:8px; }
+    .events-grid { grid-template-columns:1fr 1fr; }
+    .cfg-grid { grid-template-columns:1fr 1fr; }
+    .form-row { flex-direction:column; align-items:flex-start; }
+    .form-row select { width:100%; }
+    .card-grid { grid-template-columns:1fr; }
+    .int-btn { min-width:70px; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+    <a href="index.html" class="back-link">&larr; Home</a>
+    <div class="header-inner">
+        <img src="gorillavsbull.png" alt="Logo" class="logo">
+        <div class="header-text">STRONGMAN EVENT BUILDER</div>
+    </div>
+</div>
+
+<div class="setup-panel" id="setupPanel">
+    <h2>&#129693; BUILD YOUR COMP PREP</h2>
+    <p class="intro">Select your competition events. Set comp weights, time limits, and series loads. We build a progressive block right to the platform.</p>
+    <div id="catSections"></div>
+
+    <div class="divider"></div>
+    <h2 class="section-heading">&#9881;&#65039; CONFIGURE YOUR EVENTS</h2>
+    <div id="eventConfig"><p style="opacity:0.4;text-align:center;font-size:0.88rem;margin:0">Select events above to configure them</p></div>
+
+    <div class="divider"></div>
+
+    <!-- INTENSITY SELECTOR -->
+    <div class="intensity-selector">
+        <span class="int-label">&#128293; TRAINING INTENSITY &mdash; How hard are you training relative to comp weight?</span>
+        <div class="int-options">
+            <button type="button" class="int-btn" data-int="0.80" onclick="selectIntensity(this)">
+                <span class="int-pct">80%</span>
+                <span class="int-tag">Conservative</span>
+            </button>
+            <button type="button" class="int-btn int-active" data-int="0.90" onclick="selectIntensity(this)">
+                <span class="int-pct">90%</span>
+                <span class="int-tag">Standard &#10003;</span>
+            </button>
+            <button type="button" class="int-btn" data-int="1.00" onclick="selectIntensity(this)">
+                <span class="int-pct">100%</span>
+                <span class="int-tag">Comp Sim</span>
+            </button>
+            <button type="button" class="int-btn" data-int="1.10" onclick="selectIntensity(this)">
+                <span class="int-pct">110%</span>
+                <span class="int-tag">Overload</span>
+            </button>
+            <button type="button" class="int-btn" data-int="1.20" onclick="selectIntensity(this)">
+                <span class="int-pct">120%</span>
+                <span class="int-tag">Are you planning to WIN? &#127942;</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="form-row">
+        <label>Weeks to Competition</label>
+        <select id="compWeeks">
+            <option value="6">6 Weeks</option>
+            <option value="8">8 Weeks</option>
+            <option value="10" selected>10 Weeks</option>
+            <option value="12">12 Weeks</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label>Event Days Per Week</label>
+        <select id="eventDays">
+            <option value="1">1 Day</option>
+            <option value="2" selected>2 Days</option>
+        </select>
+    </div>
+    <button class="btn" onclick="generateProgram()">BUILD MY COMP PREP</button>
+</div>
+
+<div class="controls" id="controls">
+    <label>Week</label><select id="weekSel" onchange="renderCards()"></select>
+    <label>Session</label><select id="sessionSel" onchange="renderCards()"></select>
+    <br><br>
+    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+</div>
+<div class="card-grid" id="cardGrid" style="display:none"></div>
+
+<script>
+// ============================================================
+// EVENT DATABASE
+// type: max | reps | timed | distance | loading | medley
+// series: true = show series/implement builder
+// ============================================================
+var CATS = [
+  {id:"strength", label:"Strength", cls:"c-strength", events:[
+    {id:"dl_max",      name:"Deadlift for Max",            type:"max",      wt:500, time:60,  split:0,  dist:0,   series:false},
+    {id:"dl_reps",     name:"Deadlift for Reps",           type:"reps",     wt:400, time:60,  split:0,  dist:0,   series:false},
+    {id:"car_dl",      name:"Car Deadlift",                type:"reps",     wt:600, time:60,  split:0,  dist:0,   series:false},
+    {id:"log_max",     name:"Log Press for Max",           type:"max",      wt:300, time:60,  split:0,  dist:0,   series:false},
+    {id:"log_reps",    name:"Log Press for Reps",          type:"reps",     wt:230, time:75,  split:0,  dist:0,   series:false},
+    {id:"axle_max",    name:"Axle Press for Max",          type:"max",      wt:275, time:60,  split:0,  dist:0,   series:false},
+    {id:"axle_reps",   name:"Axle Press for Reps",         type:"reps",     wt:225, time:75,  split:0,  dist:0,   series:false},
+    {id:"viking",      name:"Viking Press",                type:"reps",     wt:300, time:60,  split:0,  dist:0,   series:false},
+    {id:"block_press", name:"Block Press",                 type:"max",      wt:250, time:60,  split:0,  dist:0,   series:false},
+    {id:"keg_press",   name:"Keg Press",                   type:"reps",     wt:200, time:60,  split:0,  dist:0,   series:false},
+    {id:"circus_db",   name:"Circus Dumbbell",             type:"max",      wt:200, time:60,  split:0,  dist:0,   series:false},
+    {id:"sos",         name:"Strict Over Strict (SoS)",    type:"reps",     wt:200, time:75,  split:0,  dist:0,   series:false},
+    {id:"suit_dl",     name:"Suitcase Deadlift",           type:"reps",     wt:300, time:60,  split:0,  dist:0,   series:false},
+  ]},
+  {id:"loading", label:"Loading", cls:"c-loading", events:[
+    {id:"atlas",       name:"Atlas Stones",                type:"loading",  wt:300, time:60,  split:10, dist:0,   series:true},
+    {id:"stone_sh",    name:"Stone to Shoulder",           type:"loading",  wt:300, time:60,  split:8,  dist:0,   series:false},
+    {id:"stone_ser",   name:"Stone Series",                type:"loading",  wt:280, time:75,  split:12, dist:0,   series:true},
+    {id:"sand_plat",   name:"Sandbag to Platform",         type:"loading",  wt:250, time:60,  split:8,  dist:0,   series:true},
+    {id:"sand_bar",    name:"Sandbag Over Bar",            type:"loading",  wt:200, time:60,  split:6,  dist:0,   series:true},
+    {id:"keg_load",    name:"Keg Load",                    type:"loading",  wt:180, time:60,  split:8,  dist:0,   series:true},
+    {id:"barrel_load", name:"Barrel Load",                 type:"loading",  wt:200, time:60,  split:10, dist:0,   series:true},
+    {id:"block_load",  name:"Block Load",                  type:"loading",  wt:275, time:60,  split:10, dist:0,   series:true},
+    {id:"nat_stone",   name:"Natural Stone Lift",          type:"loading",  wt:300, time:60,  split:15, dist:0,   series:false},
+    {id:"tire_load",   name:"Tire Load",                   type:"loading",  wt:300, time:60,  split:10, dist:0,   series:true},
+    {id:"med_loads",   name:"Medley Loads",                type:"loading",  wt:250, time:75,  split:12, dist:0,   series:true},
+    {id:"bag_toss",    name:"Bag Toss",                    type:"loading",  wt:14,  time:60,  split:6,  dist:0,   series:false},
+  ]},
+  {id:"carry", label:"Carry & Distance", cls:"c-carry", events:[
+    {id:"yoke",        name:"Yoke Walk",                   type:"distance", wt:700, time:30,  split:0,  dist:50,  series:false},
+    {id:"farmers",     name:"Farmer's Walk",               type:"distance", wt:300, time:30,  split:0,  dist:50,  series:false},
+    {id:"frame_carry", name:"Frame Carry",                 type:"distance", wt:700, time:30,  split:0,  dist:50,  series:false},
+    {id:"husafell",    name:"Husafell Stone Carry",        type:"distance", wt:320, time:60,  split:0,  dist:100, series:false},
+    {id:"sand_carry",  name:"Sandbag Carry",               type:"distance", wt:250, time:30,  split:0,  dist:50,  series:false},
+    {id:"shield_carry",name:"Shield Carry",                type:"distance", wt:350, time:30,  split:0,  dist:50,  series:false},
+    {id:"keg_toss",    name:"Keg Toss",                    type:"reps",     wt:16,  time:60,  split:0,  dist:0,   series:false},
+  ]},
+  {id:"grip", label:"Grip", cls:"c-grip", events:[
+    {id:"hercules",    name:"Hercules Hold",               type:"timed",    wt:0,   time:0,   split:0,  dist:0,   series:false},
+    {id:"axle_hold",   name:"Axle Hold",                   type:"timed",    wt:300, time:0,   split:0,  dist:0,   series:false},
+    {id:"farm_hold",   name:"Farmer's Hold",               type:"timed",    wt:300, time:0,   split:0,  dist:0,   series:false},
+    {id:"rolling_t",   name:"Rolling Thunder",             type:"max",      wt:200, time:60,  split:0,  dist:0,   series:false},
+    {id:"block_grip",  name:"Block Grip Lift",             type:"max",      wt:100, time:60,  split:0,  dist:0,   series:false},
+    {id:"silver_b",    name:"Silver Bullet Hold",          type:"timed",    wt:0,   time:0,   split:0,  dist:0,   series:false},
+    {id:"pinch_grip",  name:"Pinch Grip Lift",             type:"max",      wt:90,  time:60,  split:0,  dist:0,   series:false},
+  ]},
+  {id:"medley", label:"Medley", cls:"c-medley", events:[
+    {id:"carry_load",  name:"Carry + Load Medley",         type:"medley",   wt:300, time:90,  split:15, dist:50,  series:true},
+    {id:"ykf_sand",    name:"Yoke \u2192 Farmers \u2192 Sandbag", type:"medley", wt:400, time:90, split:15, dist:50, series:true},
+    {id:"dl_farm",     name:"Deadlift \u2192 Farmer's Walk",      type:"medley", wt:400, time:90, split:15, dist:50, series:true},
+    {id:"log_sand",    name:"Log Press \u2192 Sandbag Carry",     type:"medley", wt:250, time:90, split:15, dist:0,  series:true},
+    {id:"tire_keg",    name:"Tire Flip \u2192 Keg Load",          type:"medley", wt:300, time:90, split:12, dist:0,  series:true},
+  ]},
+  {id:"odd", label:"Odd Object", cls:"c-odd", events:[
+    {id:"tire_flip",   name:"Tire Flip",                   type:"reps",     wt:600, time:60,  split:0,  dist:50,  series:false},
+    {id:"fingals",     name:"Fingal's Fingers",            type:"loading",  wt:500, time:60,  split:10, dist:0,   series:true},
+    {id:"anvil",       name:"Anvil Lift",                  type:"max",      wt:200, time:60,  split:0,  dist:0,   series:false},
+    {id:"monster_db",  name:"Monster Dumbbell",            type:"max",      wt:200, time:60,  split:0,  dist:0,   series:false},
+    {id:"sand_series", name:"Sandbag Series",              type:"loading",  wt:200, time:60,  split:8,  dist:0,   series:true},
+    {id:"dinnie",      name:"Dinnie Stones",               type:"distance", wt:733, time:30,  split:0,  dist:20,  series:false},
+  ]},
+  {id:"pulling", label:"Pulling", cls:"c-pulling", events:[
+    {id:"truck_pull",  name:"Truck Pull",                  type:"distance", wt:20000, time:60, split:0, dist:100, series:false},
+    {id:"plane_pull",  name:"Plane Pull",                  type:"distance", wt:0,   time:60,  split:0,  dist:100, series:false},
+    {id:"train_pull",  name:"Train Pull",                  type:"distance", wt:0,   time:60,  split:0,  dist:50,  series:false},
+    {id:"sled_pull",   name:"Sled Pull",                   type:"distance", wt:600, time:30,  split:0,  dist:50,  series:false},
+    {id:"arm_arm",     name:"Arm Over Arm Pull",           type:"distance", wt:0,   time:30,  split:0,  dist:50,  series:false},
+    {id:"rope_pull",   name:"Rope Pull",                   type:"distance", wt:0,   time:30,  split:0,  dist:50,  series:false},
+  ]}
+];
+
+// Flatten
+var ALL = {};
+CATS.forEach(function(cat){ cat.events.forEach(function(ev){ ev.catCls=cat.cls; ev.catLabel=cat.label; ALL[ev.id]=ev; }); });
+
+var sel       = {};    // selected event configs
+var seriesDB  = {};    // series data per event id
+var prog      = {};    // generated program
+var intensity = 0.90;  // default training intensity vs comp weight
+
+// ============================================================
+// INTENSITY SELECTOR
+// ============================================================
+function selectIntensity(btn){
+    document.querySelectorAll('.int-btn').forEach(function(b){ b.classList.remove('int-active'); });
+    btn.classList.add('int-active');
+    intensity = parseFloat(btn.getAttribute('data-int'));
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+    var wrap = document.getElementById("catSections");
+    CATS.forEach(function(cat){
+        var sec = document.createElement("div");
+        sec.className = "cat-section";
+        var html = '<span class="cat-badge '+cat.cls+'">'+cat.label+'</span>';
+        html += '<div class="events-grid">';
+        cat.events.forEach(function(ev){
+            html += '<div class="ev-card" id="ec-'+ev.id+'" onclick="toggleEv(\''+ev.id+'\')">'+
+                    '<div class="ev-name">'+ev.name+'</div>'+
+                    '<div class="ev-type '+cat.cls+'">'+tLabel(ev.type)+'</div></div>';
+        });
+        html += '</div>';
+        sec.innerHTML = html;
+        wrap.appendChild(sec);
+    });
+}
+
+function tLabel(t){ return {max:"Max Weight",reps:"Max Reps",timed:"Max Time",distance:"Distance",loading:"Loading",medley:"Medley"}[t]||t; }
+
+// ============================================================
+// TOGGLE
+// ============================================================
+function toggleEv(id){
+    var ev = ALL[id];
+    var card = document.getElementById("ec-"+id);
+    if(sel[id]){
+        delete sel[id]; delete seriesDB[id];
+        card.classList.remove("selected");
+    } else {
+        sel[id] = { wt:ev.wt||200, reps:5, dist:ev.dist||50, compTime:ev.time||60, splitTime:ev.split||10 };
+        if(ev.series) seriesDB[id] = [{name:"Implement 1", wt:ev.wt||200, split:ev.split||10}];
+        card.classList.add("selected");
+    }
+    rebuildConfig();
+}
+
+// ============================================================
+// CONFIG
+// ============================================================
+function rebuildConfig(){
+    var cfg = document.getElementById("eventConfig");
+    var keys = Object.keys(sel);
+    if(!keys.length){ cfg.innerHTML='<p style="opacity:0.4;text-align:center;font-size:0.88rem;margin:0">Select events above to configure them</p>'; return; }
+    cfg.innerHTML="";
+    keys.forEach(function(id){ buildCfgCard(id, cfg); });
+}
+
+function buildCfgCard(id, container){
+    var ev=ALL[id]; var d=sel[id];
+    var card=document.createElement("div");
+    card.className="cfg-card"; card.id="cfgc-"+id;
+    var html='<div class="cfg-title">'+ev.name+' <span class="cat-badge '+ev.catCls+'" style="font-size:0.62rem;padding:2px 8px">'+ev.catLabel+'</span></div>';
+    html+='<div class="cfg-grid">';
+    var noWt = ["truck_pull","plane_pull","train_pull","arm_arm","rope_pull","hercules","silver_b"];
+    if(ev.type!=="timed" && noWt.indexOf(id)===-1)
+        html+=fld("Comp Weight (lbs)","number",d.wt,'sel["'+id+'"].wt=parseInt(this.value)||0');
+    if(ev.type==="reps"||ev.type==="max")
+        html+=fld("Target Reps/Attempts","number",d.reps,'sel["'+id+'"].reps=parseInt(this.value)||1');
+    if(ev.type==="distance"||ev.dist>0)
+        html+=fld("Distance (ft)","number",d.dist,'sel["'+id+'"].dist=parseInt(this.value)||0');
+    if(ev.time>0)
+        html+=fld("&#9201; Comp Time (sec)","number",d.compTime,'sel["'+id+'"].compTime=parseInt(this.value)||0');
+    if((ev.type==="loading"||ev.type==="medley"||ev.type==="reps")&&!ev.series)
+        html+=fld("&#9201; Split/Pace (sec)","number",d.splitTime,'sel["'+id+'"].splitTime=parseInt(this.value)||0');
+    html+='</div>';
+    if(ev.series){
+        if(!seriesDB[id]) seriesDB[id]=[{name:"Implement 1",wt:ev.wt||200,split:ev.split||10}];
+        html+=buildSeriesHtml(id);
+    }
+    card.innerHTML=html;
+    container.appendChild(card);
+}
+
+function fld(label,type,val,onchange){
+    return '<div class="cfg-field"><label>'+label+'</label><input type="'+type+'" value="'+val+'" min="0" onchange="'+onchange+'"></div>';
+}
+
+function buildSeriesHtml(id){
+    var rows=seriesDB[id];
+    var h='<div class="series-wrap"><div class="series-title">&#127959; Implements / Series <span class="t-badge">&#9201; split time per implement</span></div><div id="sr-'+id+'">';
+    rows.forEach(function(r,i){
+        h+='<div class="series-row"><span class="s-num">'+(i+1)+'</span>'+
+           '<input type="text" placeholder="Name" value="'+r.name+'" onchange="seriesDB[\''+id+'\']['+i+'].name=this.value">'+
+           '<label>Weight</label><input type="number" value="'+r.wt+'" min="0" onchange="seriesDB[\''+id+'\']['+i+'].wt=parseInt(this.value)||0">'+
+           '<label>lbs</label><label>Split(sec)</label>'+
+           '<input type="number" value="'+r.split+'" min="1" onchange="seriesDB[\''+id+'\']['+i+'].split=parseInt(this.value)||1">'+
+           (i>0?'<button class="s-remove" onclick="rmSeries(\''+id+'\','+i+')">&#x2715;</button>':'')+
+           '</div>';
+    });
+    h+='</div><button class="add-btn" onclick="addSeries(\''+id+'\',event)">+ Add Implement</button></div>';
+    return h;
+}
+
+function addSeries(id,e){ e.preventDefault(); var last=seriesDB[id][seriesDB[id].length-1]; seriesDB[id].push({name:"Implement "+(seriesDB[id].length+1),wt:last.wt+20,split:last.split}); rebuildConfig(); }
+function rmSeries(id,i){ seriesDB[id].splice(i,1); rebuildConfig(); }
+
+// ============================================================
+// GENERATE
+// ============================================================
+function generateProgram(){
+    var keys=Object.keys(sel);
+    if(!keys.length){ alert("Pick at least one event!"); return; }
+    var weeks=parseInt(document.getElementById("compWeeks").value)||10;
+    var days =parseInt(document.getElementById("eventDays").value)||2;
+    prog={};
+
+    // Intensity label for cards
+    var intLabels={0.80:"80% — Conservative",0.90:"90% — Standard",1.00:"100% — Comp Sim",1.10:"110% — Overload",1.20:"120% — WIN MODE"};
+    var intLabel = intLabels[intensity]||Math.round(intensity*100)+"%";
+
+    for(var w=1;w<=weeks;w++){
+        // Progressive % of the user's intensity ceiling
+        // Week 1 = 60% of intensity target, final week = 95% (taper), peak = intensity target
+        var isTaper = w>=weeks-1;
+        var isPeak  = w>=weeks-3 && !isTaper;
+        var rawPct  = 0.60 + 0.40*(w-1)/(weeks-1); // 60% → 100% of intensity target across the block
+        if(isTaper) rawPct = 0.85;
+        var weekPct = rawPct * intensity; // e.g. at 110%: week 1 = 66%, peak = 110%
+
+        var allExs=keys.map(function(id){
+            var ev=ALL[id]; var d=sel[id];
+            var trainWt = ev.type==="timed" ? d.wt : Math.round(d.wt*weekPct/5)*5;
+            var phase   = isTaper?"TAPER":isPeak?"PEAK":"BUILD";
+            var notes   = isTaper?"Competition pace \u2014 stay fresh and sharp":
+                          isPeak ?"Maximum intent \u2014 peak phase":
+                          "Build the pattern \u2014 technique + volume";
+            var scheme="";
+            if(ev.type==="max")      scheme=isTaper?"Work to heavy single \u2014 sharp":"Work to "+Math.round(weekPct*100)+"% heavy single";
+            else if(ev.type==="reps"){
+                var r=isTaper?Math.max(1,Math.ceil(d.reps*0.6)):isPeak?Math.max(2,Math.ceil(d.reps*0.8)):d.reps+Math.floor((weeks-w)/2);
+                scheme=r+" reps";
+            } else if(ev.type==="distance") scheme=d.dist+" ft";
+            else if(ev.type==="timed")      scheme="Max hold time";
+            else if(ev.type==="loading"||ev.type==="medley") scheme="Full run \u2014 beat the clock";
+
+            var series=null;
+            if(ev.series&&seriesDB[id]){
+                series=seriesDB[id].map(function(s){
+                    return {name:s.name, trainWt:Math.round(s.wt*weekPct/5)*5, compWt:s.wt, split:s.split};
+                });
+            }
+
+            return {id:id, name:ev.name, type:ev.type, catCls:ev.catCls, catLabel:ev.catLabel,
+                    trainWt:trainWt, compWt:d.wt, reps:d.reps, dist:d.dist,
+                    compTime:d.compTime, splitTime:d.splitTime,
+                    scheme:scheme, notes:notes, phase:phase,
+                    weekPct:Math.round(weekPct*100),
+                    intLabel:intLabel,
+                    hasSeries:ev.series, series:series,
+                    hasTime:ev.time>0, hasSplit:(ev.type==="loading"||ev.type==="medley"||ev.type==="reps")&&!ev.series,
+                    hasDist:ev.type==="distance"||ev.dist>0};
+        });
+
+        var sessions=[];
+        for(var dd=0;dd<days;dd++) sessions.push(allExs.filter(function(_,i){ return i%days===dd; }));
+        prog[w]=sessions;
+    }
+
+    var ws=document.getElementById("weekSel"); ws.innerHTML="";
+    for(var i=1;i<=weeks;i++){
+        var lbl=i===weeks?"Week "+i+" \u2014 COMP WEEK":i>=weeks-2?"Week "+i+" \u2014 PEAK":"Week "+i;
+        ws.innerHTML+='<option value="'+i+'">'+lbl+'</option>';
+    }
+    var ss=document.getElementById("sessionSel"); ss.innerHTML="";
+    for(var dd2=0;dd2<days;dd2++) ss.innerHTML+='<option value="'+dd2+'">Event Day '+(dd2+1)+'</option>';
+
+    document.getElementById("setupPanel").style.display="none";
+    document.getElementById("controls").style.display="block";
+    document.getElementById("cardGrid").style.display="grid";
+    renderCards();
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function fmtTime(sec){ if(!sec||sec<=0) return "\u2014"; if(sec<60) return sec+"s"; return Math.floor(sec/60)+"m"+(sec%60?""+sec%60+"s":""); }
+
+function renderCards(){
+    var w=parseInt(document.getElementById("weekSel").value)||1;
+    var s=parseInt(document.getElementById("sessionSel").value)||0;
+    var grid=document.getElementById("cardGrid");
+    grid.innerHTML="";
+    var sess=prog[w];
+    if(!sess||!sess[s]||!sess[s].length){
+        grid.innerHTML='<div style="grid-column:1/-1;text-align:center;opacity:0.5;padding:40px">No events for this session.</div>'; return;
+    }
+    sess[s].forEach(function(ex){
+        var card=document.createElement("div"); card.className="out-card";
+        var phCls=ex.phase==="TAPER"?"ph-comp":ex.phase==="PEAK"?"ph-peak":"ph-build";
+        var h='<div class="out-header"><h4>'+ex.name+'</h4><span class="phase-pill '+phCls+'">'+ex.phase+'</span></div>';
+
+        // Intensity indicator
+        h+='<div style="margin-bottom:8px"><span class="int-indicator">'+ex.weekPct+'% of comp wt</span><span style="font-size:0.7rem;opacity:0.45;margin-left:6px">Target: '+ex.intLabel+'</span></div>';
+
+        if(ex.type!=="timed"&&!ex.hasSeries){
+            h+='<div class="d-row"><b>Training Wt:</b><span>'+ex.trainWt+' lbs</span></div>';
+            h+='<div class="d-row"><b>Comp Wt:</b><span>'+ex.compWt+' lbs</span></div>';
+        }
+        if(ex.type==="reps"||ex.type==="max")
+            h+='<div class="d-row"><b>Scheme:</b><span>'+ex.scheme+'</span></div>';
+        if(ex.hasDist)
+            h+='<div class="d-row"><b>Distance:</b><span>'+ex.dist+' ft</span></div>';
+        if(ex.type==="timed")
+            h+='<div class="d-row"><b>Goal:</b><span>Max hold time</span></div>';
+
+        // Time chips
+        var chips="";
+        if(ex.hasTime&&ex.compTime>0) chips+='<div class="tc"><span class="tc-lbl">COMP TIME</span>'+fmtTime(ex.compTime)+'</div>';
+        if(ex.hasSplit&&ex.splitTime>0) chips+='<div class="tc"><span class="tc-lbl">SPLIT</span>'+ex.splitTime+'s / rep</div>';
+        if(chips) h+='<div class="time-strip">'+chips+'</div>';
+
+        // Series table
+        if(ex.hasSeries&&ex.series&&ex.series.length){
+            h+='<div class="series-out"><div class="so-hd">&#127959; Implements</div>';
+            ex.series.forEach(function(s,i){
+                h+='<div class="s-item"><span class="s-nm">'+(i+1)+'. '+s.name+'</span><span class="s-wt">'+s.trainWt+' lbs</span><span class="s-sp">&#9201; '+s.split+'s split</span></div>';
+            });
+            h+='</div>';
+            if(ex.compTime>0) h+='<div class="time-strip"><div class="tc"><span class="tc-lbl">TOTAL TIME</span>'+fmtTime(ex.compTime)+'</div></div>';
+        }
+
+        h+='<div class="note-row">'+ex.notes+'</div>';
+        h+='<span class="cat-out-tag '+ex.catCls+'">'+ex.catLabel+'</span>';
+        card.innerHTML=h;
+        grid.appendChild(card);
+    });
+}
+
+function resetSetup(){
+    document.getElementById("setupPanel").style.display="block";
+    document.getElementById("controls").style.display="none";
+    document.getElementById("cardGrid").style.display="none";
+}
+
+init();
+</script>
+</body>
+</html>
