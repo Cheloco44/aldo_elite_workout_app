@@ -15,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px 20px 60px;
+    padding: 0 20px 60px;
 }
 
 body::before {
@@ -30,6 +30,320 @@ body::before {
     z-index: 0;
 }
 
+/* ===== NAV ===== */
+nav {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: rgba(10, 8, 30, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 58px;
+    margin-bottom: 30px;
+}
+
+.nav-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.nav-links {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.55);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+}
+.nav-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
+
+.nav-btn-membership {
+    color: #f0d080;
+    border: 1px solid rgba(240,208,128,0.35);
+}
+.nav-btn-membership:hover { background: rgba(240,208,128,0.1); color: #ffd700; }
+
+/* ===== OVERLAY ===== */
+#overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(5, 4, 20, 0.94);
+    backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+}
+#overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overlay-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 48px 44px;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+    position: relative;
+}
+
+.overlay-close {
+    position: absolute;
+    top: 16px; right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.35);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.overlay-close:hover { color: #fff; }
+
+.overlay-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    object-fit: cover;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.overlay-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+}
+
+.overlay-sub {
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    opacity: 0.4;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+/* Tabs inside overlay */
+.overlay-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 28px;
+}
+.overlay-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 6px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+}
+.overlay-tab.active {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+
+.overlay-panel { display: none; }
+.overlay-panel.active { display: block; }
+
+/* Login form */
+.login-field {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.login-field:focus { border-color: rgba(255,255,255,0.4); }
+.login-field::placeholder { color: rgba(255,255,255,0.25); }
+
+.login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.2s, transform 0.15s;
+}
+.login-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.login-divider {
+    margin: 20px 0;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    opacity: 0.3;
+    text-transform: uppercase;
+}
+
+.guest-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 13px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+.guest-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+
+/* Membership panel */
+.membership-heading {
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 20px;
+}
+
+.plans {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.plan {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: left;
+    position: relative;
+}
+
+.plan-popular {
+    border-color: rgba(240,208,128,0.4);
+    background: rgba(240,208,128,0.05);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -10px; right: 16px;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a1a;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.plan-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.plan-popular .plan-name { color: #f0d080; }
+
+.plan-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.plan-price span {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    font-weight: 400;
+}
+
+.plan-desc {
+    font-size: 0.78rem;
+    opacity: 0.5;
+    line-height: 1.4;
+}
+
+.coming-soon-label {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.35;
+}
+
+.plan-features {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.feature {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-align: left;
+}
+.feature.muted { opacity: 0.28; }
+
+.plan-coach {
+    border-color: rgba(120, 180, 255, 0.35);
+    background: rgba(120, 180, 255, 0.05);
+}
+.plan-coach .plan-name { color: #7eb8ff; }
+
+/* Coming soon panels */
+.coming-soon-panel {
+    padding: 30px 0;
+    opacity: 0.5;
+}
+.coming-soon-panel .icon { font-size: 2.5rem; margin-bottom: 14px; }
+.coming-soon-panel .label {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* ===== MAIN CONTENT (unchanged from original) ===== */
 .landing {
     text-align: center;
     position: relative;
@@ -60,7 +374,6 @@ h1 {
     margin-bottom: 40px;
 }
 
-/* ===== SECTION LABELS ===== */
 .section-label {
     width: 100%;
     text-align: left;
@@ -72,7 +385,6 @@ h1 {
     margin: 30px 0 14px 6px;
 }
 
-/* ===== CARDS GRID ===== */
 .cards {
     display: flex;
     gap: 22px;
@@ -103,9 +415,7 @@ h1 {
     border-radius: 20px;
 }
 
-.card:hover {
-    transform: translateY(-8px) scale(1.03);
-}
+.card:hover { transform: translateY(-8px) scale(1.03); }
 .card:hover::after { background: rgba(255,255,255,0.06); }
 
 .card-icon { font-size: 2.5rem; margin-bottom: 12px; }
@@ -114,8 +424,7 @@ h1 {
 
 .card-badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 12px; right: 12px;
     font-size: 0.65rem;
     font-weight: 800;
     letter-spacing: 1.5px;
@@ -125,103 +434,150 @@ h1 {
     text-transform: uppercase;
 }
 
-/* ===== CARD COLORS ===== */
-.card-531 {
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    box-shadow: 0 8px 25px rgba(255,81,47,0.3);
-}
+.card-531 { background: linear-gradient(135deg, #ff512f, #dd2476); box-shadow: 0 8px 25px rgba(255,81,47,0.3); }
 .card-531:hover { box-shadow: 0 15px 40px rgba(255,81,47,0.45); }
-
-.card-oms {
-    background: linear-gradient(135deg, #11998e, #38ef7d);
-    box-shadow: 0 8px 25px rgba(17,153,142,0.3);
-}
+.card-oms { background: linear-gradient(135deg, #11998e, #38ef7d); box-shadow: 0 8px 25px rgba(17,153,142,0.3); }
 .card-oms:hover { box-shadow: 0 15px 40px rgba(17,153,142,0.45); }
-
-.card-sl {
-    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    box-shadow: 0 8px 25px rgba(15,52,96,0.5);
-    border: 1px solid rgba(255,255,255,0.12);
-}
+.card-sl { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); box-shadow: 0 8px 25px rgba(15,52,96,0.5); border: 1px solid rgba(255,255,255,0.12); }
 .card-sl:hover { box-shadow: 0 15px 40px rgba(15,52,96,0.7); }
-
-.card-jug {
-    background: linear-gradient(135deg, #b92b27, #1565c0);
-    box-shadow: 0 8px 25px rgba(185,43,39,0.35);
-}
+.card-jug { background: linear-gradient(135deg, #b92b27, #1565c0); box-shadow: 0 8px 25px rgba(185,43,39,0.35); }
 .card-jug:hover { box-shadow: 0 15px 40px rgba(185,43,39,0.5); }
-
-.card-west {
-    background: linear-gradient(135deg, #232526, #414345);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,215,0,0.2);
-}
+.card-west { background: linear-gradient(135deg, #232526, #414345); box-shadow: 0 8px 25px rgba(0,0,0,0.5); border: 1px solid rgba(255,215,0,0.2); }
 .card-west:hover { box-shadow: 0 15px 40px rgba(255,215,0,0.2); }
-
-.card-sm531 {
-    background: linear-gradient(135deg, #6a3093, #a044ff);
-    box-shadow: 0 8px 25px rgba(106,48,147,0.4);
-}
+.card-sm531 { background: linear-gradient(135deg, #6a3093, #a044ff); box-shadow: 0 8px 25px rgba(106,48,147,0.4); }
 .card-sm531:hover { box-shadow: 0 15px 40px rgba(160,68,255,0.5); }
-
-.card-cube {
-    background: linear-gradient(135deg, #f7971e, #ffd200);
-    box-shadow: 0 8px 25px rgba(247,151,30,0.35);
-    color: #1a1a1a;
-}
+.card-cube { background: linear-gradient(135deg, #f7971e, #ffd200); box-shadow: 0 8px 25px rgba(247,151,30,0.35); color: #1a1a1a; }
 .card-cube:hover { box-shadow: 0 15px 40px rgba(247,151,30,0.55); }
 .card-cube p { opacity: 0.75; }
-
-.card-events {
-    background: linear-gradient(135deg, #134e5e, #71b280);
-    box-shadow: 0 8px 25px rgba(19,78,94,0.4);
-}
+.card-events { background: linear-gradient(135deg, #134e5e, #71b280); box-shadow: 0 8px 25px rgba(19,78,94,0.4); }
 .card-events:hover { box-shadow: 0 15px 40px rgba(113,178,128,0.4); }
-
-.card-arnold {
-    background: linear-gradient(135deg, #c94b4b, #4b134f);
-    box-shadow: 0 8px 25px rgba(201,75,75,0.35);
-}
+.card-arnold { background: linear-gradient(135deg, #c94b4b, #4b134f); box-shadow: 0 8px 25px rgba(201,75,75,0.35); }
 .card-arnold:hover { box-shadow: 0 15px 40px rgba(201,75,75,0.5); }
-
-.card-bro {
-    background: linear-gradient(135deg, #4776e6, #8e54e9);
-    box-shadow: 0 8px 25px rgba(71,118,230,0.35);
-}
+.card-bro { background: linear-gradient(135deg, #4776e6, #8e54e9); box-shadow: 0 8px 25px rgba(71,118,230,0.35); }
 .card-bro:hover { box-shadow: 0 15px 40px rgba(142,84,233,0.5); }
-
-.card-coach {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    box-shadow: 0 8px 25px rgba(44,83,100,0.4);
-    border: 2px solid rgba(255,255,255,0.15);
-}
+.card-coach { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); box-shadow: 0 8px 25px rgba(44,83,100,0.4); border: 2px solid rgba(255,255,255,0.15); }
 .card-coach:hover { box-shadow: 0 15px 40px rgba(44,83,100,0.6); }
+.card-medieval { background: linear-gradient(135deg, #1a0808, #2d1515, #0a0a14); box-shadow: 0 8px 25px rgba(201,168,76,0.2); border: 1px solid rgba(201,168,76,0.25); color: #f0d080; }
+.card-medieval:hover { box-shadow: 0 15px 40px rgba(201,168,76,0.38); border-color: rgba(201,168,76,0.5); }
+.card-medieval p { color: rgba(240,208,128,0.75); }
 
 @media (max-width: 640px) {
     h1 { font-size: 1.8rem; }
     .card { width: 100%; max-width: 340px; padding: 26px 20px; }
     .logo { width: 110px; height: 110px; }
+    nav { padding: 0 16px; }
+    .nav-brand { font-size: 0.85rem; letter-spacing: 2px; }
+    .nav-btn { padding: 7px 10px; font-size: 0.7rem; }
+    .overlay-box { padding: 36px 20px; margin: 0 16px; }
 }
-
-.card-medieval {
-    background: linear-gradient(135deg, #1a0808, #2d1515, #0a0a14);
-    box-shadow: 0 8px 25px rgba(201,168,76,0.2);
-    border: 1px solid rgba(201,168,76,0.25);
-    color: #f0d080;
-}
-.card-medieval:hover { box-shadow: 0 15px 40px rgba(201,168,76,0.38); border-color: rgba(201,168,76,0.5); }
-.card-medieval p { color: rgba(240,208,128,0.75); }
-
 </style>
 </head>
 <body>
 
+<!-- ===== NAV ===== -->
+<nav>
+    <div class="nav-brand">⚡ Aldo Elite</div>
+    <div class="nav-links">
+        <button class="nav-btn" onclick="showOverlayTab('login')">Login</button>
+        <button class="nav-btn" onclick="showOverlayTab('archives')">Archives</button>
+        <button class="nav-btn" onclick="showOverlayTab('progress')">Progress</button>
+        <button class="nav-btn nav-btn-membership" onclick="showOverlayTab('membership')">Membership</button>
+    </div>
+</nav>
+
+<!-- ===== OVERLAY ===== -->
+<div id="overlay">
+    <div class="overlay-box">
+        <button class="overlay-close" onclick="closeOverlay()">×</button>
+        <img src="gorillavsbull.png" alt="Logo" class="overlay-logo">
+        <div class="overlay-title">ALDO ELITE</div>
+        <div class="overlay-sub">Member Access</div>
+
+        <div class="overlay-tabs">
+            <button class="overlay-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+            <button class="overlay-tab" id="tab-membership" onclick="switchTab('membership')">Membership</button>
+            <button class="overlay-tab" id="tab-archives" onclick="switchTab('archives')">Archives</button>
+            <button class="overlay-tab" id="tab-progress" onclick="switchTab('progress')">Progress</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="overlay-panel active" id="panel-login">
+            <input class="login-field" type="email" placeholder="Email address">
+            <input class="login-field" type="password" placeholder="Password">
+            <button class="login-btn" onclick="closeOverlay()">Sign In</button>
+            <div class="login-divider">or</div>
+            <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
+        </div>
+
+        <!-- MEMBERSHIP -->
+        <div class="overlay-panel" id="panel-membership">
+            <div class="membership-heading">Choose Your Plan</div>
+            <div class="plans">
+                <div class="plan">
+                    <div class="plan-name">Basic</div>
+                    <div class="plan-price">Free <span>/ forever</span></div>
+                    <div class="plan-desc">Full access to all workout templates. No account required.</div>
+                    <div class="plan-features">
+                        <div class="feature">✓ All program templates</div>
+                        <div class="feature muted">✗ AI Nutrition</div>
+                        <div class="feature muted">✗ Data tracking</div>
+                        <div class="feature muted">✗ Coach tools</div>
+                    </div>
+                </div>
+                <div class="plan plan-popular">
+                    <div class="plan-badge">Most Popular</div>
+                    <div class="plan-name">Basic+</div>
+                    <div class="plan-price">$9.99 <span>/ month</span></div>
+                    <div class="plan-desc">Everything in Basic, plus AI-powered nutrition guidance tailored to your goals.</div>
+                    <div class="plan-features">
+                        <div class="feature">✓ All program templates</div>
+                        <div class="feature">✓ AI Nutrition coach</div>
+                        <div class="feature muted">✗ Data tracking</div>
+                        <div class="feature muted">✗ Coach tools</div>
+                    </div>
+                </div>
+                <div class="plan plan-coach">
+                    <div class="plan-name">Coach</div>
+                    <div class="plan-price">$24.99 <span>/ month</span></div>
+                    <div class="plan-desc">Dynamic platform for coaches and serious athletes. Input your data, track clients, and tap into AI nutrition.</div>
+                    <div class="plan-features">
+                        <div class="feature">✓ All program templates</div>
+                        <div class="feature">✓ AI Nutrition coach</div>
+                        <div class="feature">✓ Client data input &amp; tracking</div>
+                        <div class="feature">✓ Coach dashboard</div>
+                    </div>
+                </div>
+            </div>
+            <div class="coming-soon-label">🚧 Subscriptions Coming Soon</div>
+        </div>
+
+        <!-- ARCHIVES -->
+        <div class="overlay-panel" id="panel-archives">
+            <div class="coming-soon-panel">
+                <div class="icon">🗄️</div>
+                <div class="label">Workout Archives</div>
+                <div class="coming-soon-label">Coming Soon — Login to save your history</div>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="overlay-panel" id="panel-progress">
+            <div class="coming-soon-panel">
+                <div class="icon">📈</div>
+                <div class="label">Program Progress</div>
+                <div class="coming-soon-label">Coming Soon — Track your active program</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ===== MAIN (original unchanged) ===== -->
 <div class="landing">
     <img src="gorillavsbull.png" alt="Aldo Elite Logo" class="logo">
     <h1>ALDO ELITE WORKOUTS</h1>
     <p class="subtitle">Choose Your Program</p>
 
-    <!-- CORE PROGRAMS -->
     <div class="section-label">⚡ Core Programs</div>
     <div class="cards">
         <a href="531workout.html" class="card card-531">
@@ -254,7 +610,6 @@ h1 {
         </a>
     </div>
 
-    <!-- STRONGMAN -->
     <div class="section-label">🪨 Strongman</div>
     <div class="cards">
         <a href="strongman531.html" class="card card-sm531">
@@ -277,7 +632,6 @@ h1 {
         </a>
     </div>
 
-    <!-- BODYBUILDING -->
     <div class="section-label">💎 Bodybuilding</div>
     <div class="cards">
         <a href="arnoldsplit.html" class="card card-arnold">
@@ -294,8 +648,6 @@ h1 {
         </a>
     </div>
 
-
-    <!-- MEDIEVAL WARRIOR LIBRARY -->
     <div class="section-label">⚔️ Medieval Warrior Library</div>
     <div class="cards">
         <a href="medieval.html" class="card card-medieval">
@@ -306,7 +658,6 @@ h1 {
         </a>
     </div>
 
-    <!-- COACH TOOLS -->
     <div class="section-label">🛠️ Coach Tools</div>
     <div class="cards">
         <a href="coachimport.html" class="card card-coach">
@@ -318,5 +669,22 @@ h1 {
     </div>
 </div>
 
+<script>
+    function closeOverlay() {
+        document.getElementById('overlay').classList.add('hidden');
+    }
+
+    function showOverlayTab(tab) {
+        document.getElementById('overlay').classList.remove('hidden');
+        switchTab(tab);
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.overlay-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
+</script>
 </body>
 </html>
