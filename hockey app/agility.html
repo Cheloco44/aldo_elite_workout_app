@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agility Training – Ice Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ice:#c8e8ff;--blue:#0057a8;--navy:#001f4d;--red:#c8102e;
+  --bg:#000d1a;--panel:rgba(0,31,77,0.55);
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:#fff;min-height:100vh;padding:0 0 80px;}
+body::before{content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,87,168,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,87,168,0.06) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0;}
+
+/* NAV */
+.nav{position:relative;z-index:10;display:flex;align-items:center;gap:14px;padding:20px 28px;}
+.nav a{color:rgba(255,255,255,0.45);text-decoration:none;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
+.nav a:hover{color:#fff;}
+.nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:2px;color:var(--ice);margin-left:auto;}
+
+/* PAGE HEADER */
+.page-header{position:relative;z-index:1;text-align:center;padding:30px 20px 10px;}
+.page-header .icon{font-size:3.2rem;margin-bottom:12px;filter:drop-shadow(0 0 18px rgba(0,87,168,0.7));}
+.page-header h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2.4rem,7vw,4.5rem);
+  text-transform:uppercase;letter-spacing:2px;
+  background:linear-gradient(90deg,#fff,var(--ice));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-header p{font-size:.95rem;opacity:.5;margin-top:8px;font-weight:300;}
+
+/* CONFIGURATOR */
+.config{position:relative;z-index:1;max-width:680px;margin:40px auto;padding:0 20px;}
+.config-card{background:rgba(0,40,90,0.5);border:1px solid rgba(200,232,255,0.12);border-radius:18px;padding:32px;backdrop-filter:blur(10px);}
+.config-card h2{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;letter-spacing:3px;text-transform:uppercase;opacity:.6;margin-bottom:24px;}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+label{display:block;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:8px;}
+input[type=number],select{
+  width:100%;background:rgba(0,20,50,0.7);border:1px solid rgba(200,232,255,0.18);
+  color:#fff;font-family:'Barlow',sans-serif;font-size:1rem;padding:12px 16px;border-radius:10px;
+  outline:none;transition:border-color .2s;}
+input[type=number]:focus,select:focus{border-color:var(--blue);}
+
+/* INTENSITY SLIDER */
+.slider-wrap{margin-top:24px;}
+.intensity-labels{display:flex;justify-content:space-between;font-size:.72rem;opacity:.4;letter-spacing:1px;margin-top:6px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--blue) 0%,var(--blue) var(--pct,50%),rgba(200,232,255,0.12) var(--pct,50%),rgba(200,232,255,0.12) 100%);
+  outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--ice);box-shadow:0 0 10px rgba(0,87,168,0.6);cursor:pointer;}
+.intensity-val{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:700;
+  color:var(--ice);margin-top:10px;letter-spacing:2px;}
+
+.btn-generate{
+  display:block;width:100%;margin-top:28px;padding:16px;
+  background:linear-gradient(135deg,var(--blue),#003d7a);border:none;color:#fff;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:3px;text-transform:uppercase;
+  border-radius:12px;cursor:pointer;transition:all .25s;
+  box-shadow:0 6px 20px rgba(0,87,168,0.4);}
+.btn-generate:hover{background:linear-gradient(135deg,#0070d4,#0057a8);box-shadow:0 10px 30px rgba(0,87,168,0.6);transform:translateY(-2px);}
+
+/* WORKOUT OUTPUT */
+.workout-out{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 20px;}
+
+.workout-header{
+  display:flex;align-items:center;gap:16px;
+  background:rgba(0,40,90,0.4);border:1px solid rgba(200,232,255,0.1);
+  border-radius:14px;padding:22px 28px;margin-bottom:24px;}
+.workout-header .wh-title{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.workout-header .wh-meta{font-size:.82rem;opacity:.5;margin-top:2px;}
+.wh-badge{margin-left:auto;background:var(--blue);padding:6px 14px;border-radius:20px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+
+.phase{margin-bottom:28px;}
+.phase-title{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:4px;text-transform:uppercase;
+  opacity:.4;margin-bottom:12px;padding-left:4px;display:flex;align-items:center;gap:10px;}
+.phase-title::after{content:"";flex:1;height:1px;background:rgba(200,232,255,0.1);}
+
+.drill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+.drill{
+  background:rgba(0,30,70,0.6);border:1px solid rgba(200,232,255,0.1);
+  border-radius:12px;padding:18px 20px;transition:border-color .2s,background .2s;}
+.drill:hover{border-color:rgba(0,87,168,0.5);background:rgba(0,50,110,0.5);}
+.drill-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.drill-detail{font-size:.8rem;opacity:.55;line-height:1.5;}
+.drill-reps{display:inline-block;margin-top:10px;background:rgba(0,87,168,0.35);padding:3px 10px;border-radius:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.78rem;letter-spacing:1px;color:var(--ice);}
+
+#workout-section{display:none;}
+
+@media(max-width:600px){.fields{grid-template-columns:1fr;}.drill-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">← Back</a>
+  <span class="nav-title">⚡ Agility Training</span>
+</nav>
+
+<div class="page-header">
+  <div class="icon">⚡</div>
+  <h1>Agility Training</h1>
+  <p>Explosive edge work · Quick-twitch reaction · Directional change circuits</p>
+</div>
+
+<div class="config">
+  <div class="config-card">
+    <h2>⚙️ Configure Your Workout</h2>
+    <div class="fields">
+      <div>
+        <label for="age">Player Age</label>
+        <input type="number" id="age" min="8" max="50" placeholder="e.g. 22" value="20">
+      </div>
+      <div>
+        <label for="level">Skill Level</label>
+        <select id="level">
+          <option value="youth">Youth (8–14)</option>
+          <option value="junior">Junior (15–18)</option>
+          <option value="adult" selected>Adult / College</option>
+          <option value="pro">Pro / Elite</option>
+        </select>
+      </div>
+    </div>
+    <div class="slider-wrap">
+      <label>Training Intensity</label>
+      <input type="range" id="intensity" min="1" max="10" value="5" oninput="updateSlider(this)">
+      <div class="intensity-labels"><span>Recovery</span><span>Moderate</span><span>Beast Mode</span></div>
+      <div class="intensity-val" id="intensityVal">5 / 10</div>
+    </div>
+    <button class="btn-generate" onclick="generateWorkout()">Generate Agility Workout →</button>
+  </div>
+</div>
+
+<div class="workout-out" id="workout-section">
+  <div class="workout-header">
+    <div>
+      <div class="wh-title" id="wh-title">Agility Session</div>
+      <div class="wh-meta" id="wh-meta"></div>
+    </div>
+    <div class="wh-badge" id="wh-badge">Intensity 5</div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-title">🔥 Warm-Up</div>
+    <div class="drill-grid" id="phase-warmup"></div>
+  </div>
+  <div class="phase">
+    <div class="phase-title">⚡ Main Circuit</div>
+    <div class="drill-grid" id="phase-main"></div>
+  </div>
+  <div class="phase">
+    <div class="phase-title">🎯 Finishing Drills</div>
+    <div class="drill-grid" id="phase-finish"></div>
+  </div>
+  <div class="phase">
+    <div class="phase-title">❄️ Cool-Down</div>
+    <div class="drill-grid" id="phase-cooldown"></div>
+  </div>
+</div>
+
+<script>
+function updateSlider(el){
+  const v=parseInt(el.value);
+  el.style.setProperty('--pct',(v-1)/9*100+'%');
+  document.getElementById('intensityVal').textContent=v+' / 10';
+}
+updateSlider(document.getElementById('intensity'));
+
+const drillDB = {
+  warmup:[
+    {name:"High Knees",base:"2 × 20m",desc:"Drive knees above hip height, arms pumping. Activate fast-twitch fibres."},
+    {name:"Lateral Shuffle",base:"2 × 10m each way",desc:"Stay low, push off outside foot, feet never cross."},
+    {name:"Butt Kicks",base:"2 × 20m",desc:"Heel to glute, increase cadence each rep. Warms hamstrings."},
+    {name:"A-Skip",base:"2 × 15m",desc:"Exaggerated skip pattern — rhythm, coordination, hip flexor activation."},
+    {name:"Hip Circles",base:"10 each direction",desc:"Standing hip mobility to prep hips for lateral skating demands."},
+  ],
+  main:[
+    {name:"5-10-5 Pro Agility",base:"Sets",desc:"Cone drill — 5 yds right, 10 yds left, 5 yds right. Measures change-of-direction speed.",reps:true},
+    {name:"T-Drill",base:"Sets",desc:"Cone T-shape. Forward, lateral, backward — classic hockey COD test.",reps:true},
+    {name:"Ladder In-Out",base:"Sets",desc:"2 feet in each square, then out — increase speed each set. Pure foot speed.",reps:true},
+    {name:"Box Jump to Lateral Hop",base:"Reps",desc:"Explode up onto box, step off, immediately lateral bound. Combines power with direction change.",reps:true},
+    {name:"Reactive Ball Drop",base:"Sets",desc:"Partner drops ball from shoulder height. React and catch before second bounce. Neural speed.",reps:true},
+    {name:"Cone Weave Sprint",base:"Sets",desc:"6 cones × 1m apart, weave through at max effort. No drifting — tight hips.",reps:true},
+    {name:"Mirror Drill",base:"Sets",desc:"Face partner, mirror their movements for 10s. Builds reactive lateral quickness.",reps:true},
+    {name:"4-Corner Star Drill",base:"Sets",desc:"Sprint to each cone of a 5×5yd square and back to centre. 4 directions.",reps:true},
+  ],
+  finish:[
+    {name:"Jump Rope — Quick Feet",base:"Rounds",desc:"Double-under attempts or rapid singles. Ankle stiffness and coordination.",reps:true},
+    {name:"Single-Leg Lateral Hops",base:"Reps each",desc:"Bound laterally on one foot over a line or low hurdle. Skater-specific.",reps:true},
+    {name:"Deceleration Box Drill",base:"Reps",desc:"Sprint 10m, hit the brakes on a line. Hold position. Teaches controlled stops.",reps:true},
+  ],
+  cooldown:[
+    {name:"Walking Lunge Stretch",base:"10 each leg",desc:"Deep hip flexor stretch with reach. Decompresses the hips after explosive work."},
+    {name:"Quad & Hip Flexor Hold",base:"30s each",desc:"Stand, pull ankle to glute. Counteracts explosive knee flexion patterns."},
+    {name:"Seated Groin Stretch",base:"60s",desc:"Butterfly position. Relax adductors after heavy lateral loading."},
+    {name:"Light Jog / Walk",base:"3 min",desc:"Gradually bring heart rate down. Flush metabolic waste from muscles."},
+  ]
+};
+
+function getReps(base,intensity,age){
+  const i=parseInt(intensity);
+  const ageN=parseInt(age);
+  const scale=Math.round(i*0.6+ageN<30?0:ageN>40?-1:0);
+  if(base==="Sets") return i<=3?'2 sets':i<=6?'3 sets':'4–5 sets';
+  if(base==="Reps") return i<=3?'2×6':i<=6?'3×8':'4×10';
+  if(base==="Rounds") return i<=3?'2 rounds':i<=6?'3 rounds':'5 rounds';
+  if(base.includes("each")) {
+    const n=i<=3?8:i<=6?12:16;
+    return n+' each side';
+  }
+  return base;
+}
+
+function buildCard(drill,intensity,age){
+  const reps=getReps(drill.base,intensity,age);
+  return `<div class="drill">
+    <div class="drill-name">${drill.name}</div>
+    <div class="drill-detail">${drill.desc}</div>
+    <span class="drill-reps">${reps}</span>
+  </div>`;
+}
+
+function generateWorkout(){
+  const age=document.getElementById('age').value||20;
+  const intensity=document.getElementById('intensity').value;
+  const level=document.getElementById('level').value;
+  const i=parseInt(intensity);
+
+  const labels=['','Recovery','Easy','Light','Moderate','Moderate+','Challenging','Hard','Very Hard','Intense','Beast Mode'];
+  document.getElementById('wh-title').textContent='Agility Session — '+labels[i];
+  document.getElementById('wh-meta').textContent='Age: '+age+' · Level: '+level.charAt(0).toUpperCase()+level.slice(1)+' · Est. '+Math.round(25+i*4)+' min';
+  document.getElementById('wh-badge').textContent='Intensity '+i+'/10';
+
+  // select main drills based on intensity
+  const mainCount = i<=3?3:i<=6?5:8;
+  const shuffled=[...drillDB.main].sort(()=>Math.random()-0.5).slice(0,mainCount);
+  const finCount = i<=3?1:i<=6?2:3;
+
+  document.getElementById('phase-warmup').innerHTML=drillDB.warmup.map(d=>buildCard(d,intensity,age)).join('');
+  document.getElementById('phase-main').innerHTML=shuffled.map(d=>buildCard(d,intensity,age)).join('');
+  document.getElementById('phase-finish').innerHTML=drillDB.finish.slice(0,finCount).map(d=>buildCard(d,intensity,age)).join('');
+  document.getElementById('phase-cooldown').innerHTML=drillDB.cooldown.map(d=>buildCard(d,intensity,age)).join('');
+
+  const s=document.getElementById('workout-section');
+  s.style.display='block';
+  s.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>

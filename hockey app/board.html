@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Rink Whiteboard – Ice Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ice:#c8e8ff;--blue:#0057a8;--red:#c8102e;--bg:#000d1a;}
+
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  font-family:'Barlow',sans-serif;background:var(--bg);color:#fff;
+  touch-action:none;
+}
+
+/* NAV */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:rgba(0,13,26,0.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(200,232,255,0.07);
+  height:48px;
+}
+.nav a{color:rgba(255,255,255,0.4);text-decoration:none;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;}
+.nav a:hover{color:#fff;}
+.nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:2px;color:var(--ice);margin-left:auto;}
+.zoom-info{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:rgba(200,232,255,0.4);letter-spacing:1px;min-width:52px;text-align:right;}
+
+/* CANVAS VIEWPORT */
+#viewport{
+  position:fixed;
+  top:48px;left:0;right:0;bottom:0;
+  overflow:hidden;
+  cursor:crosshair;
+}
+#canvas-container{
+  position:absolute;
+  transform-origin:0 0;
+  will-change:transform;
+}
+canvas{display:block;}
+
+/* FLOATING TOOLBAR */
+.toolbar{
+  position:fixed;
+  bottom:20px;left:50%;transform:translateX(-50%);
+  z-index:50;
+  display:flex;align-items:center;gap:4px;
+  padding:8px 12px;
+  background:rgba(0,15,40,0.92);backdrop-filter:blur(16px);
+  border:1px solid rgba(200,232,255,0.12);border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  max-width:calc(100vw - 24px);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.toolbar::-webkit-scrollbar{display:none;}
+
+.tb-sep{width:1px;height:28px;background:rgba(200,232,255,0.1);flex-shrink:0;margin:0 4px;}
+
+.tb-btn{
+  flex-shrink:0;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:#fff;font-family:'Barlow',sans-serif;font-size:.72rem;
+  padding:7px 10px;border-radius:10px;cursor:pointer;
+  transition:all .15s;white-space:nowrap;letter-spacing:.3px;
+  -webkit-tap-highlight-color:transparent;
+}
+.tb-btn:active,.tb-btn.active{background:rgba(0,87,168,0.6);border-color:var(--blue);color:var(--ice);}
+
+.color-dot{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  cursor:pointer;border:2px solid transparent;transition:border-color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.color-dot.active{border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,0.4);}
+
+.size-btn{
+  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.size-btn:active,.size-btn.active{background:rgba(0,87,168,0.5);border-color:var(--blue);}
+.size-dot{border-radius:50%;background:#fff;pointer-events:none;}
+
+/* ZOOM BUTTONS */
+.zoom-btns{
+  position:fixed;bottom:80px;right:14px;z-index:50;
+  display:flex;flex-direction:column;gap:6px;
+}
+.z-btn{
+  width:42px;height:42px;border-radius:12px;
+  background:rgba(0,15,40,0.88);backdrop-filter:blur(10px);
+  border:1px solid rgba(200,232,255,0.15);
+  color:#fff;font-size:1.3rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .15s;
+}
+.z-btn:active{background:rgba(0,87,168,0.5);}
+.z-btn.fit{font-size:.65rem;letter-spacing:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+
+/* HINT */
+.hint{
+  position:fixed;top:48px;left:0;right:0;z-index:40;
+  padding:5px 16px;
+  background:rgba(0,87,168,0.18);
+  border-bottom:1px solid rgba(0,87,168,0.2);
+  font-size:.68rem;color:rgba(200,232,255,0.6);
+  letter-spacing:1px;text-align:center;
+  transition:opacity 1s;
+}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#001533;border:1px solid rgba(200,232,255,0.15);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
+.modal h3{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;letter-spacing:2px;margin-bottom:14px;}
+.modal input{width:100%;background:rgba(0,20,50,.8);border:1px solid rgba(200,232,255,0.2);color:#fff;
+  font-family:'Barlow',sans-serif;font-size:1rem;padding:10px 14px;border-radius:8px;outline:none;margin-bottom:14px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns button{flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:1px;text-transform:uppercase;}
+.btn-confirm{background:var(--blue);color:#fff;}
+.btn-cancel{background:rgba(255,255,255,0.1);color:#fff;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">← Back</a>
+  <span class="nav-title">🧊 Rink Whiteboard</span>
+  <span class="zoom-info" id="zoom-info">100%</span>
+</nav>
+
+<div class="hint" id="hint-bar">
+  ✏️ 1 finger to draw &nbsp;·&nbsp; 2 fingers to pan &amp; pinch-zoom &nbsp;·&nbsp; Use +/− or scroll to zoom
+</div>
+
+<div id="viewport">
+  <div id="canvas-container">
+    <canvas id="rink" width="1200" height="700"></canvas>
+  </div>
+</div>
+
+<div class="zoom-btns">
+  <button class="z-btn" onclick="zoomStep(0.2)">+</button>
+  <button class="z-btn" onclick="zoomStep(-0.2)">−</button>
+  <button class="z-btn fit" onclick="resetView()">FIT</button>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button class="tb-btn active" id="tool-draw"  onclick="setTool('draw')">✏️</button>
+  <button class="tb-btn"        id="tool-line"  onclick="setTool('line')">➖</button>
+  <button class="tb-btn"        id="tool-arrow" onclick="setTool('arrow')">→</button>
+  <button class="tb-btn"        id="tool-erase" onclick="setTool('erase')">🧹</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="tool-X"    onclick="setTool('X')">❌</button>
+  <button class="tb-btn" id="tool-O"    onclick="setTool('O')">⭕</button>
+  <button class="tb-btn" id="tool-P"    onclick="setTool('P')">🏒</button>
+  <button class="tb-btn" id="tool-puck" onclick="setTool('puck')">⚫</button>
+  <div class="tb-sep"></div>
+  <div class="color-dot active" style="background:#fff"     onclick="setColor('#ffffff',this)"></div>
+  <div class="color-dot"        style="background:#c8102e"  onclick="setColor('#c8102e',this)"></div>
+  <div class="color-dot"        style="background:#4fc3f7"  onclick="setColor('#4fc3f7',this)"></div>
+  <div class="color-dot"        style="background:#ffeb3b"  onclick="setColor('#ffeb3b',this)"></div>
+  <div class="color-dot"        style="background:#69f0ae"  onclick="setColor('#69f0ae',this)"></div>
+  <div class="tb-sep"></div>
+  <button class="size-btn active" id="sz-sm" onclick="setSize(2,'sz-sm')"><div class="size-dot" style="width:4px;height:4px"></div></button>
+  <button class="size-btn"        id="sz-md" onclick="setSize(5,'sz-md')"><div class="size-dot" style="width:9px;height:9px"></div></button>
+  <button class="size-btn"        id="sz-lg" onclick="setSize(10,'sz-lg')"><div class="size-dot" style="width:15px;height:15px"></div></button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="undoLast()">↩</button>
+  <button class="tb-btn" onclick="clearDrawing()">🗑️</button>
+  <button class="tb-btn" onclick="saveImage()">💾</button>
+  <button class="tb-btn" onclick="openLabelModal()">🏷️</button>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Add Label</h3>
+    <input type="text" id="label-text" placeholder="e.g. Breakout, D-to-D pass...">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="placeLabel()">Place Label</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas    = document.getElementById('rink');
+const ctx       = canvas.getContext('2d');
+const container = document.getElementById('canvas-container');
+const viewport  = document.getElementById('viewport');
+
+let tool='draw', color='#ffffff', brushSize=2;
+let drawing=false, startX, startY;
+let history=[];
+let pendingLabel='';
+let scale=1, panX=0, panY=0;
+let lastTouchDist=null, lastPanTouch=null, isPinching=false;
+
+// ── RINK ───────────────────────────────────────────────────
+function drawRink(){
+  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2;
+  ctx.fillStyle='#0a1e30'; rr(0,0,W,H,36); ctx.fill();
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.6);
+  g.addColorStop(0,'rgba(180,230,255,0.07)'); g.addColorStop(1,'rgba(0,30,60,0)');
+  ctx.fillStyle=g; rr(0,0,W,H,36); ctx.fill();
+  const lw=n=>{ctx.lineWidth=n;};
+  ctx.strokeStyle='rgba(200,232,255,0.35)'; lw(3); rr(8,8,W-16,H-16,32); ctx.stroke();
+  ctx.strokeStyle='#c8102e'; lw(5);
+  ln(cx,16,cx,H-16);
+  const bl=W*0.25;
+  ctx.strokeStyle='#1565c0'; lw(9);
+  ln(bl,16,bl,H-16); ln(W-bl,16,W-bl,H-16);
+  ctx.strokeStyle='#1565c0'; lw(2.5); arc(cx,cy,85);
+  ctx.fillStyle='#1565c0'; dot(cx,cy,6);
+  ctx.fillStyle='#c8102e'; dot(cx,cy,4);
+  const foDist=W*0.175,foY=H*0.28;
+  ctx.strokeStyle='#c8102e'; lw(2.5);
+  [[bl-foDist,foY],[bl-foDist,H-foY],[W-bl+foDist,foY],[W-bl+foDist,H-foY]].forEach(([x,y])=>{
+    arc(x,y,65); ctx.fillStyle='#c8102e'; dot(x,y,6);
+    ctx.strokeStyle='#c8102e';
+    ctx.beginPath();ctx.moveTo(x-16,y-65);ctx.lineTo(x+16,y-65);
+    ctx.moveTo(x-16,y+65);ctx.lineTo(x+16,y+65);ctx.stroke();
+  });
+  ctx.fillStyle='#c8102e';
+  [[cx-W*0.08,H/2],[cx+W*0.08,H/2]].forEach(([x,y])=>dot(x,y,6));
+  ctx.strokeStyle='#1565c0'; lw(2.5); ctx.fillStyle='rgba(21,101,192,0.18)';
+  crease(44,cy,1); crease(W-44,cy,-1);
+  ctx.strokeStyle='#c8102e'; lw(2.5);
+  const gl=80;
+  ln(gl,cy-62,gl,cy+62); ln(W-gl,cy-62,W-gl,cy+62);
+  ctx.strokeStyle='rgba(255,255,255,0.75)'; lw(2.5); ctx.fillStyle='rgba(255,255,255,0.07)';
+  ctx.beginPath();ctx.rect(20,cy-26,22,52);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.rect(W-42,cy-26,22,52);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(200,16,46,0.45)'; lw(1.5);
+  [[8,cy-72,44,cy-62],[8,cy+72,44,cy+62],[W-8,cy-72,W-44,cy-62],[W-8,cy+72,W-44,cy+62]]
+    .forEach(([x1,y1,x2,y2])=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();});
+}
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+function arc(x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}
+function dot(x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+function ln(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function crease(x,cy,dir){
+  const w=72,h=62;
+  ctx.beginPath();ctx.arc(x+dir*w,cy,h,Math.PI*1.5,Math.PI*0.5,dir<0);
+  ctx.lineTo(x,cy+h/2);ctx.lineTo(x,cy-h/2);ctx.closePath();ctx.fill();ctx.stroke();
+}
+
+// ── TRANSFORM ──────────────────────────────────────────────
+function applyTransform(){
+  container.style.transform=`translate(${panX}px,${panY}px) scale(${scale})`;
+  document.getElementById('zoom-info').textContent=Math.round(scale*100)+'%';
+}
+function clampPan(){
+  const vw=viewport.clientWidth,vh=viewport.clientHeight;
+  const cw=canvas.width*scale,ch=canvas.height*scale;
+  panX=Math.max(Math.min(0,vw-cw),Math.min(0,panX));
+  panY=Math.max(Math.min(0,vh-ch),Math.min(0,panY));
+}
+function fitToScreen(){
+  const vw=viewport.clientWidth,vh=viewport.clientHeight;
+  scale=Math.min((vw-12)/canvas.width,(vh-12)/canvas.height);
+  panX=(vw-canvas.width*scale)/2;
+  panY=(vh-canvas.height*scale)/2;
+  applyTransform();
+}
+function resetView(){fitToScreen();}
+function zoomStep(d){
+  const cx=viewport.clientWidth/2,cy=viewport.clientHeight/2;
+  zoomAt(cx,cy,scale*d);
+}
+function zoomAt(cx,cy,delta){
+  const prev=scale;
+  scale=Math.max(0.2,Math.min(5,scale+delta));
+  panX=cx-(cx-panX)*(scale/prev);
+  panY=cy-(cy-panY)*(scale/prev);
+  clampPan(); applyTransform();
+}
+
+// ── CANVAS COORDS ──────────────────────────────────────────
+function cpos(cx,cy){
+  const r=container.getBoundingClientRect();
+  return {x:(cx-r.left)/scale, y:(cy-r.top)/scale};
+}
+
+// ── MOUSE ──────────────────────────────────────────────────
+viewport.addEventListener('mousedown',e=>{
+  if(e.button!==0)return;
+  const p=cpos(e.clientX,e.clientY);
+  startX=p.x; startY=p.y;
+  if(['X','O','P','puck'].includes(tool)){snapshot();placeMarker(p.x,p.y);}
+  else{snapshot();drawing=true;}
+});
+viewport.addEventListener('mousemove',e=>{
+  if(!drawing)return;
+  const p=cpos(e.clientX,e.clientY);
+  strokeTo(p.x,p.y);
+});
+viewport.addEventListener('mouseup',e=>{
+  if(!drawing)return; drawing=false;
+  const p=cpos(e.clientX,e.clientY);
+  if(tool==='line')drawLine(startX,startY,p.x,p.y,false);
+  if(tool==='arrow')drawLine(startX,startY,p.x,p.y,true);
+});
+viewport.addEventListener('wheel',e=>{
+  e.preventDefault();
+  zoomAt(e.clientX,e.clientY-48,scale*(e.deltaY<0?0.12:-0.12));
+},{passive:false});
+
+// ── TOUCH ──────────────────────────────────────────────────
+viewport.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(e.touches.length===1){
+    isPinching=false;
+    const t=e.touches[0];
+    lastPanTouch={x:t.clientX,y:t.clientY};
+    const p=cpos(t.clientX,t.clientY);
+    startX=p.x; startY=p.y;
+    if(['X','O','P','puck'].includes(tool)){snapshot();placeMarker(p.x,p.y);}
+    else{snapshot();drawing=true;}
+  } else if(e.touches.length===2){
+    isPinching=true; drawing=false;
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    lastTouchDist=Math.hypot(dx,dy);
+    lastPanTouch={
+      x:(e.touches[0].clientX+e.touches[1].clientX)/2,
+      y:(e.touches[0].clientY+e.touches[1].clientY)/2
+    };
+  }
+},{passive:false});
+
+viewport.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.hypot(dx,dy);
+    const midX=(e.touches[0].clientX+e.touches[1].clientX)/2;
+    const midY=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    if(lastTouchDist){
+      const prev=scale;
+      scale=Math.max(0.2,Math.min(5,scale*(dist/lastTouchDist)));
+      panX=midX-(midX-panX)*(scale/prev);
+      panY=midY-(midY-panY)*(scale/prev);
+      if(lastPanTouch){panX+=midX-lastPanTouch.x;panY+=midY-lastPanTouch.y;}
+      clampPan(); applyTransform();
+    }
+    lastTouchDist=dist;
+    lastPanTouch={x:midX,y:midY};
+  } else if(e.touches.length===1 && !isPinching){
+    const t=e.touches[0];
+    if(drawing){
+      const p=cpos(t.clientX,t.clientY);
+      strokeTo(p.x,p.y);
+    } else {
+      // 1-finger pan when not drawing (erase tool or explicit pan mode)
+      if(tool==='erase'&&lastPanTouch){
+        panX+=t.clientX-lastPanTouch.x;
+        panY+=t.clientY-lastPanTouch.y;
+        clampPan(); applyTransform();
+      }
+      if(drawing){const p=cpos(t.clientX,t.clientY);strokeTo(p.x,p.y);}
+    }
+    lastPanTouch={x:t.clientX,y:t.clientY};
+  }
+},{passive:false});
+
+viewport.addEventListener('touchend',e=>{
+  e.preventDefault();
+  if(e.touches.length<2){lastTouchDist=null;isPinching=false;}
+  if(e.touches.length===0){
+    if(drawing){
+      drawing=false;
+      const t=e.changedTouches[0];
+      const p=cpos(t.clientX,t.clientY);
+      if(tool==='line')drawLine(startX,startY,p.x,p.y,false);
+      if(tool==='arrow')drawLine(startX,startY,p.x,p.y,true);
+    }
+    lastPanTouch=null;
+  }
+},{passive:false});
+
+// ── DRAWING ────────────────────────────────────────────────
+function strokeTo(x,y){
+  if(tool==='erase'){
+    const r=22;
+    ctx.save();ctx.globalCompositeOperation='destination-out';
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    // Restore rink background under erased area
+    const tmp=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const bk=document.createElement('canvas');
+    bk.width=canvas.width;bk.height=canvas.height;
+    const bc=bk.getContext('2d');
+    drawRinkOn(bc,canvas.width,canvas.height);
+    ctx.save();
+    ctx.globalCompositeOperation='destination-over';
+    ctx.drawImage(bk,0,0);
+    ctx.restore();
+  } else {
+    ctx.strokeStyle=color;ctx.lineWidth=brushSize;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(x,y);ctx.stroke();
+  }
+  startX=x;startY=y;
+}
+
+function drawLine(x1,y1,x2,y2,arrow){
+  ctx.strokeStyle=color;ctx.lineWidth=brushSize+1;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  if(arrow){
+    const ang=Math.atan2(y2-y1,x2-x1),len=18+brushSize;
+    ctx.fillStyle=color;
+    ctx.beginPath();ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-len*Math.cos(ang-0.42),y2-len*Math.sin(ang-0.42));
+    ctx.lineTo(x2-len*Math.cos(ang+0.42),y2-len*Math.sin(ang+0.42));
+    ctx.closePath();ctx.fill();
+  }
+}
+
+function placeMarker(x,y){
+  const s=16+brushSize*1.5;
+  if(tool==='X'){
+    ctx.strokeStyle=color;ctx.lineWidth=3.5;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x-s,y-s);ctx.lineTo(x+s,y+s);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x+s,y-s);ctx.lineTo(x-s,y+s);ctx.stroke();
+  } else if(tool==='O'){
+    ctx.strokeStyle=color;ctx.lineWidth=3.5;
+    ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.stroke();
+  } else if(tool==='P'){
+    ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#000';ctx.font=`bold ${Math.round(s*1.1)}px Barlow Condensed`;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('P',x,y+1);
+  } else if(tool==='puck'){
+    ctx.fillStyle='#111';ctx.strokeStyle='rgba(255,255,255,0.65)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(x,y,s,s*0.55,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  }
+}
+
+// ── HISTORY ────────────────────────────────────────────────
+function snapshot(){
+  history.push(canvas.toDataURL());
+  if(history.length>50)history.shift();
+}
+function undoLast(){
+  if(history.length<2){ctx.clearRect(0,0,canvas.width,canvas.height);drawRink();history=[];return;}
+  history.pop();
+  const img=new Image();
+  img.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0);};
+  img.src=history[history.length-1];
+}
+function clearDrawing(){history=[];ctx.clearRect(0,0,canvas.width,canvas.height);drawRink();snapshot();}
+
+// ── TOOLS ──────────────────────────────────────────────────
+function setTool(t){
+  tool=t;
+  document.querySelectorAll('[id^="tool-"]').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tool-'+t);if(el)el.classList.add('active');
+}
+function setColor(c,el){
+  color=c;
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+}
+function setSize(s,id){
+  brushSize=s;
+  document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── LABEL ──────────────────────────────────────────────────
+function openLabelModal(){
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('label-text').value='';
+  setTimeout(()=>document.getElementById('label-text').focus(),100);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function placeLabel(){
+  pendingLabel=document.getElementById('label-text').value;
+  closeModal();
+  viewport.addEventListener('click',placeLabelAt,{once:true});
+}
+function placeLabelAt(e){
+  const p=cpos(e.clientX,e.clientY);
+  snapshot();
+  ctx.font='bold 16px Barlow Condensed';
+  const tw=ctx.measureText(pendingLabel).width;
+  ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(p.x-3,p.y-12,tw+10,22);
+  ctx.fillStyle=color;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(pendingLabel,p.x+2,p.y+1);
+}
+
+// ── SAVE ───────────────────────────────────────────────────
+function saveImage(){
+  const a=document.createElement('a');
+  a.download='ice-elite-play.png';a.href=canvas.toDataURL('image/png');a.click();
+}
+
+// ── INIT ───────────────────────────────────────────────────
+drawRink(); snapshot(); setTool('draw');
+window.addEventListener('resize',fitToScreen);
+window.addEventListener('load',fitToScreen);
+fitToScreen();
+
+setTimeout(()=>{
+  const h=document.getElementById('hint-bar');
+  h.style.opacity='0';
+  setTimeout(()=>h.style.display='none',1000);
+},5000);
+</script>
+</body>
+</html>

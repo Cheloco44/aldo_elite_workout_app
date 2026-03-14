@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Templates – Ice Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ice:#c8e8ff;--blue:#0057a8;--red:#c8102e;--bg:#000d1a;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:#fff;min-height:100vh;padding:0 0 80px;}
+body::before{content:"";position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,87,168,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,87,168,0.06) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0;}
+
+.nav{position:relative;z-index:10;display:flex;align-items:center;gap:14px;padding:20px 28px;}
+.nav a{color:rgba(255,255,255,0.45);text-decoration:none;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;}
+.nav a:hover{color:#fff;}
+.nav-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:2px;color:var(--ice);margin-left:auto;}
+
+.page-header{position:relative;z-index:1;text-align:center;padding:30px 20px 10px;}
+.page-header .icon{font-size:3rem;margin-bottom:12px;}
+.page-header h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2.4rem,7vw,4.5rem);
+  text-transform:uppercase;letter-spacing:2px;
+  background:linear-gradient(90deg,#fff,var(--ice));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-header p{font-size:.95rem;opacity:.5;margin-top:8px;font-weight:300;}
+
+.content{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;}
+
+.section-label{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;letter-spacing:5px;text-transform:uppercase;
+  color:var(--ice);opacity:.45;margin:44px 0 18px 4px;display:flex;align-items:center;gap:12px;}
+.section-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(200,232,255,0.15),transparent);}
+
+/* ATHLETE CARDS */
+.athlete-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px;}
+
+.athlete-card{
+  border-radius:16px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.07);transition:transform .28s,box-shadow .28s;}
+.athlete-card:hover{transform:translateY(-5px);}
+.athlete-header{padding:28px 24px 20px;position:relative;}
+.athlete-header::before{content:"";position:absolute;inset:0;opacity:.15;background:var(--accent);}
+.athlete-num{position:absolute;top:14px;right:18px;font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:4rem;opacity:.15;line-height:1;color:#fff;}
+.athlete-pos{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;
+  opacity:.6;margin-bottom:6px;}
+.athlete-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.8rem;letter-spacing:1px;text-transform:uppercase;line-height:1;}
+.athlete-team{font-size:.78rem;opacity:.5;margin-top:4px;}
+.athlete-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.tag{font-family:'Barlow Condensed',sans-serif;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.12);}
+
+.athlete-body{padding:20px 24px 24px;background:rgba(0,15,35,0.8);}
+.section-mini{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;letter-spacing:3px;opacity:.4;text-transform:uppercase;margin:0 0 10px;}
+.drill-list{list-style:none;}
+.drill-list li{font-size:.82rem;opacity:.75;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;gap:8px;}
+.drill-list li:last-child{border-bottom:none;}
+.drill-list li span{opacity:.45;font-size:.75rem;white-space:nowrap;}
+.expand-btn{margin-top:16px;width:100%;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+  color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;
+  border-radius:8px;cursor:pointer;transition:all .2s;}
+.expand-btn:hover{background:rgba(0,87,168,0.35);border-color:rgba(0,87,168,0.5);}
+
+.full-program{display:none;margin-top:16px;}
+.full-program.open{display:block;}
+.week-block{background:rgba(0,30,70,0.4);border-radius:10px;padding:16px;margin-bottom:10px;border:1px solid rgba(200,232,255,0.06);}
+.week-day{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:var(--ice);}
+.week-drill{font-size:.8rem;opacity:.7;padding:3px 0;}
+
+/* CARD COLORS */
+.c-mcdavid .athlete-header{background:linear-gradient(135deg,#003580,#0057a8);}
+.c-crosby .athlete-header{background:linear-gradient(135deg,#1a0000,#c8102e);}
+.c-ovechkin .athlete-header{background:linear-gradient(135deg,#000,#041e42);}
+.c-hedman .athlete-header{background:linear-gradient(135deg,#003087,#00205b);}
+
+@media(max-width:600px){.athlete-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">← Back</a>
+  <span class="nav-title">⭐ Pro Templates</span>
+</nav>
+
+<div class="page-header">
+  <div class="icon">⭐</div>
+  <h1>Pro Athlete Templates</h1>
+  <p>Train like the best in the world. Inspired by verified athlete regimens.</p>
+</div>
+
+<div class="content">
+  <div class="section-label">🏒 Elite Player Training Blueprints</div>
+
+  <div class="athlete-grid">
+
+    <!-- MCDAVID -->
+    <div class="athlete-card c-mcdavid">
+      <div class="athlete-header">
+        <div class="athlete-num">97</div>
+        <div class="athlete-pos">Centre · Edmonton Oilers</div>
+        <div class="athlete-name">Connor McDavid</div>
+        <div class="athlete-team">Focus: Pure Speed & Edge Work</div>
+        <div class="athlete-tags">
+          <span class="tag">Speed</span><span class="tag">Agility</span><span class="tag">Explosiveness</span>
+        </div>
+      </div>
+      <div class="athlete-body">
+        <div class="section-mini">Core Pillars</div>
+        <ul class="drill-list">
+          <li>Overspeed Skating Treadmill <span>3×5 min</span></li>
+          <li>Single-Leg Explosiveness Hops <span>4×8 each</span></li>
+          <li>Edge Power Drills – Inside/Outside <span>20 min</span></li>
+          <li>Sprint Intervals (6×30m) <span>Max effort</span></li>
+          <li>Battle Rope Explosions <span>4×20s</span></li>
+        </ul>
+        <button class="expand-btn" onclick="toggleFull(this)">View Full Week Program ↓</button>
+        <div class="full-program">
+          <div class="week-block">
+            <div class="week-day">Monday — Speed & Power</div>
+            <div class="week-drill">• Warm-up: Dynamic skating circuits 10 min</div>
+            <div class="week-drill">• Sprint ladder: 10-20-30m × 5 sets</div>
+            <div class="week-drill">• Box jumps to lateral bound: 4×6</div>
+            <div class="week-drill">• Squat (heavy): 5×3 @ 85%</div>
+            <div class="week-drill">• RDL: 4×6</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Wednesday — Skill & Conditioning</div>
+            <div class="week-drill">• On-ice edge work: 45 min</div>
+            <div class="week-drill">• Stickhandling circuits: 20 min</div>
+            <div class="week-drill">• Shooting accuracy board: 3×20 shots</div>
+            <div class="week-drill">• Conditioning: 8×30s all-out shifts</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Friday — Strength</div>
+            <div class="week-drill">• Bulgarian split squat: 4×8</div>
+            <div class="week-drill">• Hip thrust: 4×10</div>
+            <div class="week-drill">• Trap bar deadlift: 4×5</div>
+            <div class="week-drill">• Core anti-rotation: pallof press 3×12</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Saturday — Game Prep</div>
+            <div class="week-drill">• Activation: 20 min low-impact movement</div>
+            <div class="week-drill">• Shooting: 100 pucks (wrist, snap, one-timers)</div>
+            <div class="week-drill">• Vision drills: peripheral tracking</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CROSBY -->
+    <div class="athlete-card c-crosby">
+      <div class="athlete-header">
+        <div class="athlete-num">87</div>
+        <div class="athlete-pos">Centre · Pittsburgh Penguins</div>
+        <div class="athlete-name">Sidney Crosby</div>
+        <div class="athlete-team">Focus: Core Strength & Puck Control</div>
+        <div class="athlete-tags">
+          <span class="tag">Core Stability</span><span class="tag">Puck Skills</span><span class="tag">Durability</span>
+        </div>
+      </div>
+      <div class="athlete-body">
+        <div class="section-mini">Core Pillars</div>
+        <ul class="drill-list">
+          <li>Off-season Skateboarding (balance/edge) <span>Daily</span></li>
+          <li>Heavy Compound Lifts — Low Rep <span>5×3</span></li>
+          <li>Ball Hockey Stickhandling <span>30 min</span></li>
+          <li>Core Stability Circuit <span>4 rounds</span></li>
+          <li>Backward Skating Explosions <span>6 sets</span></li>
+        </ul>
+        <button class="expand-btn" onclick="toggleFull(this)">View Full Week Program ↓</button>
+        <div class="full-program">
+          <div class="week-block">
+            <div class="week-day">Monday — Strength</div>
+            <div class="week-drill">• Back Squat: 5×3 heavy</div>
+            <div class="week-drill">• Deadlift variation: 4×4</div>
+            <div class="week-drill">• Bench Press: 4×5</div>
+            <div class="week-drill">• Weighted chin-ups: 4×5</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Tuesday — Skill Work</div>
+            <div class="week-drill">• Ball hockey: 45 min full speed</div>
+            <div class="week-drill">• Puck control under fatigue: 3 rounds</div>
+            <div class="week-drill">• One-timer practice: 4×15 reps</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Thursday — Conditioning</div>
+            <div class="week-drill">• Sled push: 6×30m</div>
+            <div class="week-drill">• Bike Tabata: 8 rounds 20s/10s</div>
+            <div class="week-drill">• Farmer carry: 3×30m heavy</div>
+            <div class="week-drill">• Ab circuit: plank 60s, rollout ×12, side plank 45s</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Saturday — On-Ice</div>
+            <div class="week-drill">• Full-ice stickhandling patterns: 20 min</div>
+            <div class="week-drill">• Shooting mechanics: wrist, backhand, snap</div>
+            <div class="week-drill">• 2-on-1 rush sequences: 30 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVECHKIN -->
+    <div class="athlete-card c-ovechkin">
+      <div class="athlete-header">
+        <div class="athlete-num">8</div>
+        <div class="athlete-pos">Left Wing · Washington Capitals</div>
+        <div class="athlete-name">Alex Ovechkin</div>
+        <div class="athlete-team">Focus: Raw Power & One-Timer</div>
+        <div class="athlete-tags">
+          <span class="tag">Shot Power</span><span class="tag">Strength</span><span class="tag">Longevity</span>
+        </div>
+      </div>
+      <div class="athlete-body">
+        <div class="section-mini">Core Pillars</div>
+        <ul class="drill-list">
+          <li>Heavy Power Cleans <span>5×3</span></li>
+          <li>One-Timer Technique Repetition <span>200/day</span></li>
+          <li>Sled Drive for Shot Power <span>6×20m</span></li>
+          <li>Upper Body Hypertrophy Block <span>4×10</span></li>
+          <li>Flexibility & Mobility Routine <span>Daily 20min</span></li>
+        </ul>
+        <button class="expand-btn" onclick="toggleFull(this)">View Full Week Program ↓</button>
+        <div class="full-program">
+          <div class="week-block">
+            <div class="week-day">Monday — Power</div>
+            <div class="week-drill">• Power clean: 5×3 @ 80%</div>
+            <div class="week-drill">• Push press: 4×4</div>
+            <div class="week-drill">• Heavy squat: 4×5</div>
+            <div class="week-drill">• Med ball chest pass: 4×8 explosive</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Wednesday — Shot Work</div>
+            <div class="week-drill">• One-timer from left circle: 100 reps</div>
+            <div class="week-drill">• Slap shot mechanics drill: 60 reps</div>
+            <div class="week-drill">• Net-front deflection practice: 40 reps</div>
+            <div class="week-drill">• Wrist strength band work: 3×20</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Friday — Upper Hypertrophy</div>
+            <div class="week-drill">• Incline press: 4×10</div>
+            <div class="week-drill">• Cable rows: 4×10</div>
+            <div class="week-drill">• Lateral raise: 3×15</div>
+            <div class="week-drill">• Forearm curls: 3×20</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEDMAN -->
+    <div class="athlete-card c-hedman">
+      <div class="athlete-header">
+        <div class="athlete-num">77</div>
+        <div class="athlete-pos">Defence · Tampa Bay Lightning</div>
+        <div class="athlete-name">Victor Hedman</div>
+        <div class="athlete-team">Focus: Reach, Gap Control & Positioning</div>
+        <div class="athlete-tags">
+          <span class="tag">Defensive Reads</span><span class="tag">Reach</span><span class="tag">Hockey IQ</span>
+        </div>
+      </div>
+      <div class="athlete-body">
+        <div class="section-mini">Core Pillars</div>
+        <ul class="drill-list">
+          <li>Long Lateral Stride Intervals <span>4×5 min</span></li>
+          <li>Defensive Angle Skating Drills <span>3 rounds</span></li>
+          <li>Full-Body Functional Strength <span>3×8</span></li>
+          <li>Gap Control Positioning Reps <span>15 reps</span></li>
+          <li>Backward-to-Forward Pivot Circuits <span>20 min</span></li>
+        </ul>
+        <button class="expand-btn" onclick="toggleFull(this)">View Full Week Program ↓</button>
+        <div class="full-program">
+          <div class="week-block">
+            <div class="week-day">Monday — Skating Mechanics</div>
+            <div class="week-drill">• Backward crossovers × 10 laps</div>
+            <div class="week-drill">• Forward-backward pivots × 20 each direction</div>
+            <div class="week-drill">• Gap control simulation: 15 reps</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Wednesday — Full Body Strength</div>
+            <div class="week-drill">• Goblet squat: 4×10</div>
+            <div class="week-drill">• Single-leg RDL: 3×10 each</div>
+            <div class="week-drill">• Cable pull-through: 3×12</div>
+            <div class="week-drill">• Rotational med ball throw: 3×10</div>
+          </div>
+          <div class="week-block">
+            <div class="week-day">Friday — Hockey IQ + Conditioning</div>
+            <div class="week-drill">• Film study: defensive zone coverage 30 min</div>
+            <div class="week-drill">• Shuttle run: 8×20m with 30s rest</div>
+            <div class="week-drill">• Staircase explosive sprints: 6 reps</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleFull(btn){
+  const fp=btn.nextElementSibling;
+  const open=fp.classList.toggle('open');
+  btn.textContent=open?'Hide Program ↑':'View Full Week Program ↓';
+}
+</script>
+</body>
+</html>

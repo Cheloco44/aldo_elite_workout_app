@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICE ELITE – Hockey Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ice:    #c8e8ff;
+  --blue:   #0057a8;
+  --navy:   #001f4d;
+  --red:    #c8102e;
+  --frost:  rgba(200,232,255,0.08);
+  --glass:  rgba(0,31,77,0.55);
+}
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: #000d1a;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── RINK GRID BACKGROUND ── */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,87,168,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,87,168,0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px 40px;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,87,168,0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(200,16,46,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('slap shot.png') no-repeat center center;
+  background-size: contain;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.logo-mark {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(200,232,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  background: rgba(0,87,168,0.2);
+  backdrop-filter: blur(8px);
+  margin: 0 auto 24px;
+  box-shadow: 0 0 30px rgba(0,87,168,0.4);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 30px rgba(0,87,168,0.4); }
+  50%      { box-shadow: 0 0 55px rgba(0,87,168,0.7), 0 0 80px rgba(200,232,255,0.15); }
+}
+
+.eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 5px;
+  color: var(--ice);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3.2rem, 10vw, 7rem);
+  line-height: 0.92;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+h1 .line-ice {
+  display: block;
+  background: linear-gradient(90deg, #fff 0%, var(--ice) 60%, #7ec8ff 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+h1 .line-red {
+  display: block;
+  color: var(--red);
+  -webkit-text-fill-color: var(--red);
+  font-size: 0.45em;
+  letter-spacing: 8px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  opacity: 0.5;
+  margin-top: 18px;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+
+.scroll-hint {
+  margin-top: 40px;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  opacity: 0.35;
+  text-transform: uppercase;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* ── CONTENT WRAPPER ── */
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── SECTION LABELS ── */
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--ice);
+  opacity: 0.45;
+  margin: 52px 0 18px 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(200,232,255,0.15), transparent);
+}
+
+/* ── CARDS GRID ── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  position: relative;
+  padding: 28px 24px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(.22,1,.36,1), box-shadow 0.28s;
+  display: block;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.28s;
+  border-radius: inherit;
+}
+.card:hover { transform: translateY(-6px) scale(1.02); }
+.card:hover::before { background: rgba(255,255,255,0.04); }
+
+.card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 14px;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.card h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.card p { font-size: 0.84rem; opacity: 0.72; line-height: 1.55; font-weight: 300; }
+
+.badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* ── CARD THEMES ── */
+.c-agility   { background: linear-gradient(135deg, #00264d 0%, #0057a8 100%); box-shadow: 0 8px 24px rgba(0,87,168,0.3); }
+.c-agility:hover   { box-shadow: 0 16px 40px rgba(0,87,168,0.5); }
+
+.c-speed     { background: linear-gradient(135deg, #1a0014 0%, #9b0036 100%); box-shadow: 0 8px 24px rgba(200,16,46,0.3); }
+.c-speed:hover     { box-shadow: 0 16px 40px rgba(200,16,46,0.5); }
+
+.c-strength  { background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%); box-shadow: 0 8px 24px rgba(30,58,95,0.4); border-color: rgba(200,232,255,0.12); }
+.c-strength:hover  { box-shadow: 0 16px 40px rgba(30,58,95,0.6); }
+
+.c-endurance { background: linear-gradient(135deg, #001a10 0%, #006633 100%); box-shadow: 0 8px 24px rgba(0,102,51,0.3); }
+.c-endurance:hover { box-shadow: 0 16px 40px rgba(0,102,51,0.5); }
+
+.c-dryland   { background: linear-gradient(135deg, #1a1000 0%, #7a4a00 100%); box-shadow: 0 8px 24px rgba(122,74,0,0.35); }
+.c-dryland:hover   { box-shadow: 0 16px 40px rgba(200,130,0,0.4); }
+
+.c-offseason { background: linear-gradient(135deg, #0d001a 0%, #4a007a 100%); box-shadow: 0 8px 24px rgba(74,0,122,0.35); }
+.c-offseason:hover { box-shadow: 0 16px 40px rgba(120,0,200,0.45); }
+
+.c-puck      { background: linear-gradient(135deg, #00171f 0%, #006080 100%); box-shadow: 0 8px 24px rgba(0,96,128,0.35); }
+.c-puck:hover      { box-shadow: 0 16px 40px rgba(0,160,200,0.45); }
+
+.c-shooting  { background: linear-gradient(135deg, #1a0800 0%, #8b3000 100%); box-shadow: 0 8px 24px rgba(139,48,0,0.35); }
+.c-shooting:hover  { box-shadow: 0 16px 40px rgba(200,80,0,0.45); }
+
+.c-skating   { background: linear-gradient(135deg, #00102a 0%, #003080 100%); box-shadow: 0 8px 24px rgba(0,48,128,0.4); border-color: rgba(100,180,255,0.15); }
+.c-skating:hover   { box-shadow: 0 16px 40px rgba(0,100,255,0.4); }
+
+.c-board     { background: linear-gradient(135deg, #001a1a 0%, #004444 100%); box-shadow: 0 8px 24px rgba(0,68,68,0.4); border-color: rgba(0,220,200,0.15); }
+.c-board:hover     { box-shadow: 0 16px 40px rgba(0,180,180,0.45); }
+
+.c-plays     { background: linear-gradient(135deg, #1a1200 0%, #555200 100%); box-shadow: 0 8px 24px rgba(85,82,0,0.4); border-color: rgba(220,210,0,0.12); }
+.c-plays:hover     { box-shadow: 0 16px 40px rgba(200,200,0,0.35); }
+
+.c-proinspo  { background: linear-gradient(135deg, #0a0010 0%, #2a0040 100%); box-shadow: 0 8px 24px rgba(42,0,64,0.5); border: 1px solid rgba(180,100,255,0.2); }
+.c-proinspo:hover  { box-shadow: 0 16px 40px rgba(140,0,255,0.4); }
+
+/* ── ICE LINE DIVIDER ── */
+.ice-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(200,232,255,0.3), transparent);
+  margin: 60px 0 0;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 24px;
+  font-size: 0.72rem;
+  opacity: 0.25;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+  .card  { padding: 22px 18px; }
+  h1     { font-size: 3.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+
+  <div class="logo-mark">🏒</div>
+  <p class="eyebrow">Performance Training System</p>
+  <h1>
+    <span class="line-ice">ICE ELITE</span>
+    <span class="line-red">Hockey Performance</span>
+  </h1>
+  <p class="hero-sub">Train hard. Skate faster. Dominate the ice.</p>
+  <p class="scroll-hint">↓ Choose your program ↓</p>
+</section>
+
+<!-- PROGRAMS -->
+<div class="content">
+
+  <div class="section-label">⚡ On-Ice Conditioning</div>
+  <div class="cards">
+    <a href="agility.html" class="card c-agility">
+      <span class="card-icon">⚡</span>
+      <h2>Agility Training</h2>
+      <p>Explosive edge work, crossover drills & quick-twitch reaction circuits built for the ice.</p>
+      <span class="badge">Age + Intensity</span>
+    </a>
+    <a href="speed.html" class="card c-speed">
+      <span class="card-icon">💨</span>
+      <h2>Speed & Acceleration</h2>
+      <p>First-step burst, top-end stride power, and breakaway gap training.</p>
+      <span class="badge">Age + Intensity</span>
+    </a>
+    <a href="strength.html" class="card c-strength">
+      <span class="card-icon">🏋️</span>
+      <h2>Strength & Power</h2>
+      <p>Hockey-specific compound lifts — built around board battles, shot power, and puck protection.</p>
+      <span class="badge">Age + Intensity</span>
+    </a>
+    <a href="endurance.html" class="card c-endurance">
+      <span class="card-icon">🫁</span>
+      <h2>Endurance & VO2</h2>
+      <p>Shift-length intervals, repeat sprint capacity & aerobic base work. Go hard every shift.</p>
+      <span class="badge">Age + Intensity</span>
+    </a>
+  </div>
+
+  <div class="section-label">🏒 Skill Development</div>
+  <div class="cards">
+    <a href="puck.html" class="card c-puck">
+      <span class="card-icon">🏒</span>
+      <h2>Puck Handling</h2>
+      <p>Stickhandling patterns, tight space control, dekes, and puck protection under pressure.</p>
+      <span class="badge">Skill Drills</span>
+    </a>
+    <a href="shooting.html" class="card c-shooting">
+      <span class="card-icon">🎯</span>
+      <h2>Shooting</h2>
+      <p>Slap shot mechanics, wrist shot release, one-timers, and sniper accuracy drills.</p>
+      <span class="badge">Skill Drills</span>
+    </a>
+    <a href="skating.html" class="card c-skating">
+      <span class="card-icon">⛸️</span>
+      <h2>Skating Mechanics</h2>
+      <p>Stride efficiency, backward skating, pivots, stops & starts — fundamentals that separate players.</p>
+      <span class="badge">Skill Drills</span>
+    </a>
+  </div>
+
+  <div class="section-label">🧊 Off-Ice Programs</div>
+  <div class="cards">
+    <a href="dryland.html" class="card c-dryland">
+      <span class="card-icon">🏃</span>
+      <h2>Dryland Training</h2>
+      <p>Slide board, slide pucks, lateral hurdles & resistance-band drills simulating on-ice demands.</p>
+      <span class="badge">In Season</span>
+    </a>
+    <a href="offseason.html" class="card c-offseason">
+      <span class="card-icon">📅</span>
+      <h2>Off-Season Program</h2>
+      <p>12-week block periodization. Build your base. Arrive at camp a different player.</p>
+      <span class="badge">12 Weeks</span>
+    </a>
+    <a href="proinspo.html" class="card c-proinspo">
+      <span class="card-icon">⭐</span>
+      <h2>Pro Athlete Templates</h2>
+      <p>Training breakdowns inspired by McDavid, Crosby, Ovechkin & Hedman. Train like the best.</p>
+      <span class="badge">Pro Level</span>
+    </a>
+  </div>
+
+  <div class="section-label">📋 Coaching Tools</div>
+  <div class="cards">
+    <a href="board.html" class="card c-board">
+      <span class="card-icon">🧊</span>
+      <h2>Rink Whiteboard</h2>
+      <p>Draw plays on a live hockey rink. Freehand tools, X's & O's, arrows. Share with your team.</p>
+      <span class="badge">Draw & Plan</span>
+    </a>
+    <a href="plays.html" class="card c-plays">
+      <span class="card-icon">📐</span>
+      <h2>Play Library</h2>
+      <p>Pre-built powerplay, breakout, and faceoff plays. Import your own or build from scratch.</p>
+      <span class="badge">Coach Input</span>
+    </a>
+  </div>
+
+  <div class="ice-line"></div>
+</div>
+
+<footer>Ice Elite · Hockey Performance System · Built for Champions</footer>
+
+</body>
+</html>
