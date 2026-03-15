@@ -355,7 +355,9 @@ nav {
     text-transform: uppercase;
     margin-bottom: 10px;
 }
-
+.card-nutrition { background: linear-gradient(135deg, #1a3a2a, #0d2b1e, #0a1a0f); box-shadow: 0 8px 25px rgba(62,207,142,0.2); border: 1px solid rgba(62,207,142,0.25); }
+.card-nutrition:hover { box-shadow: 0 15px 40px rgba(62,207,142,0.38); border-color: rgba(62,207,142,0.5); }
+.card-nutrition p { color: rgba(200,240,220,0.8); }
 /* ===== MAIN CONTENT (unchanged from original) ===== */
 .landing {
     text-align: center;
@@ -675,6 +677,12 @@ h1 {
 
     <div class="section-label">🛠️ Coach Tools</div>
     <div class="cards">
+<a href="nutrition.html" class="card card-nutrition">
+    <div class="card-badge" style="background:rgba(62,207,142,0.25);color:#3ecf8e">Beta</div>
+    <div class="card-icon">🥩</div>
+    <h2>NUTRITION PLANNER</h2>
+    <p>Enter your stats and training type. Get a personalized meal plan with macros calculated to your exact calorie target.</p>
+</a>
         <a href="coachimport.html" class="card card-coach">
             <div class="card-badge">AI Powered</div>
             <div class="card-icon">📋</div>
