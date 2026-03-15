@@ -65,12 +65,23 @@ body::before {
   display: grid; grid-template-columns: 370px 1fr; gap: 28px; align-items: start;
 }
 @media(max-width:860px){
-  .main { grid-template-columns: 1fr; padding: 20px 14px 60px; gap: 20px; }
-  .form-panel { position: static; }
-  .results-panel { min-height: unset; }
-  .plan-stats { gap: 14px; }
-  .stat-val { font-size: 1.2rem; }
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    padding: 16px 12px 60px;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .form-panel { position: static; width: 100%; }
+  .results-panel { width: 100%; min-height: unset; }
+  .plan-stats { gap: 12px; }
+  .stat-val { font-size: 1.1rem; }
+  .stat-lbl { font-size: 0.58rem; }
   .supp-list { grid-template-columns: 1fr; }
+  .meal-head { flex-direction: column; align-items: flex-start; }
+  .plan-header { padding: 16px 18px; }
+  .plan-header h2 { font-size: 1.3rem; }
 }
 .form-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: sticky; top: 18px; }
 .panel-title { background: linear-gradient(135deg, rgba(201,168,76,0.13), rgba(201,168,76,0.04)); border-bottom: 1px solid var(--border); padding: 16px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 3px; color: var(--gold-light); }
@@ -157,6 +168,35 @@ body::before {
 .notes-card li { margin-bottom: 5px; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 .fade-in { animation: fadeIn 0.35s ease both; }
+@media(max-width:860px){
+  .main { grid-template-columns: 1fr; padding: 16px 12px 60px; gap: 20px; }
+  .form-panel { position: static; }
+  .results-panel { min-height: unset; }
+  .plan-stats { gap: 10px; }
+  .stat-val { font-size: 1.1rem; }
+  .stat-lbl { font-size: 0.58rem; }
+  .supp-list { grid-template-columns: 1fr; }
+  .meal-head { flex-direction: column; align-items: flex-start; }
+  .mobile-results-active .form-panel { display: none; }
+}
+.back-to-form-btn {
+  display: none;
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.back-to-form-btn:hover { border-color: var(--gold); color: var(--gold); }
+@media(max-width:860px){ .back-to-form-btn { display: block; } }
 </style>
 </head>
 <body>
@@ -283,6 +323,7 @@ body::before {
 
   <!-- RESULTS -->
   <div class="results-panel" id="results-panel">
+    <button class="back-to-form-btn" onclick="showForm()">← Edit Profile</button>
     <div class="empty-state">
       <div class="icon">🥩</div>
       <p>Fill in your stats and hit <strong style="color:var(--gold)">Generate</strong> to receive your personalized nutrition plan.</p>
@@ -408,6 +449,18 @@ const NOTES = {
 
 let currentUnits = 'imperial';
 let calMode = 'auto';
+
+function isMobile() { return window.innerWidth <= 860; }
+
+function showResults() {
+  if (isMobile()) document.querySelector('.main').classList.add('mobile-results-active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showForm() {
+  document.querySelector('.main').classList.remove('mobile-results-active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 function setUnits(u) {
   currentUnits = u;
@@ -557,6 +610,7 @@ function generatePlan() {
   const targetCal = getTargetCal(stats);
   if (!targetCal) { alert('Please select or enter a calorie target.'); return; }
   renderPlan(buildPlan(stats, targetCal), stats, targetCal);
+  showResults();
 }
 
 function renderPlan(plan, stats, targetCal) {
