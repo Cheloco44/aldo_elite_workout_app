@@ -64,7 +64,14 @@ body::before {
   padding: 36px 18px 60px;
   display: grid; grid-template-columns: 370px 1fr; gap: 28px; align-items: start;
 }
-@media(max-width:860px){ .main { grid-template-columns: 1fr; } }
+@media(max-width:860px){
+  .main { grid-template-columns: 1fr; padding: 20px 14px 60px; gap: 20px; }
+  .form-panel { position: static; }
+  .results-panel { min-height: unset; }
+  .plan-stats { gap: 14px; }
+  .stat-val { font-size: 1.2rem; }
+  .supp-list { grid-template-columns: 1fr; }
+}
 .form-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: sticky; top: 18px; }
 .panel-title { background: linear-gradient(135deg, rgba(201,168,76,0.13), rgba(201,168,76,0.04)); border-bottom: 1px solid var(--border); padding: 16px 22px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 3px; color: var(--gold-light); }
 .panel-body { padding: 22px; }
