@@ -123,7 +123,7 @@ body {
 }
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
-@media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .form-grid { grid-template-columns: 1fr 1fr; gap: 10px; } }
 .form-field { display: flex; flex-direction: column; gap: 6px; }
 .form-field label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,150,80,0.7); }
 .form-field input, .form-field select {
@@ -140,7 +140,7 @@ body {
 .rank-selector > label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,150,80,0.7); display: block; margin-bottom: 10px; }
 .rank-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 @media (max-width: 600px){ .rank-options { grid-template-columns: repeat(3,1fr); } }
-@media (max-width: 400px){ .rank-options { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 400px){ .rank-options { grid-template-columns: repeat(3,1fr); } }
 .rank-opt {
     padding: 10px 6px; border-radius: 5px; text-align: center; cursor: pointer;
     border: 1px solid rgba(255,80,0,0.2); background: rgba(255,80,0,0.06);
@@ -240,7 +240,7 @@ body {
 }
 .fire-footer canvas { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
 
-@media (max-width: 640px) { .hero-content { padding: 40px 18px 44px; } .main { padding: 0 14px; } }
+@media (max-width: 640px) { .hero-content { padding: 40px 18px 20px; } .main { padding: 0 10px; } .setup-panel { padding: 18px 14px; } .rank-selector { margin-bottom: 14px; } .jump-selector { margin-bottom: 14px; } }
 
 /* ====== QUOTE CARD ====== */
 .quote-card {
