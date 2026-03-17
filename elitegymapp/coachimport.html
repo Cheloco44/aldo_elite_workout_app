@@ -383,7 +383,7 @@ async function convertProgram(){
     if(notes) contextParts.push("Additional notes: " + notes);
     var context = contextParts.length ? "\n\nContext:\n" + contextParts.join("\n") : "";
 
-    var prompt = `You are a strength & conditioning expert for the ALDO ELITE WORKOUTS platform. A coach has imported their training program. Convert it into a structured, client-ready format.
+    var prompt = `You are a strength & conditioning expert for the EATT platform. A coach has imported their training program. Convert it into a structured, client-ready format.
 
 RAW PROGRAM DATA:
 ${extractedText.substring(0, 8000)}
@@ -395,7 +395,7 @@ INSTRUCTIONS:
 3. For each exercise, list: Exercise name, Sets, Reps/Duration, Weight/Intensity if specified
 4. Keep the coach's original intent but make it crystal clear for the client
 5. Add brief motivational coaching cues for each day (1 sentence)
-6. Use the ALDO ELITE tone: energetic, direct, no fluff
+6. Use the EATT tone: energetic, direct, no fluff
 7. Format your response as structured JSON:
 {
   "title": "Program title",

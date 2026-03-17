@@ -135,12 +135,12 @@ tr:hover { background: rgba(255,255,255,0.06); }
         </select>
     </div>
     <div class="jump-selector">
-        <label class="jump-label">&#9889; WEIGHT JUMPS PER SESSION &mdash; How hungry are you?</label>
+        <label class="jump-label">&#9889; WEIGHT INCREMENT PER SESSION &mdash; How hungry are you?</label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
+            <button type="button" class="jump-btn" data-pct="0.5" onclick="selectJump(this)"><span class="jump-pct">½x</span><span class="jump-tag">Slow (+5/+5 lbs)</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="1.0" onclick="selectJump(this)"><span class="jump-pct">1x</span><span class="jump-tag">Standard (+5/+10 lbs)</span></button>
+            <button type="button" class="jump-btn" data-pct="1.5" onclick="selectJump(this)"><span class="jump-pct">1.5x</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="2.0" onclick="selectJump(this)"><span class="jump-pct">2x</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
@@ -170,92 +170,127 @@ tr:hover { background: rgba(255,255,255,0.06); }
 
 <script>
 var programData = [];
+var programStarts = {};
 
-function round5(v) { return Math.max(45, Math.round(v/5)*5); }
+// True 5x5 increments: lower body +10 lbs/session, upper body +5 lbs/session
+var INCREMENT = { squat: 10, bench: 5, row: 5, ohp: 5, dead: 10 };
+
+function round5(v) { return Math.max(45, Math.round(v / 5) * 5); }
+
+function selectJump(btn) {
+    document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('jump-active'); });
+    btn.classList.add('jump-active');
+}
 
 function generateProgram() {
     programStarts = {
-        squat: parseInt(document.getElementById("squat").value)||135,
-        bench: parseInt(document.getElementById("bench").value)||95,
-        row:   parseInt(document.getElementById("row").value)||95,
-        ohp:   parseInt(document.getElementById("ohp").value)||65,
-        dead:  parseInt(document.getElementById("deadlift").value)||135
+        squat: parseInt(document.getElementById("squat").value)  || 135,
+        bench: parseInt(document.getElementById("bench").value)  || 95,
+        row:   parseInt(document.getElementById("row").value)    || 95,
+        ohp:   parseInt(document.getElementById("ohp").value)    || 65,
+        dead:  parseInt(document.getElementById("deadlift").value)|| 135
     };
-    var weeks = parseInt(document.getElementById("numWeeks").value)||12;
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
 
-    // 3 sessions per week, alternating A/B/A, B/A/B...
+    // Get multiplier from jump selector (used to scale increments — 0.5x, 1x, 1.5x, 2x)
+    var activeBtn = document.querySelector('.jump-btn.jump-active');
+    var jumpMult = activeBtn ? parseFloat(activeBtn.getAttribute('data-pct')) : 1.0;
+
+    // Scale actual lbs increments by multiplier
+    var inc = {
+        squat: Math.max(5,  Math.round(INCREMENT.squat * jumpMult / 5) * 5),
+        bench: Math.max(5,  Math.round(INCREMENT.bench * jumpMult / 5) * 5),
+        row:   Math.max(5,  Math.round(INCREMENT.row   * jumpMult / 5) * 5),
+        ohp:   Math.max(5,  Math.round(INCREMENT.ohp   * jumpMult / 5) * 5),
+        dead:  Math.max(10, Math.round(INCREMENT.dead  * jumpMult / 5) * 5)
+    };
+
+    // Build all sessions sequentially — true alternating A/B/A → B/A/B → ...
     programData = [];
-    var weights = Object.assign({}, programStarts);
-    var sessionType = ['A','B','A'];
+    var w = Object.assign({}, programStarts); // running weights
+    var sessionIndex = 0; // global session counter for proper A/B alternation
 
-    for(var w=1; w<=weeks; w++) {
+    for (var week = 1; week <= weeks; week++) {
         var weekSessions = [];
-        for(var s=0; s<3; s++) {
-            var type = sessionType[(((w-1)*3+s)) % 2 === 0 ? 0 : 1];
-            // Actually alternate: session 0,2,4... = A, 1,3,5... = B
-            var idx = (w-1)*3 + s;
-            type = idx % 2 === 0 ? 'A' : 'B';
+        for (var s = 0; s < 3; s++) {
+            var type = sessionIndex % 2 === 0 ? 'A' : 'B';
             var exercises = [];
-            if(type === 'A') {
+
+            if (type === 'A') {
                 exercises = [
-                    {name:'Squat', cls:'lift-a', sets:'5', reps:'5', weight:round5(weights.squat)},
-                    {name:'Bench Press', cls:'lift-a', sets:'5', reps:'5', weight:round5(weights.bench)},
-                    {name:'Barbell Row', cls:'lift-a', sets:'5', reps:'5', weight:round5(weights.row)}
+                    { name:'Squat',       cls:'lift-a', sets:'5', reps:'5', weight: round5(w.squat) },
+                    { name:'Bench Press', cls:'lift-a', sets:'5', reps:'5', weight: round5(w.bench) },
+                    { name:'Barbell Row', cls:'lift-a', sets:'5', reps:'5', weight: round5(w.row)   }
                 ];
-                // Increment for next A session (every 2 sessions)
-                weights.squat += round5(programStarts.squat * weeklyJump);
-                weights.bench += round5(programStarts.bench * weeklyJump);
-                weights.row += round5(programStarts.row * weeklyJump);
+                w.squat += inc.squat;
+                w.bench += inc.bench;
+                w.row   += inc.row;
             } else {
                 exercises = [
-                    {name:'Squat', cls:'lift-b', sets:'5', reps:'5', weight:round5(weights.squat)},
-                    {name:'Overhead Press', cls:'lift-b', sets:'5', reps:'5', weight:round5(weights.ohp)},
-                    {name:'Deadlift', cls:'lift-b', sets:'1', reps:'5', weight:round5(weights.dead)}
+                    { name:'Squat',          cls:'lift-b', sets:'5', reps:'5', weight: round5(w.squat) },
+                    { name:'Overhead Press', cls:'lift-b', sets:'5', reps:'5', weight: round5(w.ohp)   },
+                    { name:'Deadlift',       cls:'lift-b', sets:'1', reps:'5', weight: round5(w.dead)  }
                 ];
-                weights.squat += round5(programStarts.squat * weeklyJump);
-                weights.ohp += round5(programStarts.ohp * weeklyJump);
-                weights.dead += round5(programStarts.dead * weeklyJump);
+                w.squat += inc.squat;
+                w.ohp   += inc.ohp;
+                w.dead  += inc.dead;
             }
-            weekSessions.push({type:type, exercises:exercises});
+
+            weekSessions.push({ type: type, exercises: exercises });
+            sessionIndex++;
         }
         programData.push(weekSessions);
     }
 
-    // Populate selectors
+    // Populate week selector
     var ws = document.getElementById("weekSel");
     ws.innerHTML = "";
-    for(var i=1;i<=weeks;i++) ws.innerHTML += '<option value="'+(i-1)+'">Week '+i+'</option>';
+    for (var i = 1; i <= weeks; i++) {
+        ws.innerHTML += '<option value="' + (i-1) + '">Week ' + i + '</option>';
+    }
 
-    document.getElementById("setupPanel").style.display = "none";
-    document.getElementById("controls").style.display   = "block";
-    document.getElementById("tableWrap").style.display  = "block";
-    document.getElementById("progressNote").style.display = "block";
+    document.getElementById("setupPanel").style.display     = "none";
+    document.getElementById("controls").style.display       = "block";
+    document.getElementById("tableWrap").style.display      = "block";
+    document.getElementById("progressNote").style.display   = "block";
     renderTable();
 }
 
 function renderTable() {
-    var wi = parseInt(document.getElementById("weekSel").value)||0;
-    var si = parseInt(document.getElementById("sessionSel").value)||0;
+    var wi = parseInt(document.getElementById("weekSel").value)    || 0;
+    var si = parseInt(document.getElementById("sessionSel").value) || 0;
     var session = programData[wi][si];
     var tb = document.querySelector("#workoutTable tbody");
     tb.innerHTML = "";
 
-    var notes = ['Warm up with empty bar. Focus on form.','Drive through your heels on squat.','Control the eccentric — don\'t drop the weight.','Stay tight, chest up, brace hard.','Squeeze the bar like you hate it.'];
+    var tips = {
+        'Squat':          'Drive through your heels. Chest up, brace hard.',
+        'Bench Press':    'Retract shoulder blades. Touch chest, press explosively.',
+        'Barbell Row':    'Hinge to ~45°. Pull to lower chest, squeeze lats.',
+        'Overhead Press': 'Squeeze glutes. Press straight up, lock out overhead.',
+        'Deadlift':       '1 set of 5 — max focus. Brace, push the floor away.'
+    };
 
-    session.exercises.forEach(function(ex, i) {
+    session.exercises.forEach(function(ex) {
         var tr = document.createElement("tr");
-        tr.innerHTML = '<td class="'+ex.cls+'">'+ex.name+'</td><td>'+ex.sets+' × '+ex.reps+'</td><td>'+ex.weight+' lbs</td><td style="opacity:0.65;font-size:0.85rem">'+notes[i%notes.length]+'</td>';
+        tr.innerHTML = '<td class="' + ex.cls + '">' + ex.name + '</td>' +
+                       '<td>' + ex.sets + ' × ' + ex.reps + '</td>' +
+                       '<td>' + ex.weight + ' lbs</td>' +
+                       '<td style="opacity:0.65;font-size:0.85rem">' + (tips[ex.name] || '') + '</td>';
         tb.appendChild(tr);
     });
 
     var note = document.getElementById("progressNote");
-    note.innerHTML = '📅 <strong>Week '+(wi+1)+', Session '+(si+1)+'</strong> &nbsp;|&nbsp; Workout <strong>'+session.type+'</strong> &nbsp;|&nbsp; '+(session.type==='A'?'Squat · Bench · Row':'Squat · OHP · Deadlift')+' &nbsp;|&nbsp; <span style="opacity:0.7">If you miss reps 3x in a row on a lift, deload that lift by 10%</span>';
+    note.innerHTML = '📅 <strong>Week ' + (wi+1) + ', Session ' + (si+1) + '</strong> &nbsp;|&nbsp; ' +
+        'Workout <strong>' + session.type + '</strong> &nbsp;|&nbsp; ' +
+        (session.type === 'A' ? 'Squat · Bench Press · Barbell Row' : 'Squat · Overhead Press · Deadlift') +
+        ' &nbsp;|&nbsp; <span style="opacity:0.7">Miss reps 3 sessions in a row on a lift? Deload that lift 10%.</span>';
 }
 
 function resetSetup() {
-    document.getElementById("setupPanel").style.display = "block";
-    document.getElementById("controls").style.display   = "none";
-    document.getElementById("tableWrap").style.display  = "none";
+    document.getElementById("setupPanel").style.display   = "block";
+    document.getElementById("controls").style.display     = "none";
+    document.getElementById("tableWrap").style.display    = "none";
     document.getElementById("progressNote").style.display = "none";
 }
 </script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALDO ELITE — Nutrition Planner</title>
+<title>EATT — Nutrition Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -168,6 +168,17 @@ body::before {
 .notes-card li { margin-bottom: 5px; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 .fade-in { animation: fadeIn 0.35s ease both; }
+.meals-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0; }
+.refresh-btn {
+  background: none; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); font-family:'Barlow',sans-serif; font-size:0.72rem;
+  font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+  padding:6px 14px; cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; gap:6px;
+}
+.refresh-btn:hover { border-color:var(--gold); color:var(--gold); }
+.refresh-btn .spin { display:inline-block; transition:transform 0.5s ease; }
+.refresh-btn:hover .spin { transform:rotate(180deg); }
 @media(max-width:860px){
   .main { grid-template-columns: 1fr; padding: 16px 12px 60px; gap: 20px; }
   .form-panel { position: static; }
@@ -202,9 +213,9 @@ body::before {
 <body>
 
 <div class="header">
-  <img src="gorillavsbull.png" alt="Aldo Elite" class="header-logo" onerror="this.style.display='none'">
+  <img src="gorillavsbull.png" alt="EATT" class="header-logo" onerror="this.style.display='none'">
   <div class="header-text">
-    <h1>ALDO ELITE WORKOUTS</h1>
+    <h1>EATT</h1>
     <p>General Nutrition Therapy — Personalized Meal Planning</p>
   </div>
   <a href="index.html" class="back-btn">← Back</a>
@@ -449,6 +460,98 @@ const NOTES = {
 
 let currentUnits = 'imperial';
 let calMode = 'auto';
+let _lastStats = null;
+let _lastTargetCal = null;
+let _planSetIndex = 0;
+
+// ── ALTERNATE MEAL SETS ───────────────────────────────────────
+// Same food-group rules: protein every meal + 3 other groups
+const TEMPLATE_SETS = {
+  strength: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'7:00 AM',  foods:[['eggs',150],['bread_whole',80],['skim_milk',200],['blueberries',100]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['greek_yogurt',180],['oats',50],['apple',100],['spinach',60]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['turkey_breast',200],['brown_rice',180],['mixed_veg',150],['olive_oil',10]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:30 PM',  foods:[['tuna_can',150],['sweet_potato',200],['bell_pepper',100],['whole_milk',150]] },
+      { name:'Meal 5 — Post-Workout', time:'7:30 PM',  foods:[['chicken_breast',220],['white_rice',160],['broccoli',150],['whole_milk',150]] },
+    ],
+    [ // Set C
+      { name:'Meal 1 — Breakfast',    time:'7:00 AM',  foods:[['egg_whites',200],['oats',90],['whole_milk',200],['banana',100]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['cottage_cheese',200],['rice_cakes',30],['blueberries',100],['spinach',60]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['salmon',200],['quinoa',160],['asparagus',150],['olive_oil',10]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:30 PM',  foods:[['ground_beef_lean',150],['white_potato',200],['mixed_veg',100],['apple',100]] },
+      { name:'Meal 5 — Post-Workout', time:'7:30 PM',  foods:[['beef_steak',180],['white_rice',180],['broccoli',150],['skim_milk',150]] },
+    ],
+  ],
+  hypertrophy: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'7:00 AM',  foods:[['eggs',150],['oats',80],['skim_milk',200],['banana',120]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['greek_yogurt',200],['bread_whole',50],['blueberries',100],['spinach',60]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['turkey_breast',220],['brown_rice',180],['broccoli',150],['olive_oil',10]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:00 PM',  foods:[['tuna_can',150],['sweet_potato',160],['apple',100],['bell_pepper',80]] },
+      { name:'Meal 5 — Post-Workout', time:'7:00 PM',  foods:[['chicken_breast',200],['white_rice',180],['mixed_veg',150],['avocado',50]] },
+    ],
+    [ // Set C
+      { name:'Meal 1 — Breakfast',    time:'7:00 AM',  foods:[['egg_whites',200],['oats',80],['whole_milk',180],['blueberries',100]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['cottage_cheese',180],['rice_cakes',30],['banana',100],['spinach',60]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['salmon',200],['quinoa',180],['asparagus',150],['olive_oil',10]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:00 PM',  foods:[['shrimp',180],['sweet_potato',160],['apple',100],['bell_pepper',80]] },
+      { name:'Meal 5 — Post-Workout', time:'7:00 PM',  foods:[['beef_steak',180],['white_rice',180],['broccoli',150],['skim_milk',150]] },
+    ],
+  ],
+  strongman: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'6:30 AM',  foods:[['eggs',200],['bread_whole',100],['whole_milk',250],['banana',130]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['beef_steak',200],['white_rice',180],['mixed_veg',100],['whole_milk',200]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['chicken_breast',250],['pasta',200],['broccoli',150],['olive_oil',15]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:30 PM',  foods:[['ground_beef_lean',200],['sweet_potato',250],['apple',120],['spinach',80]] },
+      { name:'Meal 5 — Post-Workout', time:'8:00 PM',  foods:[['salmon',220],['white_rice',200],['mixed_veg',150],['whole_milk',200]] },
+    ],
+  ],
+  endurance: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'6:00 AM',  foods:[['egg_whites',150],['oats',100],['whole_milk',200],['banana',120]] },
+      { name:'Meal 2 — Mid Morning',  time:'9:30 AM',  foods:[['greek_yogurt',180],['bread_whole',60],['blueberries',100],['spinach',50]] },
+      { name:'Meal 3 — Lunch',        time:'12:30 PM', foods:[['chicken_breast',180],['brown_rice',200],['mixed_veg',150],['olive_oil',10]] },
+      { name:'Meal 4 — Pre-Training', time:'3:30 PM',  foods:[['cottage_cheese',150],['rice_cakes',30],['skim_milk',150],['apple',120]] },
+      { name:'Meal 5 — Post-Training',time:'7:00 PM',  foods:[['tilapia',180],['quinoa',200],['green_beans',150],['blueberries',80]] },
+    ],
+  ],
+  crossfit: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'6:30 AM',  foods:[['eggs',150],['oats',80],['whole_milk',200],['blueberries',100]] },
+      { name:'Meal 2 — Pre-WOD',      time:'10:00 AM', foods:[['greek_yogurt',180],['banana',120],['skim_milk',150],['spinach',50]] },
+      { name:'Meal 3 — Post-WOD',     time:'1:00 PM',  foods:[['turkey_breast',200],['white_rice',180],['mixed_veg',120],['olive_oil',10]] },
+      { name:'Meal 4 — Afternoon',    time:'4:30 PM',  foods:[['tuna_can',150],['rice_cakes',30],['skim_milk',150],['bell_pepper',100]] },
+      { name:'Meal 5 — Dinner',       time:'7:30 PM',  foods:[['salmon',200],['sweet_potato',180],['broccoli',150],['avocado',50]] },
+    ],
+  ],
+  general: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'7:30 AM',  foods:[['egg_whites',150],['oats',80],['skim_milk',200],['banana',100]] },
+      { name:'Meal 2 — Snack',        time:'10:30 AM', foods:[['cottage_cheese',180],['rice_cakes',25],['apple',120],['spinach',50]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['turkey_breast',180],['brown_rice',160],['broccoli',150],['olive_oil',10]] },
+      { name:'Meal 4 — Snack',        time:'4:30 PM',  foods:[['greek_yogurt',180],['bread_whole',40],['blueberries',80],['bell_pepper',80]] },
+      { name:'Meal 5 — Dinner',       time:'7:00 PM',  foods:[['salmon',180],['sweet_potato',180],['mixed_veg',150],['skim_milk',100]] },
+    ],
+    [ // Set C
+      { name:'Meal 1 — Breakfast',    time:'7:30 AM',  foods:[['eggs',150],['bread_whole',60],['whole_milk',200],['blueberries',100]] },
+      { name:'Meal 2 — Snack',        time:'10:30 AM', foods:[['tuna_can',120],['rice_cakes',25],['skim_milk',150],['bell_pepper',100]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['chicken_breast',180],['quinoa',160],['mixed_veg',150],['olive_oil',10]] },
+      { name:'Meal 4 — Snack',        time:'4:30 PM',  foods:[['cottage_cheese',150],['banana',100],['blueberries',80],['spinach',50]] },
+      { name:'Meal 5 — Dinner',       time:'7:00 PM',  foods:[['tilapia',200],['brown_rice',160],['broccoli',150],['avocado',40]] },
+    ],
+  ],
+  recomp: [
+    [ // Set B
+      { name:'Meal 1 — Breakfast',    time:'7:00 AM',  foods:[['eggs',150],['oats',60],['skim_milk',180],['bell_pepper',80]] },
+      { name:'Meal 2 — Mid Morning',  time:'10:00 AM', foods:[['cottage_cheese',150],['rice_cakes',25],['apple',100],['spinach',80]] },
+      { name:'Meal 3 — Lunch',        time:'1:00 PM',  foods:[['turkey_breast',220],['brown_rice',130],['mixed_veg',150],['olive_oil',8]] },
+      { name:'Meal 4 — Pre-Workout',  time:'4:00 PM',  foods:[['greek_yogurt',180],['oats',40],['blueberries',80],['spinach',60]] },
+      { name:'Meal 5 — Dinner',       time:'7:00 PM',  foods:[['tilapia',200],['quinoa',120],['broccoli',150],['avocado',40]] },
+    ],
+  ],
+};
 
 function isMobile() { return window.innerWidth <= 860; }
 
@@ -573,8 +676,12 @@ function scaleFood(key, grams) {
   };
 }
 
-function buildPlan(stats, targetCal) {
-  const template = TEMPLATES[stats.training] || TEMPLATES.general;
+function buildPlan(stats, targetCal, setIndex) {
+  const alts = TEMPLATE_SETS[stats.training] || [];
+  const template = setIndex === 0
+    ? (TEMPLATES[stats.training] || TEMPLATES.general)
+    : (alts[(setIndex - 1) % alts.length] || TEMPLATES[stats.training] || TEMPLATES.general);
+
   let rawCal = 0;
   template.forEach(meal => meal.foods.forEach(([key, g]) => {
     rawCal += Math.round(FOODS[key].cal * g / 100);
@@ -609,8 +716,52 @@ function generatePlan() {
   if (!stats) { alert('Please fill in your age, weight, and height.'); return; }
   const targetCal = getTargetCal(stats);
   if (!targetCal) { alert('Please select or enter a calorie target.'); return; }
-  renderPlan(buildPlan(stats, targetCal), stats, targetCal);
+  _lastStats     = stats;
+  _lastTargetCal = targetCal;
+  _planSetIndex  = 0;
+  renderPlan(buildPlan(stats, targetCal, 0), stats, targetCal);
   showResults();
+}
+
+function refreshMeals() {
+  if (!_lastStats || !_lastTargetCal) return;
+  const totalSets = 1 + (TEMPLATE_SETS[_lastStats.training]?.length || 0);
+  _planSetIndex   = (_planSetIndex + 1) % totalSets;
+  const plan      = buildPlan(_lastStats, _lastTargetCal, _planSetIndex);
+  const grid      = document.getElementById('meals-grid');
+  if (!grid) return;
+  // Spin the icon
+  const icon = document.querySelector('.refresh-icon');
+  if (icon) { icon.style.transform = 'rotate(360deg)'; setTimeout(() => icon.style.transform = '', 500); }
+  // Fade out → swap → fade in
+  grid.style.opacity = '0';
+  grid.style.transform = 'translateY(6px)';
+  setTimeout(() => {
+    grid.innerHTML = plan.meals.map((meal, i) => `
+      <div class="meal-card fade-in" style="animation-delay:${i*0.07}s">
+        <div class="meal-head">
+          <span class="meal-name">${meal.name}</span>
+          <span class="meal-kcal">${meal.time} · P${meal.protein}g C${meal.carbs}g F${meal.fat}g</span>
+        </div>
+        <div class="meal-body">
+          <ul class="food-items">
+            ${meal.foods.map(f => `
+              <li class="food-item">
+                <span class="food-dot"></span>
+                <span class="food-name">${f.name}</span>
+                <span class="food-macros">
+                  <span class="p">P: ${f.p}g</span>
+                  <span class="c">C: ${f.c}g</span>
+                  <span class="f">F: ${f.f}g</span>
+                </span>
+              </li>`).join('')}
+          </ul>
+        </div>
+      </div>`).join('');
+    grid.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    grid.style.opacity    = '1';
+    grid.style.transform  = 'none';
+  }, 180);
 }
 
 function renderPlan(plan, stats, targetCal) {
@@ -700,8 +851,13 @@ function renderPlan(plan, stats, targetCal) {
       </div>
     </div>
 
-    <div class="section-label">Daily Meals</div>
-    <div class="meals-grid">${mealsHTML}</div>
+    <div class="meals-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div class="section-label" style="margin-bottom:0">Daily Meals</div>
+      <button class="refresh-btn" onclick="refreshMeals()">
+        <span class="refresh-icon spin" style="transition:transform 0.5s ease">↻</span> New Plan
+      </button>
+    </div>
+    <div class="meals-grid" id="meals-grid">${mealsHTML}</div>
 
     <div class="supps-card fade-in">
       <div class="supps-title">💊 Recommended Supplements</div>
