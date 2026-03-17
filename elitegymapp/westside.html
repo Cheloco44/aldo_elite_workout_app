@@ -120,6 +120,14 @@ tr:last-child td { border-bottom: none; }
     .form-row input[type="number"], .form-row select { width: 100%; }
     .day-grid { grid-template-columns: 1fr; }
 }
+
+.form-row input[type="number"]::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-style: italic;
+}
+.form-row input[type="number"]:focus::placeholder {
+    color: transparent;
+}
 </style>
 </head>
 <body>
@@ -145,9 +153,9 @@ tr:last-child td { border-bottom: none; }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" value="315" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" value="225" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" value="405" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45"></div>
     <div class="form-row"><label>Program Weeks</label>
         <select id="numWeeks">
             <option value="4">4 Weeks</option>

@@ -111,6 +111,14 @@ body::before {
     .form-row input, .form-row select { width: 100%; }
     .card-grid { grid-template-columns: 1fr; }
 }
+
+.form-row input[type="number"]::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-style: italic;
+}
+.form-row input[type="number"]:focus::placeholder {
+    color: transparent;
+}
 </style>
 </head>
 <body>
@@ -136,10 +144,10 @@ body::before {
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR WORKING WEIGHTS</h2>
-    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" value="185" min="45"></div>
-    <div class="form-row"><label>Row (lbs)</label><input type="number" id="row" value="185" min="45"></div>
-    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" value="115" min="45"></div>
-    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" value="225" min="45"></div>
+    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Row (lbs)</label><input type="number" id="row" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="115" min="45"></div>
+    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="225" min="45"></div>
     <div class="form-row"><label>Program Weeks</label>
         <select id="numWeeks">
             <option value="8">8 Weeks</option>

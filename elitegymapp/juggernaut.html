@@ -94,6 +94,14 @@ tr:hover { background: rgba(255,255,255,0.06); }
     .form-row { flex-direction: column; align-items: flex-start; }
     .form-row input[type="number"], .form-row select { width: 100%; }
 }
+
+.form-row input[type="number"]::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-style: italic;
+}
+.form-row input[type="number"]:focus::placeholder {
+    color: transparent;
+}
 </style>
 </head>
 <body>
@@ -120,10 +128,10 @@ tr:hover { background: rgba(255,255,255,0.06); }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR TRAINING MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" value="315" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" value="225" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" value="405" min="45"></div>
-    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" value="135" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45"></div>
+    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45"></div>
     <div class="check-row">
         <input type="checkbox" id="useTM" checked>
         <label for="useTM">Use 90% Training Max</label>

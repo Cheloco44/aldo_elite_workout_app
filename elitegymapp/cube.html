@@ -73,7 +73,6 @@ body::before {
 .controls label { font-weight: 700; margin-left: 10px; }
 
 .week-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 18px;
     width: 92%;
@@ -82,6 +81,7 @@ body::before {
     position: relative; z-index: 1;
     display: none;
 }
+.week-grid.visible { display: grid; }
 
 .day-card { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,210,0,0.15); }
 .day-header { padding: 14px 18px; font-weight: 800; font-size: 1rem; letter-spacing: 1px; border-bottom: 2px solid; }
@@ -89,9 +89,13 @@ body::before {
 .day-explosive { background: rgba(16,90,180,0.3); border-color: #60a5fa; }
 .day-reps { background: rgba(20,120,30,0.3); border-color: #4ade80; }
 
-table { width: 100%; border-collapse: collapse; }
-th { padding: 10px 14px; text-align: left; font-size: 0.85rem; opacity: 0.65; }
-td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.91rem; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+th { padding: 10px 10px; text-align: left; font-size: 0.82rem; opacity: 0.65; }
+td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; word-break: break-word; }
+th:nth-child(1), td:nth-child(1) { width: 22%; }
+th:nth-child(2), td:nth-child(2) { width: 30%; }
+th:nth-child(3), td:nth-child(3) { width: 24%; }
+th:nth-child(4), td:nth-child(4) { width: 24%; }
 tr:last-child td { border-bottom: none; }
 .t-heavy { color: #fca5a5; font-weight: 700; }
 .t-exp { color: #93c5fd; font-weight: 700; }
@@ -104,6 +108,14 @@ tr:last-child td { border-bottom: none; }
     .form-row { flex-direction: column; align-items: flex-start; }
     .form-row input, .form-row select { width: 100%; }
     .week-grid { grid-template-columns: 1fr; }
+}
+
+.form-row input[type="number"]::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-style: italic;
+}
+.form-row input[type="number"]:focus::placeholder {
+    color: transparent;
 }
 </style>
 </head>
@@ -131,9 +143,9 @@ tr:last-child td { border-bottom: none; }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" value="405" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" value="275" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" value="500" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="275" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45"></div>
     <div class="check-row"><input type="checkbox" id="useTM" checked><label for="useTM">Use 90% Training Max</label></div>
     <div class="form-row"><label>Program Length</label>
         <select id="numWeeks">
@@ -164,8 +176,7 @@ tr:last-child td { border-bottom: none; }
 <div class="week-grid" id="weekGrid"></div>
 
 <script>
-var tms = {};
-var baseTms = {};
+var baseTms    = {};
 var weeklyJump = 0.10;
 
 function selectJump(btn){
@@ -174,14 +185,10 @@ function selectJump(btn){
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
 }
 
-// 3-week rotation: each lift cycles through Heavy/Explosive/Rep
-// Week 1: Squat=Heavy, Bench=Explosive, Dead=Rep
-// Week 2: Squat=Explosive, Bench=Rep, Dead=Heavy
-// Week 3: Squat=Rep, Bench=Heavy, Dead=Explosive
 var rotations = [
-    {squat:"Heavy",  bench:"Explosive", dead:"Rep"},
-    {squat:"Explosive", bench:"Rep", dead:"Heavy"},
-    {squat:"Rep",    bench:"Heavy",     dead:"Explosive"}
+    {squat:"Heavy",     bench:"Explosive", dead:"Rep"},
+    {squat:"Explosive", bench:"Rep",       dead:"Heavy"},
+    {squat:"Rep",       bench:"Heavy",     dead:"Explosive"}
 ];
 
 var heavyPcts = [0.85, 0.90, 0.95];
@@ -192,77 +199,79 @@ var sqAccs = [["Box Squat","4×3","Speed focus"],["Leg Press","3×12","Quad volu
 var bpAccs = [["Close Grip Bench","3×8","Tricep lockout"],["DB Row","4×10","Back strength"],["Face Pull","3×20","Shoulder health"],["Tricep Pushdown","3×15","Triceps"]];
 var dlAccs = [["Deficit Deadlift","3×3","Off-floor strength"],["GHR","3×12","Posterior chain"],["Barbell Row","4×8","Upper back"],["Reverse Hyper","3×15","Low back"]];
 
-function round5(v){ return Math.max(45,Math.round(v/5)*5); }
+function round5(v){ return Math.max(45, Math.round(v/5)*5); }
 
 function generateProgram(){
     var useTM = document.getElementById("useTM").checked;
-    var raw = {
-        squat: parseInt(document.getElementById("squat1rm").value)||405,
-        bench: parseInt(document.getElementById("bench1rm").value)||275,
-        dead:  parseInt(document.getElementById("dead1rm").value)||500
-    };
-    for(var k in raw) baseTms[k] = useTM ? Math.round(raw[k]*0.9) : raw[k];
-    tms = Object.assign({}, baseTms);
+    var squat = parseInt(document.getElementById("squat1rm").value) || 405;
+    var bench = parseInt(document.getElementById("bench1rm").value) || 275;
+    var dead  = parseInt(document.getElementById("dead1rm").value)  || 500;
 
-    var weeks = parseInt(document.getElementById("numWeeks").value)||12;
+    baseTms.squat = useTM ? Math.round(squat * 0.9) : squat;
+    baseTms.bench = useTM ? Math.round(bench * 0.9) : bench;
+    baseTms.dead  = useTM ? Math.round(dead  * 0.9) : dead;
+
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
     var ws = document.getElementById("weekSel");
     ws.innerHTML = "";
-    for(var i=1;i<=weeks;i++) ws.innerHTML += '<option value="'+i+'">Week '+i+'</option>';
+    for(var i = 1; i <= weeks; i++){
+        ws.innerHTML += '<option value="' + i + '">Week ' + i + '</option>';
+    }
 
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
-    document.getElementById("weekGrid").style.display   = "grid";
+    document.getElementById("weekGrid").classList.add("visible");
     renderWeek();
 }
 
 function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
-    // Scale TM by selected % per cycle
-    var cycle = Math.floor((weekNum-1)/3);
+    var cycle       = Math.floor((weekNum - 1) / 3);
+    var weekInCycle = (weekNum - 1) % 3;
     var tm = Math.round(baseTmVal * Math.pow(1 + weeklyJump, cycle));
-    var weekInCycle = (weekNum-1) % 3;
     var html = "";
 
     if(mode === "Heavy"){
-        var pct = heavyPcts[Math.min(weekInCycle, heavyPcts.length-1)];
-        var topPct = Math.min(pct + 0.05*(cycle), 0.97);
-        html += '<tr><td class="t-heavy">Warm-up</td><td>'+liftName+'</td><td>5×3</td><td>'+round5(tm*0.70)+' lbs</td></tr>';
-        html += '<tr><td class="t-heavy">Heavy Set</td><td>'+liftName+'</td><td>Work to 1</td><td>'+round5(tm*topPct)+' lbs ('+Math.round(topPct*100)+'%)</td></tr>';
+        var pct    = heavyPcts[Math.min(weekInCycle, heavyPcts.length - 1)];
+        var topPct = Math.min(pct + 0.05 * cycle, 0.97);
+        html += '<tr><td class="t-heavy">Warm-up</td><td>' + liftName + '</td><td>5 × 3</td><td>' + round5(tm * 0.70) + ' lbs</td></tr>';
+        html += '<tr><td class="t-heavy">Heavy Set</td><td>' + liftName + '</td><td>Work to 1</td><td>' + round5(tm * topPct) + ' lbs (' + Math.round(topPct * 100) + '%)</td></tr>';
     } else if(mode === "Explosive"){
-        var ePct = expPcts[Math.min(cycle, expPcts.length-1)];
-        html += '<tr><td class="t-exp">Dynamic Effort</td><td>'+liftName+'</td><td>8×2 — MAX BAR SPEED</td><td>'+round5(tm*ePct)+' lbs ('+Math.round(ePct*100)+'%)</td></tr>';
+        var ePct = expPcts[Math.min(cycle, expPcts.length - 1)];
+        html += '<tr><td class="t-exp">Dynamic Effort</td><td>' + liftName + '</td><td>8 × 2 — MAX SPEED</td><td>' + round5(tm * ePct) + ' lbs (' + Math.round(ePct * 100) + '%)</td></tr>';
     } else {
-        var reps = repReps[weekInCycle % repReps.length] + cycle*2;
-        var rPct = 0.65 + cycle*0.03;
-        html += '<tr><td class="t-rep">Rep Set</td><td>'+liftName+'</td><td>3×'+reps+'</td><td>'+round5(tm*rPct)+' lbs</td></tr>';
+        var reps = repReps[weekInCycle % repReps.length] + cycle * 2;
+        var rPct = 0.65 + cycle * 0.03;
+        html += '<tr><td class="t-rep">Rep Set</td><td>' + liftName + '</td><td>3 × ' + reps + '</td><td>' + round5(tm * rPct) + ' lbs (' + Math.round(rPct * 100) + '%)</td></tr>';
     }
 
     accs.forEach(function(a){
-        html += '<tr><td class="t-acc">Accessory</td><td>'+a[0]+'</td><td>'+a[1]+'</td><td style="opacity:0.55;font-size:0.83rem">'+a[2]+'</td></tr>';
+        html += '<tr><td class="t-acc">Accessory</td><td>' + a[0] + '</td><td>' + a[1] + '</td><td style="opacity:0.55;font-size:0.83rem">' + a[2] + '</td></tr>';
     });
     return html;
 }
 
 function renderWeek(){
-    var week = parseInt(document.getElementById("weekSel").value)||1;
-    var rot = rotations[(week-1) % 3];
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var rot  = rotations[(week - 1) % 3];
     var grid = document.getElementById("weekGrid");
     grid.innerHTML = "";
 
     var lifts = [
-        {name:"Squat",    key:"squat",  mode:rot.squat,  accs:sqAccs},
-        {name:"Bench",    key:"bench",  mode:rot.bench,  accs:bpAccs},
-        {name:"Deadlift", key:"dead",   mode:rot.dead,   accs:dlAccs}
+        {name:"Squat",    key:"squat", mode:rot.squat, accs:sqAccs},
+        {name:"Bench",    key:"bench", mode:rot.bench, accs:bpAccs},
+        {name:"Deadlift", key:"dead",  mode:rot.dead,  accs:dlAccs}
     ];
 
     lifts.forEach(function(l){
-        var card = document.createElement("div");
+        var card      = document.createElement("div");
         card.className = "day-card";
-        var headerCls = l.mode==="Heavy"?"day-heavy":l.mode==="Explosive"?"day-explosive":"day-reps";
-        var label = l.name+" — "+l.mode.toUpperCase()+" DAY";
-        var badge = l.mode==="Heavy"?"🔥 Top set day":l.mode==="Explosive"?"⚡ Speed day":"💪 Volume day";
-        card.innerHTML = '<div class="day-header '+headerCls+'">'+label+'<br><span style="font-size:0.8rem;font-weight:400;opacity:0.85">'+badge+'</span></div>'+
-            '<table><thead><tr><th>Type</th><th>Exercise</th><th>Scheme</th><th>Weight</th></tr></thead><tbody>'+
-            buildDayHTML(l.name, tms[l.key], l.mode, week, l.accs)+
+        var headerCls = l.mode === "Heavy" ? "day-heavy" : l.mode === "Explosive" ? "day-explosive" : "day-reps";
+        var badge     = l.mode === "Heavy" ? "🔥 Top set day" : l.mode === "Explosive" ? "⚡ Speed day" : "💪 Volume day";
+        card.innerHTML =
+            '<div class="day-header ' + headerCls + '">' + l.name + ' — ' + l.mode.toUpperCase() + ' DAY<br>' +
+            '<span style="font-size:0.8rem;font-weight:400;opacity:0.85">' + badge + '</span></div>' +
+            '<table><thead><tr><th>Type</th><th>Exercise</th><th>Sets / Reps</th><th>Weight</th></tr></thead><tbody>' +
+            buildDayHTML(l.name, baseTms[l.key], l.mode, week, l.accs) +
             '</tbody></table>';
         grid.appendChild(card);
     });
@@ -271,7 +280,7 @@ function renderWeek(){
 function resetSetup(){
     document.getElementById("setupPanel").style.display = "block";
     document.getElementById("controls").style.display   = "none";
-    document.getElementById("weekGrid").style.display   = "none";
+    document.getElementById("weekGrid").classList.remove("visible");
 }
 </script>
 </body>

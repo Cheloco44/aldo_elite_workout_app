@@ -379,6 +379,14 @@ body::before {
     .equip-mode-group { flex-direction: column; }
     .equip-mode-btn { width: 100%; }
 }
+
+.form-row input[type="number"]::placeholder {
+    color: rgba(0,0,0,0.28);
+    font-style: italic;
+}
+.form-row input[type="number"]:focus::placeholder {
+    color: transparent;
+}
 </style>
 </head>
 <body>
@@ -417,19 +425,19 @@ body::before {
 
     <div class="form-row">
         <label>Age</label>
-        <input type="number" id="age" value="45" min="18" max="99">
+        <input type="number" id="age" placeholder="45" min="18" max="99">
     </div>
     <div class="form-row">
         <label>Squat 1RM (lbs)</label>
-        <input type="number" id="squat1rm" value="225" min="45">
+        <input type="number" id="squat1rm" placeholder="225" min="45">
     </div>
     <div class="form-row">
         <label>Bench 1RM (lbs)</label>
-        <input type="number" id="bench1rm" value="185" min="45">
+        <input type="number" id="bench1rm" placeholder="185" min="45">
     </div>
     <div class="form-row">
         <label>OHP 1RM (lbs)</label>
-        <input type="number" id="ohp1rm" value="115" min="45">
+        <input type="number" id="ohp1rm" placeholder="115" min="45">
     </div>
     <div class="form-row">
         <label>Program Weeks</label>
