@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DECK OF CARDS — EATT</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --ink:    #0a0f1a;
+    --paper:  #f5f0e8;
+    --cream:  #ede7d5;
+    --gold:   #c9a84c;
+    --blue:   #1a3a6a;
+    --red:    #b91c1c;
+    --dim:    rgba(10,15,26,0.55);
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* subtle card pattern bg */
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(201,168,76,0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(26,58,106,0.12) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+}
+
+/* HEADER */
+.header {
+    position: relative; z-index: 2;
+    padding: 28px 24px 22px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    display: flex; align-items: center; gap: 16px;
+}
+.back-link {
+    color: var(--gold); text-decoration: none;
+    font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+    opacity: 0.7; transition: opacity 0.2s; white-space: nowrap;
+}
+.back-link:hover { opacity: 1; }
+.header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    letter-spacing: 4px; color: var(--paper);
+    text-shadow: 0 0 30px rgba(201,168,76,0.2);
+}
+.header-sub {
+    font-size: 0.78rem; color: rgba(245,240,232,0.45);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;
+}
+.pilot-badge {
+    margin-left: auto; background: rgba(201,168,76,0.12);
+    border: 1px solid rgba(201,168,76,0.3); border-radius: 20px;
+    padding: 4px 12px; font-size: 0.62rem; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold); white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* SETUP SCREEN */
+#setupScreen {
+    max-width: 560px; margin: 36px auto; padding: 0 20px;
+    position: relative; z-index: 1;
+}
+
+.setup-intro {
+    text-align: center; margin-bottom: 32px;
+}
+.setup-intro .icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+.setup-intro h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem; letter-spacing: 3px; color: var(--paper); margin-bottom: 8px;
+}
+.setup-intro p {
+    font-size: 0.88rem; line-height: 1.65; color: rgba(245,240,232,0.55);
+}
+
+.setup-section { margin-bottom: 28px; }
+.setup-label {
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); opacity: 0.8; margin-bottom: 12px; display: block;
+}
+
+/* TIME PILLS */
+.time-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.time-btn {
+    padding: 16px 8px; border-radius: 10px;
+    border: 1px solid rgba(245,240,232,0.12);
+    background: rgba(245,240,232,0.04);
+    color: rgba(245,240,232,0.6); cursor: pointer;
+    transition: all 0.2s; text-align: center;
+}
+.time-btn:hover { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.06); }
+.time-btn.selected {
+    background: rgba(201,168,76,0.14); border-color: var(--gold);
+    color: var(--paper); box-shadow: 0 0 16px rgba(201,168,76,0.2);
+}
+.time-btn .t-min { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; display: block; color: var(--gold); line-height: 1; }
+.time-btn .t-lbl { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.65; margin-top: 4px; }
+.time-btn .t-desc { font-size: 0.7rem; opacity: 0.45; margin-top: 3px; }
+
+/* EQUIPMENT GRID */
+.equip-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+.equip-btn {
+    padding: 14px 12px; border-radius: 10px;
+    border: 1px solid rgba(245,240,232,0.1);
+    background: rgba(245,240,232,0.04);
+    color: rgba(245,240,232,0.6); cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+}
+.equip-btn:hover { border-color: rgba(120,170,255,0.4); background: rgba(120,170,255,0.06); }
+.equip-btn.selected {
+    background: rgba(26,58,106,0.35); border-color: rgba(120,170,255,0.6);
+    color: var(--paper);
+}
+.equip-btn .e-icon { font-size: 1.4rem; flex-shrink: 0; }
+.equip-btn .e-name { font-size: 0.85rem; font-weight: 600; display: block; }
+.equip-btn .e-note { font-size: 0.68rem; opacity: 0.45; }
+
+.draw-btn {
+    display: block; width: 100%; padding: 18px;
+    background: linear-gradient(135deg, #c9a84c, #8a6a1e);
+    color: var(--ink); border: none; border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 3px;
+    cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 28px;
+}
+.draw-btn:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(201,168,76,0.4); }
+.draw-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+/* CARD SCREEN */
+#cardScreen { display: none; position: relative; z-index: 1; padding: 20px 20px 60px; }
+
+/* THE CARD */
+.card-stage {
+    max-width: 420px; margin: 0 auto 28px;
+    perspective: 1000px;
+}
+.card-flip {
+    position: relative; width: 100%; padding-top: 140%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flip.flipped { transform: rotateY(180deg); }
+.card-face {
+    position: absolute; inset: 0; border-radius: 18px;
+    backface-visibility: hidden; overflow: hidden;
+}
+
+/* CARD BACK */
+.card-back {
+    background: var(--blue);
+    border: 2px solid rgba(201,168,76,0.4);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    cursor: pointer;
+}
+.card-back-pattern {
+    position: absolute; inset: 8px; border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: repeating-linear-gradient(
+        45deg,
+        transparent, transparent 8px,
+        rgba(201,168,76,0.04) 8px, rgba(201,168,76,0.04) 9px
+    );
+}
+.card-back-icon { font-size: 4rem; position: relative; z-index: 1; filter: drop-shadow(0 0 20px rgba(201,168,76,0.5)); }
+.card-back-text {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+    letter-spacing: 4px; color: var(--gold); position: relative; z-index: 1; opacity: 0.7;
+}
+.tap-hint {
+    font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(201,168,76,0.45); position: relative; z-index: 1;
+    animation: pulse-hint 2s ease-in-out infinite;
+}
+@keyframes pulse-hint { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+
+/* CARD FRONT */
+.card-front {
+    transform: rotateY(180deg);
+    background: var(--paper);
+    color: var(--ink);
+    display: flex; flex-direction: column;
+}
+.card-suit-corner {
+    position: absolute; top: 14px; left: 16px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1;
+}
+.card-suit-corner.red { color: var(--red); }
+.card-suit-corner.black { color: var(--ink); }
+.card-suit-corner-br {
+    position: absolute; bottom: 14px; right: 16px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1;
+    transform: rotate(180deg);
+}
+.card-suit-corner-br.red { color: var(--red); }
+.card-suit-corner-br.black { color: var(--ink); }
+
+.card-front-body {
+    flex: 1; padding: 54px 20px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.card-workout-label {
+    font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(10,15,26,0.4); margin-bottom: 2px;
+}
+.card-workout-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem; letter-spacing: 2px; color: var(--ink); line-height: 1.1;
+}
+.card-time-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--ink); color: var(--paper);
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.65rem; letter-spacing: 1px; font-weight: 700;
+    width: fit-content; margin: 4px 0;
+}
+.movement-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.movement-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: rgba(10,15,26,0.05); border-radius: 8px;
+    padding: 9px 12px;
+}
+.movement-type {
+    font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase;
+    font-weight: 700; min-width: 44px; margin-top: 1px;
+    flex-shrink: 0;
+}
+.movement-type.press { color: var(--red); }
+.movement-type.hinge { color: #1a6a3a; }
+.movement-type.squat { color: var(--blue); }
+.movement-type.core  { color: #7a4a00; }
+.movement-detail { flex: 1; }
+.movement-name { font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+.movement-scheme { font-size: 0.72rem; color: rgba(10,15,26,0.55); }
+
+/* CONTROLS */
+.card-controls {
+    max-width: 420px; margin: 0 auto;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+.ctrl-btn {
+    flex: 1; min-width: 120px; padding: 12px 16px;
+    border-radius: 10px; border: 1px solid rgba(245,240,232,0.15);
+    background: rgba(245,240,232,0.06); color: rgba(245,240,232,0.7);
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.5px;
+}
+.ctrl-btn:hover { border-color: rgba(201,168,76,0.5); color: var(--paper); background: rgba(201,168,76,0.1); }
+.ctrl-btn.primary {
+    background: linear-gradient(135deg, #c9a84c, #8a6a1e);
+    color: var(--ink); border-color: transparent; font-weight: 700;
+}
+.ctrl-btn.primary:hover { box-shadow: 0 4px 16px rgba(201,168,76,0.35); }
+
+/* EQUIP REMINDER */
+.equip-reminder {
+    max-width: 420px; margin: 16px auto 0;
+    background: rgba(26,58,106,0.2); border: 1px solid rgba(120,170,255,0.15);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 0.75rem; color: rgba(180,210,255,0.6);
+    text-align: center; letter-spacing: 0.5px;
+}
+
+@media (max-width: 480px) {
+    .equip-grid { grid-template-columns: 1fr 1fr; }
+    .card-front-body { padding: 48px 16px 16px; }
+    .movement-row { padding: 7px 10px; }
+    .header-title { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <a href="medieval.html" class="back-link">← Library</a>
+    <div>
+        <div class="header-title">DECK OF CARDS</div>
+        <div class="header-sub">No time? No excuses.</div>
+    </div>
+    <div class="pilot-badge">🃏 Pilot Program</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setupScreen">
+    <div class="setup-intro">
+        <span class="icon">🃏</span>
+        <h2>HOW MUCH TIME DO YOU HAVE?</h2>
+        <p>Flip a card. Get a full workout built around pressing, hinging, and squatting — no matter your equipment, no matter how little time you've got. For the grinder on hour 14, the entrepreneur running on 4 hrs of sleep, the desk jockey between meetings.</p>
+    </div>
+
+    <div class="setup-section">
+        <span class="setup-label">⏱ Available Time</span>
+        <div class="time-options">
+            <button class="time-btn" data-time="5" onclick="selectTime(this)">
+                <span class="t-min">5</span>
+                <span class="t-lbl">Minutes</span>
+                <span class="t-desc">Between meetings</span>
+            </button>
+            <button class="time-btn" data-time="15" onclick="selectTime(this)">
+                <span class="t-min">15</span>
+                <span class="t-lbl">Minutes</span>
+                <span class="t-desc">Lunch break hit</span>
+            </button>
+            <button class="time-btn" data-time="30" onclick="selectTime(this)">
+                <span class="t-min">30</span>
+                <span class="t-lbl">Minutes</span>
+                <span class="t-desc">Full micro session</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="setup-section">
+        <span class="setup-label">🏋️ Equipment Available (pick all that apply)</span>
+        <div class="equip-grid">
+            <button class="equip-btn" data-equip="bodyweight" onclick="toggleEquip(this)">
+                <span class="e-icon">🧍</span>
+                <div><span class="e-name">Bodyweight</span><span class="e-note">Always available</span></div>
+            </button>
+            <button class="equip-btn" data-equip="bands" onclick="toggleEquip(this)">
+                <span class="e-icon">🟡</span>
+                <div><span class="e-name">Resistance Bands</span><span class="e-note">In the office drawer</span></div>
+            </button>
+            <button class="equip-btn" data-equip="dumbbells" onclick="toggleEquip(this)">
+                <span class="e-icon">🏋️</span>
+                <div><span class="e-name">Dumbbells</span><span class="e-note">Home or gym</span></div>
+            </button>
+            <button class="equip-btn" data-equip="barbell" onclick="toggleEquip(this)">
+                <span class="e-icon">⚡</span>
+                <div><span class="e-name">Barbell + Rack</span><span class="e-note">Full gym access</span></div>
+            </button>
+        </div>
+    </div>
+
+    <button class="draw-btn" id="drawBtn" onclick="drawCard()" disabled>DRAW A CARD</button>
+</div>
+
+<!-- CARD SCREEN -->
+<div id="cardScreen">
+    <div class="card-stage">
+        <div class="card-flip" id="cardFlip" onclick="flipCard()">
+            <!-- BACK -->
+            <div class="card-face card-back">
+                <div class="card-back-pattern"></div>
+                <div class="card-back-icon">🃏</div>
+                <div class="card-back-text">EATT</div>
+                <div class="tap-hint">Tap to flip</div>
+            </div>
+            <!-- FRONT -->
+            <div class="card-face card-front" id="cardFront"></div>
+        </div>
+    </div>
+
+    <div class="equip-reminder" id="equipReminder"></div>
+
+    <div class="card-controls" style="margin-top:20px;">
+        <button class="ctrl-btn primary" onclick="newCard()">↻ New Card</button>
+        <button class="ctrl-btn" onclick="goBack()">← Change Setup</button>
+    </div>
+</div>
+
+<script>
+var selectedTime   = null;
+var selectedEquip  = [];
+
+// ===== WORKOUT DATABASE =====
+// Each workout: { title, movements: [{type, name, scheme}] }
+// Types: press | hinge | squat | core
+// Organized by equipment + time
+
+var workouts = {
+
+    // ========== BODYWEIGHT ==========
+    bodyweight: {
+        5: [
+            { title:"Push · Hinge · Squat Blitz", movements:[
+                {type:"press",  name:"Push-Up",            scheme:"3 × Max reps"},
+                {type:"hinge",  name:"Good Morning (BW)",  scheme:"2 × 15"},
+                {type:"squat",  name:"Air Squat",          scheme:"3 × 20"},
+            ]},
+            { title:"Desk Warrior Reset", movements:[
+                {type:"press",  name:"Pike Push-Up",       scheme:"3 × 8"},
+                {type:"hinge",  name:"Hip Hinge Drill",    scheme:"2 × 12"},
+                {type:"squat",  name:"Squat Hold",         scheme:"2 × 30 sec"},
+            ]},
+            { title:"3-Move Ignition", movements:[
+                {type:"press",  name:"Diamond Push-Up",    scheme:"2 × 8"},
+                {type:"hinge",  name:"Single-Leg Deadlift",scheme:"2 × 8/leg"},
+                {type:"squat",  name:"Jump Squat",         scheme:"3 × 10"},
+            ]},
+        ],
+        15: [
+            { title:"Full Pattern Circuit", movements:[
+                {type:"press",  name:"Push-Up Variation",  scheme:"4 × 10–15"},
+                {type:"hinge",  name:"Romanian DL (BW)",   scheme:"3 × 12"},
+                {type:"squat",  name:"Bulgarian Split Squat",scheme:"3 × 8/leg"},
+                {type:"core",   name:"Plank",              scheme:"3 × 30 sec"},
+            ]},
+            { title:"Grinder Circuit", movements:[
+                {type:"press",  name:"Decline Push-Up",    scheme:"4 × 12"},
+                {type:"hinge",  name:"Nordic Curl Negative",scheme:"3 × 5"},
+                {type:"squat",  name:"Pistol Squat Assist",scheme:"3 × 6/leg"},
+                {type:"core",   name:"V-Up",               scheme:"3 × 12"},
+            ]},
+            { title:"3-Round Burnout", movements:[
+                {type:"press",  name:"Push-Up",            scheme:"15 reps"},
+                {type:"hinge",  name:"Good Morning",       scheme:"15 reps"},
+                {type:"squat",  name:"Air Squat",          scheme:"20 reps"},
+                {type:"core",   name:"Mountain Climber",   scheme:"20 reps"},
+            ]},
+        ],
+        30: [
+            { title:"Blue Collar Bodyweight", movements:[
+                {type:"press",  name:"Push-Up Ladder",     scheme:"5 sets: 10-9-8-7-6"},
+                {type:"hinge",  name:"Single-Leg RDL",     scheme:"4 × 10/leg"},
+                {type:"squat",  name:"Squat to Box",       scheme:"4 × 12"},
+                {type:"core",   name:"Hollow Hold",        scheme:"4 × 20 sec"},
+            ]},
+            { title:"30-Min No Equipment Special", movements:[
+                {type:"press",  name:"Pike Push-Up + Regular Push-Up",scheme:"5 sets alternating × 10 each"},
+                {type:"hinge",  name:"Hip Hinge + Glute Bridge",       scheme:"4 × 12 each"},
+                {type:"squat",  name:"Squat + Reverse Lunge",          scheme:"4 × 10 each"},
+                {type:"core",   name:"Dead Bug",                       scheme:"3 × 8/side"},
+            ]},
+        ],
+    },
+
+    // ========== BANDS ==========
+    bands: {
+        5: [
+            { title:"Band Quick Draw", movements:[
+                {type:"press",  name:"Band Push-Up",       scheme:"3 × 12"},
+                {type:"hinge",  name:"Band Pull-Through",  scheme:"3 × 15"},
+                {type:"squat",  name:"Band Squat",         scheme:"3 × 15"},
+            ]},
+            { title:"Desk Drawer Special", movements:[
+                {type:"press",  name:"Band Chest Press",   scheme:"3 × 12"},
+                {type:"hinge",  name:"Band Good Morning",  scheme:"2 × 15"},
+                {type:"squat",  name:"Band Squat",         scheme:"2 × 20"},
+            ]},
+        ],
+        15: [
+            { title:"Band Complex", movements:[
+                {type:"press",  name:"Band Overhead Press",scheme:"4 × 12"},
+                {type:"hinge",  name:"Band RDL",           scheme:"3 × 12"},
+                {type:"squat",  name:"Band Front Squat",   scheme:"3 × 12"},
+                {type:"core",   name:"Band Pallof Press",  scheme:"3 × 10/side"},
+            ]},
+            { title:"Anchor Point Circuit", movements:[
+                {type:"press",  name:"Band Chest Fly",     scheme:"3 × 15"},
+                {type:"hinge",  name:"Band Hip Hinge",     scheme:"3 × 15"},
+                {type:"squat",  name:"Band Lateral Walk + Squat",scheme:"3 × 10"},
+                {type:"core",   name:"Band Woodchop",      scheme:"3 × 10/side"},
+            ]},
+        ],
+        30: [
+            { title:"Full Band Session", movements:[
+                {type:"press",  name:"Band Push-Up + Band Press",     scheme:"4 × 12 each"},
+                {type:"hinge",  name:"Band RDL + Pull-Through",       scheme:"4 × 15 each"},
+                {type:"squat",  name:"Band Squat + Split Squat",      scheme:"4 × 10 each"},
+                {type:"core",   name:"Band Pallof Press + Woodchop",  scheme:"3 × 10 each side"},
+            ]},
+        ],
+    },
+
+    // ========== DUMBBELLS ==========
+    dumbbells: {
+        5: [
+            { title:"DB Quick Hitter", movements:[
+                {type:"press",  name:"DB Floor Press",     scheme:"3 × 10"},
+                {type:"hinge",  name:"DB Romanian DL",     scheme:"3 × 10"},
+                {type:"squat",  name:"DB Goblet Squat",    scheme:"3 × 12"},
+            ]},
+            { title:"5-Minute Dumbbell Drill", movements:[
+                {type:"press",  name:"DB Push Press",      scheme:"3 × 8"},
+                {type:"hinge",  name:"DB Swing",           scheme:"3 × 12"},
+                {type:"squat",  name:"DB Squat",           scheme:"3 × 12"},
+            ]},
+        ],
+        15: [
+            { title:"DB Grind", movements:[
+                {type:"press",  name:"DB Bench Press",     scheme:"4 × 10"},
+                {type:"hinge",  name:"DB Romanian DL",     scheme:"4 × 10"},
+                {type:"squat",  name:"DB Goblet Squat",    scheme:"4 × 12"},
+                {type:"core",   name:"DB Farmer Carry",    scheme:"3 × 30 sec"},
+            ]},
+            { title:"DB Superset Circuit", movements:[
+                {type:"press",  name:"DB Shoulder Press",  scheme:"3 × 10"},
+                {type:"hinge",  name:"DB Single-Leg RDL",  scheme:"3 × 8/leg"},
+                {type:"squat",  name:"DB Split Squat",     scheme:"3 × 10/leg"},
+                {type:"core",   name:"DB Russian Twist",   scheme:"3 × 12"},
+            ]},
+        ],
+        30: [
+            { title:"Dumbbell Dominator", movements:[
+                {type:"press",  name:"DB Incline Press + DB Push Press",   scheme:"4 × 10 each"},
+                {type:"hinge",  name:"DB RDL + DB Single-Leg RDL",         scheme:"4 × 10 each"},
+                {type:"squat",  name:"DB Goblet Squat + DB Reverse Lunge", scheme:"4 × 10 each"},
+                {type:"core",   name:"DB Overhead Carry",                  scheme:"3 × 30 sec/arm"},
+            ]},
+            { title:"After-Shift DB Session", movements:[
+                {type:"press",  name:"DB Floor Press",     scheme:"5 × 10"},
+                {type:"hinge",  name:"DB Romanian DL",     scheme:"5 × 10"},
+                {type:"squat",  name:"DB Front Squat",     scheme:"4 × 12"},
+                {type:"core",   name:"DB Suitcase Carry",  scheme:"3 × 20m/arm"},
+            ]},
+        ],
+    },
+
+    // ========== BARBELL ==========
+    barbell: {
+        5: [
+            { title:"Bar Complex — 5 Min", movements:[
+                {type:"press",  name:"Overhead Press",     scheme:"3 × 5"},
+                {type:"hinge",  name:"Romanian DL",        scheme:"3 × 5"},
+                {type:"squat",  name:"Front Squat",        scheme:"3 × 5"},
+            ]},
+        ],
+        15: [
+            { title:"Barbell Power Circuit", movements:[
+                {type:"press",  name:"Barbell Bench Press", scheme:"4 × 6"},
+                {type:"hinge",  name:"Barbell RDL",         scheme:"4 × 6"},
+                {type:"squat",  name:"Barbell Back Squat",  scheme:"4 × 6"},
+                {type:"core",   name:"Barbell Rollout",     scheme:"3 × 8"},
+            ]},
+            { title:"Strength Complex", movements:[
+                {type:"press",  name:"Push Press",          scheme:"4 × 5"},
+                {type:"hinge",  name:"Conventional Deadlift",scheme:"4 × 5"},
+                {type:"squat",  name:"Paused Squat",        scheme:"4 × 5"},
+                {type:"core",   name:"Barbell Plank",       scheme:"3 × 20 sec"},
+            ]},
+        ],
+        30: [
+            { title:"Blue Collar Barbell", movements:[
+                {type:"press",  name:"Bench Press + OHP",  scheme:"4 × 6 each"},
+                {type:"hinge",  name:"Deadlift + RDL",     scheme:"4 × 5 each"},
+                {type:"squat",  name:"Back Squat + Front Squat",scheme:"4 × 5 each"},
+                {type:"core",   name:"Ab Wheel",           scheme:"3 × 10"},
+            ]},
+        ],
+    },
+};
+
+// Card suits / values for display
+var suits = [
+    {sym:'♠', label:'Spades',   color:'black'},
+    {sym:'♥', label:'Hearts',   color:'red'},
+    {sym:'♦', label:'Diamonds', color:'red'},
+    {sym:'♣', label:'Clubs',    color:'black'},
+];
+var values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+// ===== STATE =====
+function selectTime(btn){
+    document.querySelectorAll('.time-btn').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    selectedTime = parseInt(btn.getAttribute('data-time'));
+    validateSetup();
+}
+
+function toggleEquip(btn){
+    var equip = btn.getAttribute('data-equip');
+    if(btn.classList.contains('selected')){
+        btn.classList.remove('selected');
+        selectedEquip = selectedEquip.filter(function(e){ return e !== equip; });
+    } else {
+        btn.classList.add('selected');
+        selectedEquip.push(equip);
+    }
+    validateSetup();
+}
+
+function validateSetup(){
+    document.getElementById('drawBtn').disabled = !(selectedTime && selectedEquip.length > 0);
+}
+
+// ===== DRAW =====
+function drawCard(){
+    // Pick best equipment match (priority: barbell > dumbbells > bands > bodyweight)
+    var priority = ['barbell','dumbbells','bands','bodyweight'];
+    var equip = null;
+    for(var i=0; i<priority.length; i++){
+        if(selectedEquip.indexOf(priority[i]) >= 0 && workouts[priority[i]] && workouts[priority[i]][selectedTime]){
+            equip = priority[i]; break;
+        }
+    }
+    if(!equip) equip = 'bodyweight';
+
+    var pool = workouts[equip][selectedTime];
+    var workout = pool[Math.floor(Math.random() * pool.length)];
+    var suit   = suits[Math.floor(Math.random() * suits.length)];
+    var value  = values[Math.floor(Math.random() * values.length)];
+
+    buildCardFront(workout, suit, value);
+
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('cardScreen').style.display  = 'block';
+    document.getElementById('cardFlip').classList.remove('flipped');
+
+    var equipNames = { bodyweight:'Bodyweight', bands:'Resistance Bands', dumbbells:'Dumbbells', barbell:'Barbell' };
+    document.getElementById('equipReminder').textContent =
+        '🏋️ Equipment: ' + equipNames[equip] + '  ·  ⏱ ' + selectedTime + ' min session';
+}
+
+function buildCardFront(workout, suit, value){
+    var front = document.getElementById('cardFront');
+    var colorCls = suit.color;
+
+    var movHtml = workout.movements.map(function(m){
+        return '<div class="movement-row">' +
+            '<span class="movement-type ' + m.type + '">' + m.type.toUpperCase() + '</span>' +
+            '<div class="movement-detail">' +
+                '<div class="movement-name">' + m.name + '</div>' +
+                '<div class="movement-scheme">' + m.scheme + '</div>' +
+            '</div></div>';
+    }).join('');
+
+    front.innerHTML =
+        '<div class="card-suit-corner ' + colorCls + '">' + value + '<br><small>' + suit.sym + '</small></div>' +
+        '<div class="card-suit-corner-br ' + colorCls + '">' + value + '<br><small>' + suit.sym + '</small></div>' +
+        '<div class="card-front-body">' +
+            '<div class="card-workout-label">Today\'s Mission</div>' +
+            '<div class="card-workout-title">' + workout.title + '</div>' +
+            '<div class="card-time-badge">⏱ ' + selectedTime + ' MIN</div>' +
+            '<div class="movement-list">' + movHtml + '</div>' +
+        '</div>';
+}
+
+function flipCard(){
+    document.getElementById('cardFlip').classList.toggle('flipped');
+}
+
+function newCard(){
+    drawCard();
+}
+
+function goBack(){
+    document.getElementById('cardScreen').style.display  = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>

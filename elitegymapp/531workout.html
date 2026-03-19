@@ -45,9 +45,10 @@ body::before {
 .program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #ff8c42; font-size: 1rem; }
 .summary-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 22px 0; }
 .form-title { text-align: center; margin-bottom: 20px; color: #ff8c42; font-size: 1.3rem; }
-.form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
-.form-row label { font-weight: 600; min-width: 170px; }
-.form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 110px; text-align: center; color: #222; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; gap: 10px; }
+.form-row label { font-weight: 600; min-width: 150px; font-size: 0.95rem; }
+.form-row input[type="number"] { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 110px; text-align: center; color: #222; }
+.form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 14px; width: 170px; text-align: center; color: #222; }
 .form-row input[type="number"]::placeholder { color: rgba(0,0,0,0.28); font-style: italic; }
 .form-row input[type="number"]:focus::placeholder { color: transparent; }
 .check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
@@ -55,13 +56,24 @@ body::before {
 .btn { display: block; width: 100%; padding: 14px; margin-top: 22px; background: linear-gradient(135deg, #ff512f, #dd2476); color: #fff; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; letter-spacing: 1px; transition: transform 0.2s, box-shadow 0.2s; }
 .btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(255,81,47,0.4); }
 .jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #ff8c42; }
-.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn { flex: 1; min-width: 90px; padding: 11px 8px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.4; }
+.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #ff8c42; }
+.jump-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.jump-btn {
+    padding: 10px 6px; border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: #fff; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    text-align: center; line-height: 1.4;
+}
 .jump-btn:hover { border-color: rgba(255,140,66,0.55); background: rgba(255,140,66,0.12); }
 .jump-btn.jump-active { background: linear-gradient(135deg, #ff512f, #dd2476); border-color: #ff8c42; box-shadow: 0 0 14px rgba(255,81,47,0.4); }
-.jump-btn .jump-pct { font-size: 1.15rem; display: block; }
-.jump-btn .jump-tag { font-size: 0.68rem; opacity: 0.78; font-weight: 600; }
+.jump-btn .jump-pct { font-size: 1.05rem; display: block; }
+.jump-btn .jump-tag { font-size: 0.63rem; opacity: 0.78; font-weight: 600; }
 
 /* WORKOUT VIEW */
 #workoutView { display: none; position: relative; z-index: 1; }
@@ -153,12 +165,56 @@ body::before {
 @media (max-width:600px) {
     .header-text { font-size: 1.3rem; }
     .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
-    .form-row { flex-direction: column; align-items: flex-start; }
-    .form-row input[type="number"], .form-row select { width: 100%; }
+    .setup-panel { padding: 20px 16px; margin: 16px auto; }
+    .form-row { flex-direction: row; align-items: center; margin: 10px 0; }
+    .form-row label { min-width: 0; flex: 1; font-size: 0.88rem; }
+    .form-row input[type="number"] { width: 90px; flex-shrink: 0; }
+    .form-row select { width: 150px; flex-shrink: 0; font-size: 13px; }
+    .jump-options { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .jump-btn { padding: 8px 4px; }
+    .jump-btn .jump-pct { font-size: 0.92rem; }
+    .jump-btn .jump-tag { font-size: 0.58rem; }
+    .proj-grid { grid-template-columns: 1fr 1fr; }
     .lift-set-card { flex-direction: column; align-items: flex-start; gap: 8px; }
     .nav-controls { flex-direction: column; }
     .nav-btn { width: 100%; text-align: center; }
 }
+.jump-btn.jump-disabled {
+    opacity: 0.22; cursor: not-allowed; pointer-events: none;
+    border-color: rgba(255,255,255,0.06) !important;
+    background: rgba(255,255,255,0.03) !important;
+}
+/* INFO ICON TOOLTIP */
+.info-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 17px; height: 17px; border-radius: 50%;
+    background: rgba(255,140,66,0.25); border: 1px solid rgba(255,140,66,0.5);
+    font-size: 0.65rem; font-weight: 900; color: #ff8c42;
+    cursor: pointer; position: relative; margin-left: 8px;
+    vertical-align: middle; user-select: none;
+}
+.info-tooltip {
+    display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%); width: 280px;
+    background: #1a2a3a; border: 1px solid rgba(255,140,66,0.35);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 0.78rem; line-height: 1.6; color: rgba(255,255,255,0.85);
+    font-weight: 400; letter-spacing: 0; text-transform: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100;
+    pointer-events: none;
+}
+.info-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: rgba(255,140,66,0.35);
+}
+.info-icon:hover .info-tooltip,
+.info-icon:focus .info-tooltip { display: block; }
+.proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+.proj-card { background: rgba(255,140,66,0.08); border: 1px solid rgba(255,140,66,0.2); border-radius: 10px; padding: 10px 14px; }
+.proj-lift { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.55; margin-bottom: 2px; }
+.proj-val  { font-size: 1.1rem; font-weight: 800; color: #ff8c42; }
+.proj-val small { font-size: 0.65rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
+.proj-note { font-size: 0.68rem; opacity: 0.45; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -174,36 +230,61 @@ body::before {
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
         <h2>THE 5/3/1 PROGRAM</h2>
-        <p>Built for <strong>novice to advanced lifters</strong> who want to get strong as hell — whether you compete or just want to move serious weight on a schedule.</p>
+        <p>Jim Wendler's 5/3/1 is built on one principle: <strong>get strong by doing the basics, consistently, over time</strong>. You train four big lifts — Squat, Deadlift, Bench, OHP — each on their own day, every week, for as many waves as you run.</p>
         <ul>
             <li>One <strong>wave = 4 weeks</strong> — 5s Week → 3s Week → 5/3/1 Week → Deload</li>
-            <li>4 training days per week: <strong>OHP · Deadlift · Bench · Squat</strong></li>
-            <li><strong>3 waves (12 weeks)</strong> recommended to reach peak strength</li>
-            <li>Weights shown are the <strong>minimum</strong> — if you've got more in the tank, add it</li>
+            <li>Each week builds intensity: <strong>65/75/85% → 70/80/90% → 75/85/95%</strong></li>
+            <li>The last set of each week is <strong>AMRAP</strong> — do more than the minimum if you have it</li>
+            <li>After each wave your <strong>Training Max goes up</strong> — that's the whole game</li>
+            <li><strong>3 waves (12 weeks)</strong> is the recommended starting block</li>
+            <li>Wendler's baseline increase is scaled to <strong>your strength level</strong> — bigger lifters get bigger jumps. If you want to push harder, the options below add more on top</li>
         </ul>
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="deadlift1rm" placeholder="405" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
-    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45"></div>
-    <div class="check-row"><input type="checkbox" id="useTM" checked><label for="useTM">Use 90% Training Max</label></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="deadlift1rm" placeholder="405" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45" oninput="updateProjections()"></div>
     <div class="form-row"><label>Number of Waves</label>
-        <select id="numWaves">
-            <option value="1">1</option><option value="2">2</option>
-            <option value="3" selected>3</option><option value="4">4</option>
+        <select id="numWaves" onchange="updateProjections(); updateJumpOptions()">
+            <option value="1">1 Wave (4 weeks)</option>
+            <option value="2">2 Waves (8 weeks)</option>
+            <option value="3" selected>3 Waves (12 weeks)</option>
+            <option value="4">4 Waves (16 weeks)</option>
         </select>
     </div>
     <div class="jump-selector">
-        <label class="jump-label">⚡ TM INCREASE PER WAVE — How hungry are you?</label>
+        <label class="jump-label">
+            ⚡ TM INCREASE PER WAVE
+            <span class="info-icon" tabindex="0">?
+                <span class="info-tooltip">
+                    <strong>How TM increases work:</strong><br><br>
+                    <strong>Baseline</strong> — Wendler's exact standard. Lower body (Squat, Deadlift) goes up +10 lbs per wave. Upper body (Bench, OHP) goes up +5 lbs per wave. Flat numbers, every time. This works for 300 lb lifters and 1000 lb lifters alike — bigger lifters just progress slower, which is intentional.<br><br>
+                    <strong>+5% to +20%</strong> — Multiplies the flat increment. Useful if you're feeling strong, coming off a peaking cycle, or want to push harder. +10% = +20 lbs/wave lower, +10 lbs upper. +20% = +30 lbs/wave lower, +15 upper.<br><br>
+                    <strong>Wendler's advice:</strong> start conservative. The TM should feel easy at first. The program works because of consistency over time — not because you're grinding near your max every session.
+                </span>
+            </span>
+        </label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! 🔥</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectJump(this)"><span class="jump-pct">Baseline</span><span class="jump-tag">Wendler standard</span></button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">+5%</span><span class="jump-tag">Steady push</span></button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">+10%</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">+15%</span><span class="jump-tag">Very aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">+20%</span><span class="jump-tag">ARE YOU INSANE?! 🔥</span></button>
         </div>
     </div>
+
+    <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,140,66,0.65);margin:20px 0 10px;border-left:3px solid #ff8c42;padding-left:10px;">
+        Estimated 1RM After Final Wave <span style="opacity:0.45;font-size:0.6rem;letter-spacing:0;text-transform:none;font-style:italic">· New TM ÷ 0.90 — upper +5 lbs/wave · lower +10 lbs/wave</span>
+    </div>
+    <div class="proj-grid">
+        <div class="proj-card"><div class="proj-lift">Squat</div><div class="proj-val" id="proj-Squat">—</div><div class="proj-note" id="projnote-Squat"></div></div>
+        <div class="proj-card"><div class="proj-lift">Deadlift</div><div class="proj-val" id="proj-Deadlift">—</div><div class="proj-note" id="projnote-Deadlift"></div></div>
+        <div class="proj-card"><div class="proj-lift">Bench</div><div class="proj-val" id="proj-Bench">—</div><div class="proj-note" id="projnote-Bench"></div></div>
+        <div class="proj-card"><div class="proj-lift">OHP</div><div class="proj-val" id="proj-OHP">—</div><div class="proj-note" id="projnote-OHP"></div></div>
+    </div>
+
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
 
@@ -255,8 +336,26 @@ var dayNames  = {"OHP":"Overhead Press","Deadlift":"Deadlift","Bench":"Bench Pre
 
 var program    = [];
 var cursor     = 0;
-var weeklyJump = 0.10;
+var weeklyJump = 0.00; // 0 = Wendler baseline only
 var baseTM     = {};
+
+// WENDLER'S ACTUAL METHODOLOGY:
+// TM = 90% of true 1RM (conservative by design - that's the point)
+// All percentages run off TM, never true 1RM
+// TM increases per wave: FLAT lbs - upper +5, lower +10
+// This is intentional - bigger lifters progress slower, that IS the program
+// % options simply multiply the flat increment for lifters who want to push harder
+// Multipliers: baseline=1x, +5%=1.5x, +10%=2x, +15%=2.5x, +20%=3x
+var jumpMultipliers = { 0.00:1, 0.05:1.5, 0.10:2, 0.15:2.5, 0.20:3 };
+var lowerLifts = ["Squat","Deadlift"];
+// Flat Wendler increments (baseline)
+var flatInc = { lower:10, upper:5 };
+
+function getIncrement(isLower, jumpPct){
+    var base = isLower ? flatInc.lower : flatInc.upper;
+    var mult = jumpMultipliers[jumpPct] !== undefined ? jumpMultipliers[jumpPct] : 1;
+    return base * mult;
+}
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function sample(a,n){ var s=[].concat(a); for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;} return s.slice(0,n); }
@@ -266,6 +365,66 @@ function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    updateProjections();
+}
+
+// Disable 15% and 20% when waves >= 3 — unrealistic gains
+function updateJumpOptions(){
+    var nw = parseInt(document.getElementById("numWaves").value) || 3;
+    var restricted = nw >= 3;
+    document.querySelectorAll('.jump-btn').forEach(function(btn){
+        var pct = parseFloat(btn.getAttribute('data-pct'));
+        if(pct >= 0.15){
+            if(restricted){
+                btn.classList.add('jump-disabled');
+                // If currently selected, fall back to +10%
+                if(btn.classList.contains('jump-active')){
+                    btn.classList.remove('jump-active');
+                    weeklyJump = 0.10;
+                    document.querySelector('.jump-btn[data-pct="0.10"]').classList.add('jump-active');
+                    updateProjections();
+                }
+            } else {
+                btn.classList.remove('jump-disabled');
+            }
+        }
+    });
+}
+
+// CORRECT WENDLER PROJECTION:
+// New TM = baseTM + (flatInc × waves)
+// Estimated new 1RM = New TM ÷ 0.90
+// This matches how the program actually works — TM climbs, 1RM estimate follows
+function estimatedFinal1RM(raw, useTM, nw, jump, lift){
+    var tm      = useTM ? Math.round(raw * 0.9) : raw;
+    var isLower = lowerLifts.indexOf(lift) >= 0;
+    var inc     = getIncrement(isLower, jump);
+    var newTM   = tm + (inc * nw);
+    var est1RM  = Math.round((newTM / 0.90) / 5) * 5;
+    return { est1RM: est1RM, newTM: newTM };
+}
+
+function updateProjections(){
+    var inputs = {
+        Squat:    parseInt(document.getElementById("squat1rm").value)    || 0,
+        Deadlift: parseInt(document.getElementById("deadlift1rm").value) || 0,
+        Bench:    parseInt(document.getElementById("bench1rm").value)    || 0,
+        OHP:      parseInt(document.getElementById("ohp1rm").value)      || 0
+    };
+    var useTM = true; // always 90%
+    var nw    = parseInt(document.getElementById("numWaves").value) || 3;
+    var jump  = weeklyJump;
+
+    ["Squat","Deadlift","Bench","OHP"].forEach(function(k){
+        var valEl  = document.getElementById("proj-" + k);
+        var noteEl = document.getElementById("projnote-" + k);
+        var raw    = inputs[k];
+        if(!raw){ valEl.innerHTML = "—"; noteEl.textContent = ""; return; }
+        var r    = estimatedFinal1RM(raw, useTM, nw, jump, k);
+        var gain = r.est1RM - raw;
+        valEl.innerHTML    = r.est1RM + '<small>lbs</small>';
+        noteEl.textContent = (gain >= 0 ? "+" : "") + gain + " lbs · TM → " + r.newTM + " lbs";
+    });
 }
 
 function generateProgram(){
@@ -275,7 +434,7 @@ function generateProgram(){
         Bench:    parseInt(document.getElementById("bench1rm").value)||225,
         OHP:      parseInt(document.getElementById("ohp1rm").value)||135
     };
-    var useTM = document.getElementById("useTM").checked;
+    var useTM = true; // 90% Training Max is Wendler baseline — always applied
     var nw    = parseInt(document.getElementById("numWaves").value)||3;
 
     var tm = {};
@@ -301,7 +460,11 @@ function generateProgram(){
                 program.push({ wave:w, week:wk, dayNum:di+1, lift:lift, tm:curTM, sets:sets });
             }
         }
-        for(var k in baseTM) tm[k] = Math.round(baseTM[k]*Math.pow(1+weeklyJump,w));
+        for(var k in baseTM){
+            var isLower = lowerLifts.indexOf(k) >= 0;
+            var inc = getIncrement(isLower, weeklyJump);
+            tm[k] = baseTM[k] + (inc * w);
+        }
     }
 
     cursor = 0;
@@ -460,6 +623,9 @@ function resetSetup(){
     document.getElementById("setupPanel").style.display  = "block";
     document.getElementById("workoutView").style.display = "none";
 }
+
+// Init
+updateJumpOptions();
 </script>
 </body>
 </html>
