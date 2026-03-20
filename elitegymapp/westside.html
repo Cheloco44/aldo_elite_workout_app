@@ -32,6 +32,7 @@ body::before {
 .back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #ffd700; text-decoration: none; font-size: 1.4rem; opacity: 0.8; transition: opacity 0.2s; }
 .back-link:hover { opacity: 1; }
 
+/* ===== SETUP ===== */
 .setup-panel {
     max-width: 580px; margin: 30px auto; padding: 30px;
     background: rgba(255,255,255,0.05); border-radius: 15px;
@@ -40,23 +41,46 @@ body::before {
 }
 .program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #ffd700; }
 .program-summary p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 12px; }
-.program-summary ul { list-style: none; padding: 0; }
+.program-summary ul { list-style: none; padding: 0; margin: 0; }
 .program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.88; }
 .program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #ffd700; font-size: 1rem; }
 .summary-divider { border: none; border-top: 1px solid rgba(255,215,0,0.2); margin: 22px 0; }
+.form-title { text-align: center; margin-bottom: 20px; color: #ffd700; font-size: 1.2rem; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; gap: 10px; }
+.form-row label { font-weight: 600; min-width: 160px; font-size: 0.95rem; }
+.form-row input[type="number"] { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 110px; text-align: center; color: #222; }
+.form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 14px; width: 170px; text-align: center; color: #222; }
+.form-row input[type="number"]::placeholder { color: rgba(0,0,0,0.28); font-style: italic; }
+.form-row input[type="number"]:focus::placeholder { color: transparent; }
 
-.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #ffd700; font-size: 1.2rem; }
-.form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
-.form-row label { font-weight: 600; min-width: 170px; }
-.form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
 .jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #ffd700; }
-.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; border: 2px solid rgba(255,215,0,0.2); background: rgba(255,215,0,0.06); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.3; }
+.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #ffd700; }
+.jump-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.jump-btn {
+    padding: 10px 6px; border-radius: 10px;
+    border: 2px solid rgba(255,215,0,0.2); background: rgba(255,215,0,0.06);
+    color: #fff; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.4;
+}
 .jump-btn:hover { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.12); }
-.jump-btn.jump-active { background: linear-gradient(135deg, #b8860b, #ffd700); border-color: #ffd700; color: #111; box-shadow: 0 0 12px rgba(255,215,0,0.3); }
-.jump-btn .jump-pct { font-size: 1.1rem; display: block; }
-.jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
+.jump-btn.jump-active { background: linear-gradient(135deg, #b8860b, #ffd700); border-color: #ffd700; color: #111; box-shadow: 0 0 14px rgba(255,215,0,0.3); }
+.jump-btn .jump-pct { font-size: 1.05rem; display: block; }
+.jump-btn .jump-tag { font-size: 0.63rem; opacity: 0.78; font-weight: 600; }
+
+/* PROJECTION */
+.proj-wrap { display: none; margin: 20px 0 6px; }
+.proj-label {
+    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,215,0,0.65); margin-bottom: 10px;
+    border-left: 3px solid #ffd700; padding-left: 10px;
+}
+.proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.proj-card { background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.18); border-radius: 10px; padding: 10px 14px; text-align: center; }
+.proj-lift { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 4px; }
+.proj-val  { font-size: 1.1rem; font-weight: 800; color: #ffd700; }
+.proj-val small { font-size: 0.62rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
+.proj-sub  { font-size: 0.65rem; opacity: 0.45; margin-top: 3px; }
+.proj-de   { font-size: 0.68rem; color: #93c5fd; margin-top: 2px; }
 
 .btn {
     display: block; width: 100%; padding: 14px; margin-top: 22px;
@@ -67,70 +91,116 @@ body::before {
 .btn:hover { transform: scale(1.02); box-shadow: 0 5px 25px rgba(255,215,0,0.4); }
 .btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; color: #111; }
 
-.controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
-.controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
-.controls label { font-weight: 700; margin-left: 10px; }
+/* ===== WORKOUT VIEW ===== */
+#workoutView { display: none; position: relative; z-index: 1; }
 
-.day-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 20px;
-    width: 92%;
-    max-width: 1000px;
-    margin: 20px auto 50px;
-    position: relative; z-index: 1;
-    display: none;
+.position-banner {
+    max-width: 760px; margin: 24px auto 0;
+    background: rgba(184,134,11,0.15);
+    border: 1px solid rgba(255,215,0,0.35);
+    border-radius: 14px; padding: 18px 24px; text-align: center;
 }
+.week-label-top { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,215,0,0.6); margin-bottom: 6px; }
+.day-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: #ffd700; margin-bottom: 4px; }
+.day-sub { font-size: 0.85rem; opacity: 0.6; letter-spacing: 1px; }
 
-.day-card {
-    background: rgba(255,255,255,0.06);
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid rgba(255,215,0,0.1);
+.breadcrumb {
+    max-width: 760px; margin: 14px auto 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; flex-wrap: wrap; padding: 0 16px;
 }
-
-.day-card-header {
-    padding: 14px 18px;
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: 1px;
+.bc-lbl { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.35; margin: 0 4px; }
+.bc-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer; transition: all 0.2s;
 }
+.bc-dot.active { background: #ffd700; border-color: #ffd700; transform: scale(1.45); }
+.bc-dot.done   { background: rgba(255,215,0,0.35); border-color: rgba(255,215,0,0.35); }
 
-.me-header { background: linear-gradient(135deg, #7f1d1d, #991b1b); border-bottom: 2px solid #ffd700; }
-.de-header { background: linear-gradient(135deg, #1c1c3d, #1e3a5f); border-bottom: 2px solid #60a5fa; }
-
-table { width: 100%; border-collapse: collapse; }
-th { padding: 10px 14px; text-align: left; font-size: 0.85rem; opacity: 0.7; }
-td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.92rem; }
-tr:last-child td { border-bottom: none; }
-.ex-type-me { color: #fcd34d; font-weight: 700; }
-.ex-type-de { color: #93c5fd; font-weight: 700; }
-.ex-type-acc { color: #aaa; }
-
-.week-label {
-    text-align: center; font-size: 1.1rem; font-weight: 700; color: #ffd700;
-    margin: 20px 0 0; position: relative; z-index: 1;
-    display: none;
+.nav-controls {
+    max-width: 760px; margin: 18px auto 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 0 16px;
 }
+.nav-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 12px 24px; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+}
+.nav-btn:hover { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+.nav-btn:disabled { opacity: 0.22; cursor: not-allowed; }
+.nav-center { text-align: center; }
+.nav-progress { font-size: 0.75rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 6px; }
+.btn-new { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-new:hover { border-color: rgba(255,255,255,0.45); color: #fff; }
+
+.workout-area { max-width: 760px; margin: 20px auto 60px; padding: 0 16px; }
+
+.section-heading {
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,215,0,0.6); margin: 22px 0 10px;
+    border-left: 3px solid #ffd700; padding-left: 10px;
+}
+.section-heading.is-de { color: rgba(147,197,253,0.7); border-left-color: #93c5fd; }
+.section-heading.is-acc { color: rgba(170,170,170,0.6); border-left-color: #aaa; }
+
+.main-lift-cards { display: flex; flex-direction: column; gap: 10px; }
+.lift-set-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,215,0,0.15);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.lift-set-card.is-me  { background: rgba(184,134,11,0.12); border-color: rgba(255,215,0,0.4); }
+.lift-set-card.is-de  { background: rgba(28,28,61,0.5);    border-color: rgba(96,165,250,0.35); }
+.set-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.55; margin-bottom: 4px; }
+.set-label.me { color: #fcd34d; }
+.set-label.de { color: #93c5fd; }
+.set-scheme { font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: 1px; }
+.set-scheme em { font-style: normal; font-size: 1.15rem; }
+.set-scheme em.me { color: #ffd700; }
+.set-scheme em.de { color: #93c5fd; }
+.set-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.set-weight { font-size: 1.4rem; font-weight: 900; }
+.set-weight.me { color: #ffd700; }
+.set-weight.de { color: #93c5fd; }
+.set-weight small { font-size: 0.65rem; font-weight: 400; opacity: 0.55; margin-left: 3px; }
+.me-badge { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg,#b8860b,#ffd700); color: #111; padding: 3px 8px; border-radius: 20px; font-weight: 800; }
+.de-badge { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg,#1c1c3d,#1e3a5f); border: 1px solid #60a5fa; color: #93c5fd; padding: 3px 8px; border-radius: 20px; font-weight: 800; }
+
+.aux-cards { display: flex; flex-direction: column; gap: 8px; }
+.aux-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.aux-name { font-size: 0.95rem; font-weight: 600; }
+.aux-type { font-size: 0.65rem; opacity: 0.38; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.aux-right { display: flex; gap: 14px; align-items: center; flex-shrink: 0; }
+.aux-scheme { font-size: 0.88rem; color: #aaa; font-weight: 700; }
+.aux-note { font-size: 0.75rem; opacity: 0.4; }
+
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.slide-in { animation: slideIn 0.22s ease both; }
 
 @media (max-width: 600px) {
     .header-text { font-size: 1.3rem; }
     .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
-    .form-row { flex-direction: column; align-items: flex-start; }
-    .form-row input[type="number"], .form-row select { width: 100%; }
-    .day-grid { grid-template-columns: 1fr; }
-}
-
-.form-row input[type="number"]::placeholder {
-    color: rgba(0,0,0,0.28);
-    font-style: italic;
-}
-.form-row input[type="number"]:focus::placeholder {
-    color: transparent;
+    .setup-panel { padding: 20px 16px; margin: 16px auto; }
+    .form-row { flex-direction: row; align-items: center; margin: 10px 0; }
+    .form-row label { min-width: 0; flex: 1; font-size: 0.88rem; }
+    .form-row input[type="number"] { width: 90px; flex-shrink: 0; }
+    .form-row select { width: 150px; flex-shrink: 0; }
+    .jump-options { grid-template-columns: repeat(2, 1fr); }
+    .proj-grid { grid-template-columns: 1fr 1fr; }
+    .lift-set-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .nav-controls { flex-direction: column; }
+    .nav-btn { width: 100%; text-align: center; }
 }
 </style>
 </head>
 <body>
+
 <div class="header">
     <a href="index.html" class="back-link">&larr; Home</a>
     <div class="header-inner">
@@ -139,176 +209,338 @@ tr:last-child td { border-bottom: none; }
     </div>
 </div>
 
+<!-- ===== SETUP ===== -->
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
         <h2>THE WESTSIDE CONJUGATE SYSTEM</h2>
-        <p>Louie Simmons' <strong>elite powerlifting system</strong> — the same methodology that produced more world record holders than any other gym on earth. You train strength and speed simultaneously, every week.</p>
+        <p>Louie Simmons' <strong>elite powerlifting system</strong> — the same methodology that produced more world record holders than any other gym on earth. You train strength and speed simultaneously, every single week.</p>
         <ul>
-            <li><strong>Max Effort (ME):</strong> Work up to a 1–3 rep max on a variation. Rotate exercises weekly to avoid accommodation</li>
-            <li><strong>Dynamic Effort (DE):</strong> Move submaximal weight with <em>maximal intent</em> — bar speed is the metric</li>
+            <li><strong>Max Effort (ME):</strong> Work up to a true 1–3RM on a variation each session — rotate exercises weekly to avoid accommodation</li>
+            <li><strong>Dynamic Effort (DE):</strong> 50–60% of your 1RM moved with <em>maximal bar speed</em> — velocity is the metric, not load</li>
             <li><strong>4 days per week:</strong> ME Lower, ME Upper, DE Lower, DE Upper</li>
-            <li>Accommodating resistance (bands/chains) on DE lifts adds <strong>strength curve overload</strong></li>
-            <li>Rotate ME exercises every 1–3 weeks — never adapt, always attack</li>
+            <li>DE percentages wave in a 3-week cycle: <strong>50% → 55% → 60%</strong>, then reset</li>
+            <li>Accessory work targets weaknesses: posterior chain, lockout, shoulders, core</li>
         </ul>
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45" oninput="updateProjection()"></div>
     <div class="form-row"><label>Program Weeks</label>
-        <select id="numWeeks">
+        <select id="numWeeks" onchange="updateProjection()">
             <option value="4">4 Weeks</option>
             <option value="8" selected>8 Weeks</option>
             <option value="12">12 Weeks</option>
         </select>
     </div>
     <div class="jump-selector">
-        <label class="jump-label">&#9889; WEEKLY LOADING INCREASE &mdash; How hungry are you?</label>
+        <label class="jump-label">⚡ ME TOP SET INCREASE PER WEEK</label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
+            <button type="button" class="jump-btn" data-pct="0.025" onclick="selectJump(this)"><span class="jump-pct">2.5%</span><span class="jump-tag">Conservative</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Standard</span></button>
+            <button type="button" class="jump-btn" data-pct="0.075" onclick="selectJump(this)"><span class="jump-pct">7.5%</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">ARE YOU INSANE?! 🔥</span></button>
         </div>
     </div>
+
+    <!-- PROJECTION -->
+    <div class="proj-wrap" id="projWrap">
+        <div class="proj-label">Projected End-of-Program ME Top Set</div>
+        <div class="proj-grid" id="projGrid"></div>
+        <div style="font-size:0.67rem;opacity:0.35;margin-top:8px;line-height:1.5;font-style:italic">ME top set target assuming consistent weekly PRs. DE weights stay anchored to your starting 1RM and don't compound — speed stays the priority.</div>
+    </div>
+
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
 
-<div class="week-label" id="weekLabel"></div>
-
-<div class="controls" id="controls">
-    <label>Week</label>
-    <select id="weekSel" onchange="renderDays()"></select>
-    <br><br>
-    <button class="btn btn-sm" onclick="resetSetup()" style="color:#111">&larr; New Program</button>
+<!-- ===== WORKOUT VIEW ===== -->
+<div id="workoutView">
+    <div class="position-banner">
+        <div class="week-label-top" id="weekLabelTop"></div>
+        <div class="day-title"      id="dayTitle"></div>
+        <div class="day-sub"        id="daySub"></div>
+    </div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="btnPrev" onclick="navigate(-1)">← Prev</button>
+        <div class="nav-center">
+            <div class="nav-progress" id="navProgress"></div>
+            <div><button class="btn-new" onclick="resetSetup()">↩ New Program</button></div>
+        </div>
+        <button class="nav-btn" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+    <div class="workout-area" id="workoutArea"></div>
 </div>
 
-<div class="day-grid" id="dayGrid"></div>
-
 <script>
+// ===== EXERCISE POOLS =====
 var meSquatVars = ["Box Squat","Safety Bar Squat","Cambered Bar Squat","Low Box Squat","Pause Squat","2-Board Squat","Front Squat","Belt Squat"];
 var meBenchVars = ["2-Board Press","Floor Press","Close Grip Bench","Slingshot Bench","Reverse Band Press","Incline Press","Rack Press","Spoto Press"];
-var meDeadVars  = ["Rack Pull","Deadlift from Deficit","Sumo Deadlift","Conventional DL","Trap Bar Deadlift","Deadlift with Chains","Banded Deadlift"];
+var meDeadVars  = ["Rack Pull","Deficit Deadlift","Sumo Deadlift","Conventional Deadlift","Trap Bar Deadlift","Deadlift with Chains","Banded Deadlift"];
 
-var lowerAccs = [["GHR","3 × 10","Posterior chain"],["Reverse Hyper","3 × 15","Low back & glutes"],["Leg Curl","3 × 12","Hamstring health"],["Ab Wheel","3 × 10","Core stability"]];
-var upperAccs = [["Tricep Pushdown","3 × 15","Lockout strength"],["Face Pull","3 × 20","Shoulder health"],["Dumbbell Row","3 × 12","Upper back"],["Lateral Raise","3 × 15","Shoulder width"]];
+var lowerAccs = [
+    {name:"GHR",           scheme:"3 × 10", note:"Posterior chain"},
+    {name:"Reverse Hyper", scheme:"3 × 15", note:"Low back & glutes"},
+    {name:"Leg Curl",      scheme:"3 × 12", note:"Hamstring health"},
+    {name:"Ab Wheel",      scheme:"3 × 10", note:"Core stability"}
+];
+var upperAccs = [
+    {name:"Tricep Pushdown", scheme:"3 × 15", note:"Lockout strength"},
+    {name:"Face Pull",       scheme:"3 × 20", note:"Shoulder health"},
+    {name:"Dumbbell Row",    scheme:"3 × 12", note:"Upper back"},
+    {name:"Lateral Raise",   scheme:"3 × 15", note:"Shoulder width"}
+];
 
-var programData = [];
-var baseLifts = {};
-var weeklyJump = 0.10;
+// ===== STATE =====
+var program    = [];
+var cursor     = 0;
+var weeklyJump = 0.05;
+var baseLifts  = {};
 
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function round5(v){ return Math.max(45, Math.round(v/5)*5); }
+
+// ===== JUMP SELECTOR =====
 function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    updateProjection();
 }
 
-function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
-function round5(v){ return Math.max(45,Math.round(v/5)*5); }
+// ===== LIVE PROJECTION =====
+// Westside ME: each week you aim to beat last week's top set by the jump %.
+// DE: always anchored to your STARTING 1RM at 50/55/60% — never compounds.
+function updateProjection(){
+    var sq   = parseInt(document.getElementById("squat1rm").value) || 0;
+    var bp   = parseInt(document.getElementById("bench1rm").value) || 0;
+    var dl   = parseInt(document.getElementById("dead1rm").value)  || 0;
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 8;
 
+    var hasAny = sq > 0 || bp > 0 || dl > 0;
+    var wrap = document.getElementById("projWrap");
+    if(!hasAny){ wrap.style.display = "none"; return; }
+    wrap.style.display = "block";
+
+    var grid = document.getElementById("projGrid");
+    grid.innerHTML = "";
+
+    var lifts = [
+        {label:"Squat", raw:sq,  deScheme:"8×2"},
+        {label:"Bench",  raw:bp, deScheme:"9×3"},
+        {label:"Deadlift",raw:dl, deScheme:"6×1"}
+    ];
+
+    lifts.forEach(function(l){
+        var card = document.createElement("div");
+        card.className = "proj-card";
+        if(!l.raw){
+            card.innerHTML = '<div class="proj-lift">'+l.label+'</div><div class="proj-val" style="opacity:0.25">—</div>';
+        } else {
+            // ME projection: compounds weekly from starting 1RM
+            var meEnd  = round5(l.raw * Math.pow(1 + weeklyJump, weeks - 1));
+            var meGain = meEnd - l.raw;
+            // DE: fixed 60% of starting 1RM (top of the 3-week cycle)
+            var deTop  = round5(l.raw * 0.60);
+            card.innerHTML =
+                '<div class="proj-lift">'+l.label+'</div>'+
+                '<div class="proj-val">'+meEnd+'<small>lbs</small></div>'+
+                '<div class="proj-sub">ME top set &nbsp;·&nbsp; <span style="color:#81c784">+'+meGain+' lbs</span></div>'+
+                '<div class="proj-de">DE max: '+deTop+' lbs &nbsp;('+l.deScheme+')</div>';
+        }
+        grid.appendChild(card);
+    });
+}
+
+// ===== GENERATE =====
 function generateProgram(){
-    baseLifts.sq = parseInt(document.getElementById("squat1rm").value)||315;
-    baseLifts.bp = parseInt(document.getElementById("bench1rm").value)||225;
-    baseLifts.dl = parseInt(document.getElementById("dead1rm").value)||405;
-    var weeks = parseInt(document.getElementById("numWeeks").value)||8;
+    baseLifts = {
+        sq: parseInt(document.getElementById("squat1rm").value) || 315,
+        bp: parseInt(document.getElementById("bench1rm").value) || 225,
+        dl: parseInt(document.getElementById("dead1rm").value)  || 405
+    };
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 8;
 
-    programData = [];
+    program = [];
+
+    // Day definitions — 4 days per week
+    // ME Lower, ME Upper, DE Lower, DE Upper
+    var dayDefs = ["ME Lower","ME Upper","DE Lower","DE Upper"];
+
     for(var w=1; w<=weeks; w++){
-        // Scale weights up by user-selected % each week
-        var wScale = Math.pow(1 + weeklyJump, w - 1);
-        var sq = Math.round(baseLifts.sq * wScale);
-        var bp = Math.round(baseLifts.bp * wScale);
-        var dl = Math.round(baseLifts.dl * wScale);
-        // Rotate ME exercises
+        // ── ME weights ──────────────────────────────────────────────────────
+        // Each week the lifter aims to set a new PR on their chosen variation.
+        // We show a target top set that scales off their 1RM by weeklyJump per week.
+        // Week 1 = starting 1RM (they should be able to hit this on a variation).
+        var meScale = Math.pow(1 + weeklyJump, w - 1);
+        var meSq = round5(baseLifts.sq * meScale);
+        var meBp = round5(baseLifts.bp * meScale);
+        var meDl = round5(baseLifts.dl * meScale);
+
+        // ── DE weights ──────────────────────────────────────────────────────
+        // DE is ALWAYS off the original 1RM — it never compounds.
+        // 3-week wave: week 1=50%, week 2=55%, week 3=60%, repeat.
+        var dePct = [0.50, 0.55, 0.60][(w - 1) % 3];
+        var deSq = round5(baseLifts.sq * dePct);
+        var deBp = round5(baseLifts.bp * dePct);
+        var deDl = round5(baseLifts.dl * dePct);
+
+        // Rotate ME exercise selection each week
         var meSquat = pick(meSquatVars);
         var meBench = pick(meBenchVars);
         var meDead  = pick(meDeadVars);
 
-        // DE percentages (50-60% for speed work)
-        var dePct = 0.50 + (w % 3) * 0.05; // 50, 55, 60 cycling
-        var deSets = 8, deReps = 2; // classic DE: 8×2 or 10×2
+        for(var di=0; di<dayDefs.length; di++){
+            var dayName = dayDefs[di];
+            var sets = [];
 
-        programData.push({
-            week: w,
-            ME_Lower: {
-                main: [{type:"Work Up to Max",name:meSquat,scheme:"Work up to 1–3RM",weight:"Max Effort"},
-                       {type:"Accessory",name:"Deadlift Variation",scheme:"3–4 × 3–5",weight:round5(dl*0.65)}],
-                accs: lowerAccs
-            },
-            ME_Upper: {
-                main: [{type:"Work Up to Max",name:meBench,scheme:"Work up to 1–3RM",weight:"Max Effort"},
-                       {type:"Accessory",name:"Overhead Press",scheme:"5 × 5",weight:round5(bp*0.55)}],
-                accs: upperAccs
-            },
-            DE_Lower: {
-                main: [{type:"Dynamic Effort",name:"Box Squat",scheme:deSets+"×2 — FAST",weight:round5(sq*dePct)},
-                       {type:"Dynamic Effort",name:"Deadlift",scheme:"6×1 — FAST",weight:round5(dl*(dePct-0.05))}],
-                accs: lowerAccs
-            },
-            DE_Upper: {
-                main: [{type:"Dynamic Effort",name:"Bench Press",scheme:"9×3 — FAST",weight:round5(bp*dePct)},
-                       {type:"Accessory",name:"JM Press",scheme:"4 × 8",weight:round5(bp*0.35)}],
-                accs: upperAccs
+            if(dayName === "ME Lower"){
+                sets.push({cat:"me", label:"Max Effort", name:meSquat,       scheme:"Work to 1–3RM",   weight:"Target: "+meSq+" lbs", badge:"me"});
+                sets.push({cat:"me", label:"ME Accessory",name:"Deadlift Variation", scheme:"3–4 × 3–5", weight:round5(meDl*0.65)+" lbs", badge:""});
+                lowerAccs.forEach(function(a){ sets.push({cat:"acc", name:a.name, scheme:a.scheme, note:a.note}); });
             }
-        });
+            else if(dayName === "ME Upper"){
+                sets.push({cat:"me", label:"Max Effort", name:meBench,       scheme:"Work to 1–3RM",   weight:"Target: "+meBp+" lbs", badge:"me"});
+                sets.push({cat:"me", label:"ME Accessory",name:"Overhead Press",     scheme:"5 × 5",     weight:round5(meBp*0.55)+" lbs", badge:""});
+                upperAccs.forEach(function(a){ sets.push({cat:"acc", name:a.name, scheme:a.scheme, note:a.note}); });
+            }
+            else if(dayName === "DE Lower"){
+                sets.push({cat:"de", label:"Dynamic Effort", name:"Box Squat",  scheme:"8×2 — MAX SPEED", weight:deSq+" lbs ("+Math.round(dePct*100)+"%)", badge:"de"});
+                sets.push({cat:"de", label:"Dynamic Effort", name:"Deadlift",   scheme:"6×1 — MAX SPEED", weight:round5(baseLifts.dl*(dePct-0.05))+" lbs ("+Math.round((dePct-0.05)*100)+"%)", badge:"de"});
+                lowerAccs.forEach(function(a){ sets.push({cat:"acc", name:a.name, scheme:a.scheme, note:a.note}); });
+            }
+            else { // DE Upper
+                sets.push({cat:"de", label:"Dynamic Effort", name:"Bench Press", scheme:"9×3 — MAX SPEED", weight:deBp+" lbs ("+Math.round(dePct*100)+"%)", badge:"de"});
+                sets.push({cat:"de", label:"DE Accessory",   name:"JM Press",    scheme:"4 × 8",           weight:round5(baseLifts.bp*0.35)+" lbs", badge:""});
+                upperAccs.forEach(function(a){ sets.push({cat:"acc", name:a.name, scheme:a.scheme, note:a.note}); });
+            }
+
+            program.push({week:w, dayIdx:di, dayName:dayName, sets:sets, dePct:dePct});
+        }
     }
 
-    var ws = document.getElementById("weekSel");
-    ws.innerHTML = "";
-    for(var i=1;i<=weeks;i++) ws.innerHTML += '<option value="'+(i-1)+'">Week '+i+'</option>';
-
-    document.getElementById("setupPanel").style.display = "none";
-    document.getElementById("controls").style.display   = "block";
-    document.getElementById("dayGrid").style.display    = "grid";
-    document.getElementById("weekLabel").style.display  = "block";
-    renderDays();
+    cursor = 0;
+    document.getElementById("setupPanel").style.display  = "none";
+    document.getElementById("workoutView").style.display = "block";
+    render();
 }
 
-function renderDays(){
-    var wi = parseInt(document.getElementById("weekSel").value)||0;
-    var wdata = programData[wi];
-    var grid = document.getElementById("dayGrid");
-    grid.innerHTML = "";
+// ===== RENDER =====
+function render(){
+    var entry = program[cursor];
+    var total = program.length;
 
-    var days = [
-        {key:"ME_Lower", label:"Day 1 — MAX EFFORT LOWER", cls:"me-header"},
-        {key:"ME_Upper", label:"Day 2 — MAX EFFORT UPPER", cls:"me-header"},
-        {key:"DE_Lower", label:"Day 3 — DYNAMIC EFFORT LOWER", cls:"de-header"},
-        {key:"DE_Upper", label:"Day 4 — DYNAMIC EFFORT UPPER", cls:"de-header"}
-    ];
+    document.getElementById("weekLabelTop").textContent = "Week " + entry.week + "  ·  DE Cycle: " + Math.round(entry.dePct*100) + "%";
+    document.getElementById("dayTitle").textContent     = entry.dayName.toUpperCase();
+    document.getElementById("daySub").textContent       = entry.dayName.indexOf("ME") >= 0
+        ? "Max Effort — hit a new PR on your variation"
+        : "Dynamic Effort — bar speed is everything · " + Math.round(entry.dePct*100) + "% of 1RM";
+    document.getElementById("navProgress").textContent  = "Day " + (cursor+1) + " of " + total;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === total-1;
 
-    days.forEach(function(d){
-        var dayData = wdata[d.key];
+    buildBreadcrumb(entry);
+    buildWorkout(entry);
+}
+
+function buildBreadcrumb(current){
+    var bc = document.getElementById("breadcrumb");
+    bc.innerHTML = "";
+
+    // Group by week
+    var weeks = {};
+    program.forEach(function(d){ if(!weeks[d.week]) weeks[d.week]=[]; weeks[d.week].push(d); });
+
+    for(var w=1; w<=Object.keys(weeks).length; w++){
+        var lbl = document.createElement("span");
+        lbl.className = "bc-lbl";
+        lbl.textContent = "W" + w;
+        bc.appendChild(lbl);
+        weeks[w].forEach(function(d){
+            var idx = program.indexOf(d);
+            var dot = document.createElement("div");
+            dot.className = "bc-dot" + (idx===cursor?" active":idx<cursor?" done":"");
+            dot.title = d.dayName;
+            dot.onclick = (function(i){ return function(){ cursor=i; render(); }; })(idx);
+            bc.appendChild(dot);
+        });
+    }
+}
+
+function buildWorkout(entry){
+    var area = document.getElementById("workoutArea");
+    area.innerHTML = "";
+    area.classList.remove("slide-in");
+    void area.offsetWidth;
+    area.classList.add("slide-in");
+
+    var isME = entry.dayName.indexOf("ME") >= 0;
+    var isDE = entry.dayName.indexOf("DE") >= 0;
+
+    // Section: main work
+    var mh = document.createElement("div");
+    mh.className = "section-heading" + (isME ? "" : " is-de");
+    mh.textContent = isME ? "Max Effort Work" : "Dynamic Effort Work";
+    area.appendChild(mh);
+
+    var mainWrap = document.createElement("div");
+    mainWrap.className = "main-lift-cards";
+
+    entry.sets.filter(function(s){ return s.cat === "me" || s.cat === "de"; }).forEach(function(s){
         var card = document.createElement("div");
-        card.className = "day-card";
+        card.className = "lift-set-card" + (s.cat==="me" ? " is-me" : s.cat==="de" ? " is-de" : "");
 
-        var html = '<div class="day-card-header '+d.cls+'">'+d.label+'</div>';
-        html += '<table><thead><tr><th>Type</th><th>Exercise</th><th>Scheme</th><th>Weight</th></tr></thead><tbody>';
+        var labelCls  = s.cat === "me" ? "me" : "de";
+        var weightCls = s.cat === "me" ? "me" : "de";
+        var badge = "";
+        if(s.badge === "me") badge = '<span class="me-badge">ME</span>';
+        if(s.badge === "de") badge = '<span class="de-badge">DE</span>';
 
-        dayData.main.forEach(function(ex){
-            var cls = ex.type.indexOf("Max")>=0||ex.type.indexOf("Work")>=0 ? "ex-type-me" : ex.type.indexOf("Dynamic")>=0 ? "ex-type-de" : "ex-type-acc";
-            var wt = typeof ex.weight === "number" ? ex.weight+" lbs" : ex.weight;
-            html += '<tr><td class="'+cls+'">'+ex.type+'</td><td>'+ex.name+'</td><td>'+ex.scheme+'</td><td>'+wt+'</td></tr>';
-        });
-
-        dayData.accs.forEach(function(acc){
-            html += '<tr><td class="ex-type-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td style="opacity:0.6;font-size:0.85rem">'+acc[2]+'</td></tr>';
-        });
-
-        html += '</tbody></table>';
-        card.innerHTML = html;
-        grid.appendChild(card);
+        card.innerHTML =
+            '<div>'+
+                '<div class="set-label '+labelCls+'">'+s.label+'</div>'+
+                '<div class="set-scheme"><em class="'+labelCls+'">'+s.name+'</em></div>'+
+                '<div style="font-size:0.8rem;opacity:0.55;margin-top:4px;">'+s.scheme+'</div>'+
+            '</div>'+
+            '<div class="set-right">'+
+                badge+
+                '<div class="set-weight '+weightCls+'">'+s.weight+'</div>'+
+            '</div>';
+        mainWrap.appendChild(card);
     });
+    area.appendChild(mainWrap);
 
-    document.getElementById("weekLabel").textContent = "WEEK " + (wi+1);
+    // Section: accessories
+    var accSets = entry.sets.filter(function(s){ return s.cat === "acc"; });
+    if(accSets.length){
+        var ah = document.createElement("div");
+        ah.className = "section-heading is-acc";
+        ah.textContent = "Accessories";
+        area.appendChild(ah);
+        var accWrap = document.createElement("div");
+        accWrap.className = "aux-cards";
+        accSets.forEach(function(s){
+            var c = document.createElement("div");
+            c.className = "aux-card";
+            c.innerHTML =
+                '<div><div class="aux-name">'+s.name+'</div><div class="aux-type">Accessory</div></div>'+
+                '<div class="aux-right"><span class="aux-scheme">'+s.scheme+'</span><span class="aux-note">'+s.note+'</span></div>';
+            accWrap.appendChild(c);
+        });
+        area.appendChild(accWrap);
+    }
+}
+
+function navigate(dir){
+    cursor = Math.max(0, Math.min(program.length-1, cursor+dir));
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function resetSetup(){
-    document.getElementById("setupPanel").style.display = "block";
-    document.getElementById("controls").style.display   = "none";
-    document.getElementById("dayGrid").style.display    = "none";
-    document.getElementById("weekLabel").style.display  = "none";
+    document.getElementById("setupPanel").style.display  = "block";
+    document.getElementById("workoutView").style.display = "none";
 }
 </script>
 </body>

@@ -102,6 +102,36 @@ tr:hover { background: rgba(255,255,255,0.06); }
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+/* AMRAP PREVIEW */
+.amrap-preview {
+    margin: 20px 0 6px;
+    display: none;
+}
+.amrap-preview-label {
+    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(239,154,154,0.65); margin-bottom: 10px;
+    border-left: 3px solid #ef9a9a; padding-left: 10px;
+}
+.amrap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.amrap-wave-col { display: flex; flex-direction: column; gap: 6px; }
+.amrap-wave-header {
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(239,154,154,0.55); text-align: center; padding: 4px 0;
+    border-bottom: 1px solid rgba(239,154,154,0.15);
+}
+.amrap-cell {
+    background: rgba(185,43,39,0.1); border: 1px solid rgba(239,154,154,0.15);
+    border-radius: 8px; padding: 8px 6px; text-align: center;
+}
+.amrap-lift-name { font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.45; margin-bottom: 3px; }
+.amrap-wt { font-size: 0.95rem; font-weight: 800; color: #ffd700; }
+.amrap-wt small { font-size: 0.55rem; font-weight: 400; opacity: 0.6; margin-left: 1px; }
+.amrap-reps { font-size: 0.68rem; color: #ef9a9a; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -128,12 +158,12 @@ tr:hover { background: rgba(255,255,255,0.06); }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR TRAINING MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45"></div>
-    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45" oninput="updateAmrapPreview()"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45" oninput="updateAmrapPreview()"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45" oninput="updateAmrapPreview()"></div>
+    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45" oninput="updateAmrapPreview()"></div>
     <div class="check-row">
-        <input type="checkbox" id="useTM" checked>
+        <input type="checkbox" id="useTM" checked onchange="updateAmrapPreview()">
         <label for="useTM">Use 90% Training Max</label>
     </div>
     <div class="jump-selector">
@@ -144,6 +174,11 @@ tr:hover { background: rgba(255,255,255,0.06); }
             <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
+    </div>
+    <!-- AMRAP PREVIEW -->
+    <div class="amrap-preview" id="amrapPreview">
+        <div class="amrap-preview-label">Realization Week — AMRAP Top Set Preview</div>
+        <div class="amrap-grid" id="amrapGrid"></div>
     </div>
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
@@ -209,9 +244,56 @@ function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    updateAmrapPreview();
 }
 
 function round5(v){ return Math.max(45, Math.round(v/5)*5); }
+
+function updateAmrapPreview(){
+    var inputs = {
+        Squat:    parseInt(document.getElementById("squat1rm").value) || 0,
+        Bench:    parseInt(document.getElementById("bench1rm").value) || 0,
+        Deadlift: parseInt(document.getElementById("dead1rm").value)  || 0,
+        OHP:      parseInt(document.getElementById("ohp1rm").value)   || 0
+    };
+    var useTM = document.getElementById("useTM").checked;
+    var hasAny = Object.values(inputs).some(function(v){ return v > 0; });
+    var preview = document.getElementById("amrapPreview");
+    var grid    = document.getElementById("amrapGrid");
+
+    if(!hasAny){ preview.style.display = "none"; return; }
+    preview.style.display = "block";
+    grid.innerHTML = "";
+
+    waves.forEach(function(wave, wi){
+        var col = document.createElement("div");
+        col.className = "amrap-wave-col";
+        var hdr = document.createElement("div");
+        hdr.className = "amrap-wave-header";
+        hdr.textContent = "Wave " + (wi+1) + " · " + wave.name;
+        col.appendChild(hdr);
+
+        liftNames.forEach(function(lift){
+            var raw = inputs[lift];
+            var cell = document.createElement("div");
+            cell.className = "amrap-cell";
+            if(!raw){
+                cell.innerHTML = '<div class="amrap-lift-name">'+lift+'</div><div class="amrap-wt" style="opacity:0.25">—</div>';
+            } else {
+                var tm      = useTM ? Math.round(raw * 0.9) : raw;
+                var scaledTM = Math.round(tm * Math.pow(1 + weeklyJump, wi));
+                var topWt   = round5(scaledTM * wave.real[0]);
+                var estReps = Math.max(1, Math.round((raw - topWt) / (topWt * 0.0333)));
+                cell.innerHTML =
+                    '<div class="amrap-lift-name">'+lift+'</div>' +
+                    '<div class="amrap-wt">'+topWt+'<small>lbs</small></div>' +
+                    '<div class="amrap-reps">~'+estReps+' reps</div>';
+            }
+            col.appendChild(cell);
+        });
+        grid.appendChild(col);
+    });
+}
 
 function generateProgram(){
     var useTM = document.getElementById("useTM").checked;
@@ -260,8 +342,12 @@ function renderTable(){
             tb.appendChild(tr);
         });
         var rl = wave.real;
+        var topWt = round5(tm * rl[0]);
+        var useTM = document.getElementById("useTM").checked;
+        var true1rm = useTM ? Math.round(baseTms[lift] / 0.9) : baseTms[lift];
+        var estReps = Math.max(1, Math.round((true1rm - topWt) / (topWt * 0.0333)));
         var tr2 = document.createElement("tr");
-        tr2.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>'+rl[1]+'</td><td>'+round5(tm*rl[0])+' lbs ('+Math.round(rl[0]*100)+'%)</td>';
+        tr2.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>'+rl[1]+'<br><span style="font-size:0.75rem;opacity:0.55;font-weight:400">est. ~'+estReps+' reps</span></td><td>'+topWt+' lbs ('+Math.round(rl[0]*100)+'%)</td>';
         tb.appendChild(tr2);
     } else {
         // Deload

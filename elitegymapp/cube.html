@@ -117,6 +117,17 @@ tr:last-child td { border-bottom: none; }
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+/* PROJECTION */
+.proj-wrap { display: none; margin: 20px 0 6px; }
+.proj-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,210,0,0.65); margin-bottom: 10px; border-left: 3px solid #ffd200; padding-left: 10px; }
+.proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.proj-card { background: rgba(255,210,0,0.07); border: 1px solid rgba(255,210,0,0.2); border-radius: 10px; padding: 10px 14px; text-align: center; }
+.proj-lift { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 4px; }
+.proj-val  { font-size: 1.05rem; font-weight: 800; color: #ffd200; }
+.proj-val small { font-size: 0.6rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
+.proj-sub  { font-size: 0.65rem; color: #86efac; margin-top: 3px; }
+.proj-sub2 { font-size: 0.63rem; color: #93c5fd; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -143,12 +154,12 @@ tr:last-child td { border-bottom: none; }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="275" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45"></div>
-    <div class="check-row"><input type="checkbox" id="useTM" checked><label for="useTM">Use 90% Training Max</label></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="275" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45" oninput="updateProjection()"></div>
+    <div class="check-row"><input type="checkbox" id="useTM" checked onchange="updateProjection()"><label for="useTM">Use 90% Training Max</label></div>
     <div class="form-row"><label>Program Length</label>
-        <select id="numWeeks">
+        <select id="numWeeks" onchange="updateProjection()">
             <option value="9">9 Weeks (3 cycles)</option>
             <option value="12" selected>12 Weeks (4 cycles)</option>
             <option value="15">15 Weeks (5 cycles)</option>
@@ -162,6 +173,12 @@ tr:last-child td { border-bottom: none; }
             <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
+    </div>
+    <!-- PROJECTION -->
+    <div class="proj-wrap" id="projWrap">
+        <div class="proj-label">End-of-Program Estimates (Final Cycle)</div>
+        <div class="proj-grid" id="projGrid"></div>
+        <div style="font-size:0.67rem;opacity:0.35;margin-top:8px;line-height:1.5;font-style:italic">Heavy day target at peak cycle. Explosive = 50–65% of 1RM anchored to starting weight. Rep day shows top working weight.</div>
     </div>
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
@@ -183,6 +200,53 @@ function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    updateProjection();
+}
+
+function updateProjection(){
+    var sq  = parseInt(document.getElementById("squat1rm").value) || 0;
+    var bp  = parseInt(document.getElementById("bench1rm").value) || 0;
+    var dl  = parseInt(document.getElementById("dead1rm").value)  || 0;
+    var useTM = document.getElementById("useTM").checked;
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+
+    var hasAny = sq>0 || bp>0 || dl>0;
+    var wrap = document.getElementById("projWrap");
+    if(!hasAny){ wrap.style.display="none"; return; }
+    wrap.style.display = "block";
+
+    var cycles = Math.floor(weeks / 3);  // number of full 3-week cycles
+
+    var lifts = [
+        {label:"Squat",    raw:sq,  key:"squat"},
+        {label:"Bench",    raw:bp,  key:"bench"},
+        {label:"Deadlift", raw:dl,  key:"dead"}
+    ];
+    var grid = document.getElementById("projGrid");
+    grid.innerHTML = "";
+    lifts.forEach(function(l){
+        var card = document.createElement("div");
+        card.className = "proj-card";
+        if(!l.raw){
+            card.innerHTML = '<div class="proj-lift">'+l.label+'</div><div class="proj-val" style="opacity:0.25">—</div>';
+        } else {
+            var tm = useTM ? Math.round(l.raw * 0.9) : l.raw;
+            // Heavy: TM scaled by jump per cycle, top set at 90–95%
+            var peakTM   = Math.round(tm * Math.pow(1 + weeklyJump, Math.max(0, cycles-1)));
+            var heavyTop = round5(peakTM * 0.92);
+            var heavyGain = heavyTop - l.raw;
+            // Explosive: always 60% of ORIGINAL 1RM (anchored, does not compound)
+            var expWt = round5(l.raw * 0.60);
+            // Rep: 70% of peak TM × 3 sets
+            var repWt = round5(peakTM * 0.70);
+            card.innerHTML =
+                '<div class="proj-lift">'+l.label+'</div>'+
+                '<div class="proj-val">'+heavyTop+'<small>lbs</small></div>'+
+                '<div class="proj-sub">Heavy top set &nbsp;·&nbsp; +'+(heavyGain>=0?"+":"")+heavyGain+' lbs</div>'+
+                '<div class="proj-sub2">Exp: '+expWt+' lbs &nbsp;·&nbsp; Rep: '+repWt+' lbs</div>';
+        }
+        grid.appendChild(card);
+    });
 }
 
 var rotations = [
@@ -231,16 +295,18 @@ function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
     var html = "";
 
     if(mode === "Heavy"){
-        var pct    = heavyPcts[Math.min(weekInCycle, heavyPcts.length - 1)];
-        var topPct = Math.min(pct + 0.05 * cycle, 0.97);
+        // Heavy: week-in-cycle drives pct (85/90/95%), TM scales per cycle
+        var pct = heavyPcts[Math.min(weekInCycle, heavyPcts.length - 1)];
         html += '<tr><td class="t-heavy">Warm-up</td><td>' + liftName + '</td><td>5 × 3</td><td>' + round5(tm * 0.70) + ' lbs</td></tr>';
-        html += '<tr><td class="t-heavy">Heavy Set</td><td>' + liftName + '</td><td>Work to 1</td><td>' + round5(tm * topPct) + ' lbs (' + Math.round(topPct * 100) + '%)</td></tr>';
+        html += '<tr><td class="t-heavy">Heavy Set</td><td>' + liftName + '</td><td>Work to 1</td><td>' + round5(tm * pct) + ' lbs (' + Math.round(pct * 100) + '%)</td></tr>';
     } else if(mode === "Explosive"){
-        var ePct = expPcts[Math.min(cycle, expPcts.length - 1)];
-        html += '<tr><td class="t-exp">Dynamic Effort</td><td>' + liftName + '</td><td>8 × 2 — MAX SPEED</td><td>' + round5(tm * ePct) + ' lbs (' + Math.round(ePct * 100) + '%)</td></tr>';
+        // Explosive: ALWAYS off original baseTm — speed work never compounds
+        var ePct = expPcts[Math.min(weekInCycle, expPcts.length - 1)]; // 50/55/60 within cycle
+        html += '<tr><td class="t-exp">Dynamic Effort</td><td>' + liftName + '</td><td>8 × 2 — MAX SPEED</td><td>' + round5(baseTmVal * ePct) + ' lbs (' + Math.round(ePct * 100) + '%)</td></tr>';
     } else {
-        var reps = repReps[weekInCycle % repReps.length] + cycle * 2;
-        var rPct = 0.65 + cycle * 0.03;
+        // Rep day: volume work at 65–75%, reps progress within cycle
+        var reps = repReps[weekInCycle % repReps.length];
+        var rPct = 0.65 + weekInCycle * 0.05; // 65/70/75% across the 3 weeks
         html += '<tr><td class="t-rep">Rep Set</td><td>' + liftName + '</td><td>3 × ' + reps + '</td><td>' + round5(tm * rPct) + ' lbs (' + Math.round(rPct * 100) + '%)</td></tr>';
     }
 

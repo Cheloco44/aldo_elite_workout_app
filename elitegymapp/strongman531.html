@@ -40,25 +40,76 @@ body::before {
 }
 .program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #ce93d8; }
 .program-summary p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 12px; }
-.program-summary ul { list-style: none; padding: 0; }
+.program-summary ul { list-style: none; padding: 0; margin: 0; }
 .program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.88; }
 .program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #ce93d8; font-size: 1rem; }
 .summary-divider { border: none; border-top: 1px solid rgba(160,68,255,0.2); margin: 22px 0; }
 
-.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #ce93d8; font-size: 1.2rem; }
-.form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
-.form-row label { font-weight: 600; min-width: 170px; }
-.form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
+.form-title { text-align: center; margin-bottom: 20px; color: #ce93d8; font-size: 1.2rem; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; gap: 10px; }
+.form-row label { font-weight: 600; min-width: 160px; font-size: 0.95rem; }
+.form-row input[type="number"] { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 110px; text-align: center; color: #222; }
+.form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 14px; width: 170px; text-align: center; color: #222; }
+.form-row input[type="number"]::placeholder { color: rgba(0,0,0,0.28); font-style: italic; }
+.form-row input[type="number"]:focus::placeholder { color: transparent; }
+
 .jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #ce93d8; }
-.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; border: 2px solid rgba(160,68,255,0.2); background: rgba(160,68,255,0.06); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.3; }
-.jump-btn:hover { border-color: rgba(206,147,216,0.5); background: rgba(206,147,216,0.1); }
-.jump-btn.jump-active { background: linear-gradient(135deg, #6a3093, #a044ff); border-color: #ce93d8; box-shadow: 0 0 12px rgba(206,147,216,0.3); }
-.jump-btn .jump-pct { font-size: 1.1rem; display: block; }
-.jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
-.check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
-.check-row input[type="checkbox"] { width: 20px; height: 20px; }
+.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #ce93d8; }
+.jump-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.jump-btn {
+    padding: 10px 6px; border-radius: 10px;
+    border: 2px solid rgba(160,68,255,0.2);
+    background: rgba(160,68,255,0.06);
+    color: #fff; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    text-align: center; line-height: 1.4;
+}
+.jump-btn:hover { border-color: rgba(206,147,216,0.5); background: rgba(206,147,216,0.12); }
+.jump-btn.jump-active { background: linear-gradient(135deg, #6a3093, #a044ff); border-color: #ce93d8; box-shadow: 0 0 14px rgba(160,68,255,0.4); }
+.jump-btn .jump-pct { font-size: 1.05rem; display: block; }
+.jump-btn .jump-tag { font-size: 0.63rem; opacity: 0.78; font-weight: 600; }
+.jump-btn.jump-disabled {
+    opacity: 0.22; cursor: not-allowed; pointer-events: none;
+    border-color: rgba(255,255,255,0.06) !important;
+    background: rgba(255,255,255,0.03) !important;
+}
+
+/* INFO ICON TOOLTIP */
+.info-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 17px; height: 17px; border-radius: 50%;
+    background: rgba(206,147,216,0.25); border: 1px solid rgba(206,147,216,0.5);
+    font-size: 0.65rem; font-weight: 900; color: #ce93d8;
+    cursor: pointer; position: relative; margin-left: 8px;
+    vertical-align: middle; user-select: none;
+}
+.info-tooltip {
+    display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%); width: 280px;
+    background: #1a1a3a; border: 1px solid rgba(206,147,216,0.35);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 0.78rem; line-height: 1.6; color: rgba(255,255,255,0.85);
+    font-weight: 400; letter-spacing: 0; text-transform: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100;
+    pointer-events: none;
+}
+.info-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: rgba(206,147,216,0.35);
+}
+.info-icon:hover .info-tooltip,
+.info-icon:focus .info-tooltip { display: block; }
+
+.proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+.proj-card { background: rgba(160,68,255,0.08); border: 1px solid rgba(160,68,255,0.2); border-radius: 10px; padding: 10px 14px; }
+.proj-lift { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.55; margin-bottom: 2px; }
+.proj-val  { font-size: 1.1rem; font-weight: 800; color: #ce93d8; }
+.proj-val small { font-size: 0.65rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
+.proj-note { font-size: 0.68rem; opacity: 0.45; margin-top: 2px; }
 
 .btn {
     display: block; width: 100%; padding: 14px; margin-top: 22px;
@@ -69,45 +120,108 @@ body::before {
 .btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(160,68,255,0.45); }
 .btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; }
 
-.controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
-.controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
-.controls label { font-weight: 700; margin-left: 10px; }
+/* WORKOUT VIEW */
+#workoutView { display: none; position: relative; z-index: 1; }
 
-.day-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 18px;
-    width: 92%;
-    max-width: 1050px;
-    margin: 20px auto 50px;
-    position: relative; z-index: 1;
-    display: none;
+.position-banner {
+    max-width: 700px; margin: 24px auto 0;
+    background: rgba(106,48,147,0.2);
+    border: 1px solid rgba(160,68,255,0.4);
+    border-radius: 14px; padding: 18px 24px;
+    text-align: center;
 }
+.wave-label { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(206,147,216,0.7); margin-bottom: 6px; }
+.day-title { font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; color: #ce93d8; margin-bottom: 4px; }
+.day-sub { font-size: 0.85rem; opacity: 0.65; letter-spacing: 1px; }
 
-.day-card { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; border: 1px solid rgba(160,68,255,0.15); }
-.day-card-header { padding: 14px 18px; font-weight: 800; font-size: 1rem; letter-spacing: 1px; background: linear-gradient(135deg, rgba(106,48,147,0.6), rgba(160,68,255,0.3)); border-bottom: 2px solid rgba(160,68,255,0.4); }
-table { width: 100%; border-collapse: collapse; }
-th { padding: 10px 14px; text-align: left; font-size: 0.85rem; opacity: 0.65; }
-td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.91rem; }
-tr:last-child td { border-bottom: none; }
-.t-main { color: #ce93d8; font-weight: 700; }
-.t-event { color: #80cbc4; font-weight: 700; }
-.t-acc { color: #aaa; }
+.breadcrumb {
+    max-width: 700px; margin: 14px auto 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px; flex-wrap: wrap; padding: 0 16px;
+}
+.bc-week-lbl { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.4; margin: 0 4px; }
+.bc-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.18);
+    cursor: pointer; transition: all 0.2s;
+}
+.bc-dot.active { background: #ce93d8; border-color: #ce93d8; transform: scale(1.45); }
+.bc-dot.done { background: rgba(206,147,216,0.38); border-color: rgba(206,147,216,0.38); }
+
+.nav-controls {
+    max-width: 700px; margin: 18px auto 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 0 16px;
+}
+.nav-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 12px 24px; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+}
+.nav-btn:hover { background: rgba(160,68,255,0.25); border-color: #ce93d8; }
+.nav-btn:disabled { opacity: 0.22; cursor: not-allowed; }
+.nav-center { text-align: center; }
+.nav-progress { font-size: 0.75rem; opacity: 0.45; letter-spacing: 1px; margin-bottom: 6px; }
+.nav-actions { display: flex; gap: 8px; justify-content: center; }
+.btn-new { background: none; border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.55); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-new:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+.workout-area { max-width: 700px; margin: 20px auto 60px; padding: 0 16px; }
+
+.section-heading { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(206,147,216,0.65); margin: 22px 0 10px; border-left: 3px solid #ce93d8; padding-left: 10px; }
+
+.main-lift-cards { display: flex; flex-direction: column; gap: 10px; }
+.lift-set-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(160,68,255,0.18);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.lift-set-card.top-set { background: rgba(106,48,147,0.2); border-color: rgba(206,147,216,0.5); }
+.set-pct { font-size: 0.67rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(206,147,216,0.6); margin-bottom: 4px; }
+.set-scheme { font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: 1px; }
+.set-scheme em { color: #ce93d8; font-style: normal; font-size: 1.2rem; }
+.set-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.set-weight { font-size: 1.45rem; font-weight: 900; color: #ce93d8; }
+.set-weight small { font-size: 0.68rem; font-weight: 400; opacity: 0.55; margin-left: 3px; }
+.top-badge { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg,#6a3093,#a044ff); padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+
+.aux-cards { display: flex; flex-direction: column; gap: 8px; }
+.aux-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.aux-card.is-event { border-color: rgba(128,203,196,0.28); }
+.aux-name { font-size: 0.95rem; font-weight: 600; }
+.aux-type { font-size: 0.66rem; opacity: 0.4; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.aux-right { display: flex; gap: 14px; align-items: center; flex-shrink: 0; }
+.aux-scheme { font-size: 0.88rem; color: #80cbc4; font-weight: 700; }
+.aux-scheme.is-acc { color: #b39ddb; }
+.aux-wt { font-size: 0.8rem; opacity: 0.5; }
+
+.deload-note { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.7; }
+.deload-note strong { color: #ce93d8; }
+
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.slide-in { animation: slideIn 0.22s ease both; }
 
 @media (max-width:600px) {
     .header-text { font-size: 1.3rem; }
     .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
-    .form-row { flex-direction: column; align-items: flex-start; }
-    .form-row input, .form-row select { width: 100%; }
-    .day-grid { grid-template-columns: 1fr; }
-}
-
-.form-row input[type="number"]::placeholder {
-    color: rgba(0,0,0,0.28);
-    font-style: italic;
-}
-.form-row input[type="number"]:focus::placeholder {
-    color: transparent;
+    .setup-panel { padding: 20px 16px; margin: 16px auto; }
+    .form-row { flex-direction: row; align-items: center; margin: 10px 0; }
+    .form-row label { min-width: 0; flex: 1; font-size: 0.88rem; }
+    .form-row input[type="number"] { width: 90px; flex-shrink: 0; }
+    .form-row select { width: 150px; flex-shrink: 0; font-size: 13px; }
+    .jump-options { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .jump-btn { padding: 8px 4px; }
+    .jump-btn .jump-pct { font-size: 0.92rem; }
+    .jump-btn .jump-tag { font-size: 0.58rem; }
+    .proj-grid { grid-template-columns: 1fr 1fr; }
+    .lift-set-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .nav-controls { flex-direction: column; }
+    .nav-btn { width: 100%; text-align: center; }
 }
 </style>
 </head>
@@ -125,53 +239,82 @@ tr:last-child td { border-bottom: none; }
         <h2>5/3/1 FOR THE PLATFORM</h2>
         <p>Wendler's wave-based strength foundation <strong>built for strongman competitors</strong>. Get brutally strong on the base lifts, then take that strength straight into your events.</p>
         <ul>
-            <li><strong>4 training days:</strong> Log/OHP, Deadlift, Bench, Squat</li>
-            <li>Standard 5/3/1 waves on the base lifts with event-specific work added</li>
-            <li><strong>Event day:</strong> Dedicated event training 1–2x per week (use the Event Builder)</li>
+            <li>One <strong>wave = 4 weeks</strong> — 5s Week → 3s Week → 5/3/1 Week → Deload</li>
+            <li>Each week builds intensity: <strong>65/75/85% → 70/80/90% → 75/85/95%</strong></li>
+            <li>The last set of each week is <strong>AMRAP</strong> — do more than the minimum if you have it</li>
+            <li>After each wave your <strong>Training Max goes up</strong> — that's the whole game</li>
+            <li><strong>4 training days:</strong> Log/OHP, Deadlift, Bench, Squat — event work baked in each session</li>
             <li>Accessory work targets strongman-specific weaknesses: grip, posterior chain, overhead</li>
-            <li>Built for athletes who train <strong>to win competitions</strong>, not just move numbers</li>
         </ul>
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Log / OHP 1RM (lbs)</label><input type="number" id="log1rm" placeholder="185" min="45"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="315" min="45"></div>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45"></div>
-    <div class="check-row"><input type="checkbox" id="useTM" checked><label for="useTM">Use 90% Training Max</label></div>
+    <div class="form-row"><label>Log / OHP 1RM (lbs)</label><input type="number" id="log1rm" placeholder="185" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="315" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45" oninput="updateProjections()"></div>
     <div class="form-row"><label>Number of Waves</label>
-        <select id="numWaves">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
+        <select id="numWaves" onchange="updateProjections(); updateJumpOptions()">
+            <option value="1">1 Wave (4 weeks)</option>
+            <option value="2">2 Waves (8 weeks)</option>
+            <option value="3" selected>3 Waves (12 weeks)</option>
+            <option value="4">4 Waves (16 weeks)</option>
         </select>
     </div>
+
     <div class="jump-selector">
-        <label class="jump-label">&#9889; TRAINING MAX INCREASE PER WAVE &mdash; How hungry are you?</label>
+        <label class="jump-label">
+            ⚡ TM INCREASE PER WAVE
+            <span class="info-icon" tabindex="0">?
+                <span class="info-tooltip">
+                    <strong>How TM increases work:</strong><br><br>
+                    <strong>Baseline</strong> — Wendler's exact standard. Lower body (Deadlift, Squat) goes up +10 lbs per wave. Upper body (Log/OHP, Bench) goes up +5 lbs per wave.<br><br>
+                    <strong>+5% to +20%</strong> — Multiplies the flat increment. Useful if you're feeling strong or want to push harder. +10% = +20 lbs/wave lower, +10 lbs upper.<br><br>
+                    <strong>Wendler's advice:</strong> start conservative. The TM should feel easy at first. The program works because of consistency over time.
+                </span>
+            </span>
+        </label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectJump(this)"><span class="jump-pct">Baseline</span><span class="jump-tag">Wendler standard</span></button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">+5%</span><span class="jump-tag">Steady push</span></button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">+10%</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">+15%</span><span class="jump-tag">Very aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">+20%</span><span class="jump-tag">ARE YOU INSANE?! 🔥</span></button>
         </div>
     </div>
+
+    <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:rgba(206,147,216,0.65);margin:20px 0 10px;border-left:3px solid #ce93d8;padding-left:10px;">
+        Estimated 1RM After Final Wave <span style="opacity:0.45;font-size:0.6rem;letter-spacing:0;text-transform:none;font-style:italic">· New TM ÷ 0.90 — upper +5 lbs/wave · lower +10 lbs/wave</span>
+    </div>
+    <div class="proj-grid">
+        <div class="proj-card"><div class="proj-lift">Log / OHP</div><div class="proj-val" id="proj-log">—</div><div class="proj-note" id="projnote-log"></div></div>
+        <div class="proj-card"><div class="proj-lift">Deadlift</div><div class="proj-val" id="proj-dead">—</div><div class="proj-note" id="projnote-dead"></div></div>
+        <div class="proj-card"><div class="proj-lift">Bench</div><div class="proj-val" id="proj-bench">—</div><div class="proj-note" id="projnote-bench"></div></div>
+        <div class="proj-card"><div class="proj-lift">Squat</div><div class="proj-val" id="proj-squat">—</div><div class="proj-note" id="projnote-squat"></div></div>
+    </div>
+
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
 
-<div class="controls" id="controls">
-    <label>Wave</label><select id="waveSel" onchange="renderDays()"></select>
-    <label>Week</label>
-    <select id="weekSel" onchange="renderDays()">
-        <option value="5s">5s Week</option>
-        <option value="3s">3s Week</option>
-        <option value="531">5/3/1 Week</option>
-        <option value="Deload">Deload</option>
-    </select>
-    <br><br>
-    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+<div id="workoutView">
+    <div class="position-banner">
+        <div class="wave-label" id="waveLabel"></div>
+        <div class="day-title" id="dayTitle"></div>
+        <div class="day-sub"   id="daySub"></div>
+    </div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="btnPrev" onclick="navigate(-1)">← Prev</button>
+        <div class="nav-center">
+            <div class="nav-progress" id="navProgress"></div>
+            <div class="nav-actions">
+                <button class="btn-new" onclick="resetSetup()">↩ New Program</button>
+            </div>
+        </div>
+        <button class="nav-btn" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+    <div class="workout-area" id="workoutArea"></div>
 </div>
-
-<div class="day-grid" id="dayGrid"></div>
 
 <script>
 var percentSchemes = {
@@ -181,11 +324,9 @@ var percentSchemes = {
     "Deload": [[0.40,"5"],[0.50,"5"],[0.60,"5"]]
 };
 
-var days = [
+var dayDefs = [
     {
-        label: "Day 1 — LOG / OHP",
-        lift: "Log Press",
-        key: "log",
+        label: "Log / OHP", key: "log",
         eventWork: [
             ["Log Press technique","5 × 3","Light — continental practice"],
             ["Axle Clean & Press","3 × 5","Event variation"],
@@ -198,9 +339,7 @@ var days = [
         ]
     },
     {
-        label: "Day 2 — DEADLIFT",
-        lift: "Deadlift",
-        key: "dead",
+        label: "Deadlift", key: "dead",
         eventWork: [
             ["Car Deadlift Sim (rack pull)","3 × 5","Harness height practice"],
             ["Farmer's Walk","3 × 50ft","Grip & posterior chain"],
@@ -213,9 +352,7 @@ var days = [
         ]
     },
     {
-        label: "Day 3 — BENCH",
-        lift: "Bench",
-        key: "bench",
+        label: "Bench", key: "bench",
         eventWork: [
             ["Circus Dumbbell","4 × 3/arm","Competition simulation"],
             ["Dumbbell Press","3 × 10–12","Volume"],
@@ -228,9 +365,7 @@ var days = [
         ]
     },
     {
-        label: "Day 4 — SQUAT",
-        lift: "Squat",
-        key: "squat",
+        label: "Squat", key: "squat",
         eventWork: [
             ["Yoke Walk","3 × 50ft","Main event carry"],
             ["Atlas Stone Simulator (sandbag)","4 × 3","Loading practice"],
@@ -244,80 +379,271 @@ var days = [
     }
 ];
 
-var tms = {};
-var baseTms = {};
-var weeklyJump = 0.10;
+var weekOrder = ["5s","3s","531","Deload"];
+var weekNames = {"5s":"5s Week","3s":"3s Week","531":"5/3/1 Week","Deload":"Deload Week"};
+
+// WENDLER'S METHODOLOGY — same as 531workout.html
+// TM = 90% of true 1RM (always applied)
+// TM increases per wave: FLAT lbs — upper +5, lower +10
+// Multipliers: baseline=1x, +5%=1.5x, +10%=2x, +15%=2.5x, +20%=3x
+var jumpMultipliers = { 0.00:1, 0.05:1.5, 0.10:2, 0.15:2.5, 0.20:3 };
+var lowerKeys = ["dead","squat"];
+var flatInc = { lower:10, upper:5 };
+
+var program    = [];
+var cursor     = 0;
+var weeklyJump = 0.00;
+var baseTM     = {};
+
+function getIncrement(key, jumpPct){
+    var isLower = lowerKeys.indexOf(key) >= 0;
+    var base = isLower ? flatInc.lower : flatInc.upper;
+    var mult = jumpMultipliers[jumpPct] !== undefined ? jumpMultipliers[jumpPct] : 1;
+    return base * mult;
+}
+
+function round5(v){ return Math.max(45, Math.round(v/5)*5); }
 
 function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    updateProjections();
 }
 
-function round5(v){ return Math.max(45,Math.round(v/5)*5); }
-
-function generateProgram(){
-    var useTM = document.getElementById("useTM").checked;
-    var raw = {
-        log:   parseInt(document.getElementById("log1rm").value)||185,
-        dead:  parseInt(document.getElementById("dead1rm").value)||500,
-        bench: parseInt(document.getElementById("bench1rm").value)||315,
-        squat: parseInt(document.getElementById("squat1rm").value)||405
-    };
-    for(var k in raw) baseTms[k] = useTM ? Math.round(raw[k]*0.9) : raw[k];
-    tms = Object.assign({}, baseTms);
-
-    var nw = parseInt(document.getElementById("numWaves").value)||3;
-    var ws = document.getElementById("waveSel");
-    ws.innerHTML = "";
-    for(var i=1;i<=nw;i++) ws.innerHTML += '<option value="'+i+'">Wave '+i+'</option>';
-
-    document.getElementById("setupPanel").style.display = "none";
-    document.getElementById("controls").style.display   = "block";
-    document.getElementById("dayGrid").style.display    = "grid";
-    renderDays();
-}
-
-function renderDays(){
-    var wave = parseInt(document.getElementById("waveSel").value)||1;
-    var wk = document.getElementById("weekSel").value;
-    var grid = document.getElementById("dayGrid");
-    grid.innerHTML = "";
-
-    days.forEach(function(d){
-        // Scale TM based on current wave and user jump selection
-        var tm = Math.round(baseTms[d.key] * Math.pow(1 + weeklyJump, wave - 1));
-        var card = document.createElement("div");
-        card.className = "day-card";
-        var html = '<div class="day-card-header">'+d.label+'</div>';
-        html += '<table><thead><tr><th>Type</th><th>Exercise</th><th>Scheme</th><th>Weight</th></tr></thead><tbody>';
-
-        // Main lift sets
-        percentSchemes[wk].forEach(function(p){
-            html += '<tr><td class="t-main">Main Lift</td><td>'+d.lift+'</td><td>'+Math.round(p[0]*100)+'% × '+p[1]+'</td><td>'+round5(tm*p[0])+' lbs</td></tr>';
-        });
-
-        // Event work
-        d.eventWork.forEach(function(ev){
-            html += '<tr><td class="t-event">Event Work</td><td>'+ev[0]+'</td><td>'+ev[1]+'</td><td style="opacity:0.65;font-size:0.85rem">'+ev[2]+'</td></tr>';
-        });
-
-        // Accessories
-        d.accs.forEach(function(acc){
-            html += '<tr><td class="t-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td style="opacity:0.55;font-size:0.83rem">'+acc[2]+'</td></tr>';
-        });
-
-        html += '</tbody></table>';
-        card.innerHTML = html;
-        grid.appendChild(card);
+function updateJumpOptions(){
+    var nw = parseInt(document.getElementById("numWaves").value) || 3;
+    var restricted = nw >= 3;
+    document.querySelectorAll('.jump-btn').forEach(function(btn){
+        var pct = parseFloat(btn.getAttribute('data-pct'));
+        if(pct >= 0.15){
+            if(restricted){
+                btn.classList.add('jump-disabled');
+                if(btn.classList.contains('jump-active')){
+                    btn.classList.remove('jump-active');
+                    weeklyJump = 0.10;
+                    document.querySelector('.jump-btn[data-pct="0.10"]').classList.add('jump-active');
+                    updateProjections();
+                }
+            } else {
+                btn.classList.remove('jump-disabled');
+            }
+        }
     });
 }
 
-function resetSetup(){
-    document.getElementById("setupPanel").style.display = "block";
-    document.getElementById("controls").style.display   = "none";
-    document.getElementById("dayGrid").style.display    = "none";
+function estimatedFinal1RM(raw, nw, jump, key){
+    var tm     = Math.round(raw * 0.9);
+    var inc    = getIncrement(key, jump);
+    var newTM  = tm + (inc * nw);
+    var est1RM = Math.round((newTM / 0.90) / 5) * 5;
+    return { est1RM: est1RM, newTM: newTM };
 }
+
+function updateProjections(){
+    var inputs = {
+        log:   parseInt(document.getElementById("log1rm").value)  || 0,
+        dead:  parseInt(document.getElementById("dead1rm").value) || 0,
+        bench: parseInt(document.getElementById("bench1rm").value)|| 0,
+        squat: parseInt(document.getElementById("squat1rm").value)|| 0
+    };
+    var nw   = parseInt(document.getElementById("numWaves").value) || 3;
+    var jump = weeklyJump;
+    var keys = ["log","dead","bench","squat"];
+    keys.forEach(function(k){
+        var valEl  = document.getElementById("proj-" + k);
+        var noteEl = document.getElementById("projnote-" + k);
+        var raw    = inputs[k];
+        if(!raw){ valEl.innerHTML = "—"; noteEl.textContent = ""; return; }
+        var r    = estimatedFinal1RM(raw, nw, jump, k);
+        var gain = r.est1RM - raw;
+        valEl.innerHTML    = r.est1RM + '<small>lbs</small>';
+        noteEl.textContent = (gain >= 0 ? "+" : "") + gain + " lbs · TM → " + r.newTM + " lbs";
+    });
+}
+
+function generateProgram(){
+    var raw = {
+        log:   parseInt(document.getElementById("log1rm").value)  || 185,
+        dead:  parseInt(document.getElementById("dead1rm").value) || 500,
+        bench: parseInt(document.getElementById("bench1rm").value)|| 315,
+        squat: parseInt(document.getElementById("squat1rm").value)|| 405
+    };
+    var nw = parseInt(document.getElementById("numWaves").value) || 3;
+
+    // Always use 90% TM — Wendler standard
+    for(var k in raw) baseTM[k] = Math.round(raw[k] * 0.9);
+
+    var tm = Object.assign({}, baseTM);
+    program = [];
+
+    for(var w=1; w<=nw; w++){
+        for(var wi=0; wi<weekOrder.length; wi++){
+            var wk = weekOrder[wi];
+            for(var di=0; di<dayDefs.length; di++){
+                var d     = dayDefs[di];
+                var curTM = tm[d.key];
+                var sets  = [];
+                percentSchemes[wk].forEach(function(p){
+                    sets.push({ type:"main", pct:p[0], reps:p[1], weight:round5(curTM*p[0]) });
+                });
+                d.eventWork.forEach(function(ev){
+                    sets.push({ type:"event", name:ev[0], scheme:ev[1], note:ev[2] });
+                });
+                d.accs.forEach(function(acc){
+                    sets.push({ type:"acc", name:acc[0], scheme:acc[1], note:acc[2] });
+                });
+                program.push({ wave:w, week:wk, dayNum:di+1, label:d.label, key:d.key, tm:curTM, sets:sets });
+            }
+        }
+        // Advance TM for next wave using Wendler flat increments
+        for(var k in baseTM){
+            var inc = getIncrement(k, weeklyJump);
+            tm[k] = baseTM[k] + (inc * w);
+        }
+    }
+
+    cursor = 0;
+    document.getElementById("setupPanel").style.display  = "none";
+    document.getElementById("workoutView").style.display = "block";
+    render();
+}
+
+function render(){
+    var day   = program[cursor];
+    var total = program.length;
+
+    document.getElementById("waveLabel").textContent = "Wave " + day.wave + "  ·  " + weekNames[day.week];
+    document.getElementById("dayTitle").textContent  = "Day " + day.dayNum + " — " + day.label.toUpperCase();
+    document.getElementById("daySub").textContent    = "Training Max: " + day.tm + " lbs";
+    document.getElementById("navProgress").textContent = "Day " + (cursor+1) + " of " + total;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === total-1;
+
+    buildBreadcrumb(day);
+    buildWorkout(day);
+}
+
+function buildBreadcrumb(current){
+    var bc = document.getElementById("breadcrumb");
+    bc.innerHTML = "";
+    var waveDays = program.filter(function(d){ return d.wave === current.wave; });
+    var weeks = {};
+    waveDays.forEach(function(d){ if(!weeks[d.week]) weeks[d.week]=[]; weeks[d.week].push(d); });
+    weekOrder.forEach(function(wk){
+        if(!weeks[wk]) return;
+        var lbl = document.createElement("span");
+        lbl.className = "bc-week-lbl";
+        lbl.textContent = weekNames[wk].replace(" Week","");
+        bc.appendChild(lbl);
+        weeks[wk].forEach(function(d){
+            var idx = program.indexOf(d);
+            var dot = document.createElement("div");
+            dot.className = "bc-dot" + (idx===cursor?" active":idx<cursor?" done":"");
+            dot.title = d.label;
+            dot.onclick = (function(i){ return function(){ cursor=i; render(); }; })(idx);
+            bc.appendChild(dot);
+        });
+    });
+}
+
+function buildWorkout(day){
+    var area = document.getElementById("workoutArea");
+    area.innerHTML = "";
+    area.classList.remove("slide-in");
+    void area.offsetWidth;
+    area.classList.add("slide-in");
+
+    var isDeload = day.week === "Deload";
+
+    if(isDeload){
+        var note = document.createElement("div");
+        note.className = "deload-note";
+        note.innerHTML = "<strong>DELOAD WEEK</strong><br><br>Drop intensity. Move the bar, flush the fatigue.<br>Same pattern — keep it light and controlled.";
+        area.appendChild(note);
+    }
+
+    // MAIN LIFT
+    var mh = document.createElement("div");
+    mh.className = "section-heading";
+    mh.textContent = "Main Lift — " + day.label;
+    area.appendChild(mh);
+
+    var mainWrap = document.createElement("div");
+    mainWrap.className = "main-lift-cards";
+    var mainSets = day.sets.filter(function(s){ return s.type==="main"; });
+
+    mainSets.forEach(function(s, i){
+        var isTop = i === mainSets.length-1 && !isDeload;
+        var card  = document.createElement("div");
+        card.className = "lift-set-card" + (isTop?" top-set":"");
+        var setsCount = isDeload ? "3 sets" : "1 set";
+        var schemeHTML = setsCount + " &times; <em>" + s.reps + "</em>";
+        card.innerHTML =
+            '<div>' +
+                '<div class="set-pct">' + Math.round(s.pct*100) + '% of Training Max</div>' +
+                '<div class="set-scheme">' + schemeHTML + '</div>' +
+            '</div>' +
+            '<div class="set-right">' +
+                (isTop ? '<span class="top-badge">TOP SET</span>' : '') +
+                '<div class="set-weight">' + s.weight + '<small>lbs</small></div>' +
+            '</div>';
+        mainWrap.appendChild(card);
+    });
+    area.appendChild(mainWrap);
+
+    // EVENT WORK
+    var eventSets = day.sets.filter(function(s){ return s.type==="event"; });
+    if(eventSets.length){
+        var eh = document.createElement("div");
+        eh.className = "section-heading";
+        eh.textContent = "Event Work";
+        area.appendChild(eh);
+        var eventWrap = document.createElement("div");
+        eventWrap.className = "aux-cards";
+        eventSets.forEach(function(s){
+            var c = document.createElement("div");
+            c.className = "aux-card is-event";
+            c.innerHTML = '<div><div class="aux-name">' + s.name + '</div><div class="aux-type">Event Work</div></div>' +
+                '<div class="aux-right"><span class="aux-scheme">' + s.scheme + '</span><span class="aux-wt">' + s.note + '</span></div>';
+            eventWrap.appendChild(c);
+        });
+        area.appendChild(eventWrap);
+    }
+
+    // ACCESSORIES
+    var accSets = day.sets.filter(function(s){ return s.type==="acc"; });
+    if(accSets.length){
+        var acch = document.createElement("div");
+        acch.className = "section-heading";
+        acch.textContent = "Accessories";
+        area.appendChild(acch);
+        var accWrap = document.createElement("div");
+        accWrap.className = "aux-cards";
+        accSets.forEach(function(s){
+            var c = document.createElement("div");
+            c.className = "aux-card";
+            c.innerHTML = '<div><div class="aux-name">' + s.name + '</div><div class="aux-type">Accessory</div></div>' +
+                '<div class="aux-right"><span class="aux-scheme is-acc">' + s.scheme + '</span><span class="aux-wt">' + s.note + '</span></div>';
+            accWrap.appendChild(c);
+        });
+        area.appendChild(accWrap);
+    }
+}
+
+function navigate(dir){
+    cursor = Math.max(0, Math.min(program.length-1, cursor+dir));
+    render();
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function resetSetup(){
+    document.getElementById("setupPanel").style.display  = "block";
+    document.getElementById("workoutView").style.display = "none";
+}
+
+// Init
+updateJumpOptions();
 </script>
 </body>
 </html>

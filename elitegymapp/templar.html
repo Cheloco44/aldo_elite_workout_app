@@ -340,6 +340,35 @@ body {
 }
 .cross-footer canvas { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
 
+
+/* === FASTING PHASE SELECTOR === */
+.fast-selector { margin-bottom: 22px; }
+.fast-selector-label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(220,120,140,0.7); display: block; margin-bottom: 10px; }
+.fast-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.fast-opt { padding: 12px 8px; border-radius: 6px; text-align: center; cursor: pointer; border: 1px solid rgba(180,0,40,0.2); background: rgba(180,0,40,0.06); transition: all 0.2s; color: rgba(220,120,140,0.7); }
+.fast-opt:hover { border-color: rgba(180,0,40,0.4); background: rgba(180,0,40,0.12); }
+.fast-opt.fast-active { background: linear-gradient(135deg, rgba(180,0,40,0.35), rgba(100,0,20,0.3)); border-color: #dc143c; color: #e8a0b0; box-shadow: 0 0 12px rgba(180,0,40,0.25); }
+.fast-opt .fo-name { font-weight: 800; font-size: 0.72rem; letter-spacing: 1px; display: block; margin-bottom: 3px; }
+.fast-opt .fo-hours { font-size: 0.92rem; font-weight: 900; color: #e8a0b0; display: block; margin-bottom: 3px; }
+.fast-opt .fo-tag { font-size: 0.58rem; opacity: 0.6; font-style: italic; font-family: 'IM Fell English', serif; }
+
+/* === FASTING BANNER === */
+.fast-banner { border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; border-left: 3px solid #dc143c; display: none; }
+.fast-banner.phase-1 { background: rgba(20,80,20,0.18); border-color: #4ade80; }
+.fast-banner.phase-2 { background: rgba(20,60,100,0.2); border-color: #60a5fa; }
+.fast-banner.phase-3 { background: rgba(120,60,0,0.2); border-color: #f59e0b; }
+.fast-banner.phase-4 { background: rgba(100,0,20,0.25); border-color: #dc143c; }
+.fb-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.fb-title { font-size: 0.72rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.fb-phase-1 { color: #4ade80; } .fb-phase-2 { color: #60a5fa; } .fb-phase-3 { color: #f59e0b; } .fb-phase-4 { color: #f87171; }
+.fb-badge { font-size: 0.6rem; letter-spacing: 1.5px; padding: 3px 9px; border-radius: 20px; font-weight: 800; }
+.fb-badge-1 { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+.fb-badge-2 { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+.fb-badge-3 { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.fb-badge-4 { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+.fb-body { font-size: 0.8rem; line-height: 1.6; font-family: 'IM Fell English', serif; font-style: italic; color: rgba(220,180,190,0.8); }
+.fb-mods { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.fb-mod { font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; padding: 3px 9px; border-radius: 20px; background: rgba(180,0,40,0.12); border: 1px solid rgba(180,0,40,0.22); color: rgba(220,140,160,0.85); }
 @media (max-width: 640px){ .hero-content { padding: 40px 18px 20px; } .main { padding: 0 10px; } .setup-panel { padding: 18px 14px; } .rank-selector { margin-bottom: 14px; } .jump-selector { margin-bottom: 14px; } }
 </style>
 </head>
@@ -395,16 +424,44 @@ body {
             <div class="rank-selector">
                 <label>Choose Your Rank</label>
                 <div class="rank-options">
-                    <div class="rank-opt" data-rank="Initiate" onclick="selectRank(this)"><span class="rk-icon">🕊️</span><span class="rk-name">Initiate</span><span class="rk-detail">2 weeks · 50%</span></div>
-                    <div class="rank-opt" data-rank="Sergeant" onclick="selectRank(this)"><span class="rk-icon">⚔️</span><span class="rk-name">Sergeant</span><span class="rk-detail">4 weeks · 60%</span></div>
-                    <div class="rank-opt rank-active" data-rank="Knight" onclick="selectRank(this)"><span class="rk-icon">🛡️</span><span class="rk-name">Knight</span><span class="rk-detail">6 weeks · 70%</span></div>
-                    <div class="rank-opt" data-rank="Preceptor" onclick="selectRank(this)"><span class="rk-icon">✝️</span><span class="rk-name">Preceptor</span><span class="rk-detail">8 weeks · 80–85%</span></div>
-                    <div class="rank-opt" data-rank="GrandMaster" onclick="selectRank(this)"><span class="rk-icon">👑</span><span class="rk-name">Grand Master</span><span class="rk-detail">13 weeks · 80–100%</span></div>
+                    <div class="rank-opt" data-rank="Initiate" onclick="selectRank(this)"><span class="rk-icon">🕊️</span><span class="rk-name">Initiate</span><span class="rk-detail">2 wks · 50% TM</span></div>
+                    <div class="rank-opt" data-rank="Sergeant" onclick="selectRank(this)"><span class="rk-icon">⚔️</span><span class="rk-name">Sergeant</span><span class="rk-detail">2 wks · 60% TM</span></div>
+                    <div class="rank-opt rank-active" data-rank="Knight" onclick="selectRank(this)"><span class="rk-icon">🛡️</span><span class="rk-name">Knight</span><span class="rk-detail">2 wks · 70% TM</span></div>
+                    <div class="rank-opt" data-rank="Preceptor" onclick="selectRank(this)"><span class="rk-icon">✝️</span><span class="rk-name">Preceptor</span><span class="rk-detail">2 wks · 80% TM</span></div>
+                    <div class="rank-opt" data-rank="GrandMaster" onclick="selectRank(this)"><span class="rk-icon">👑</span><span class="rk-name">Grand Master</span><span class="rk-detail">2 wks · 80–100% TM</span></div>
                 </div>
             </div>
 
             <div class="rank-info-box" id="rankInfoBox"></div>
 
+            <div class="fast-selector">
+                <span class="fast-selector-label">&#10013; Bible Diet Fasting Protocol &mdash; Current Phase</span>
+                <div class="fast-options" style="grid-template-columns:repeat(2,1fr)">
+                    <div class="fast-opt fast-active" data-fast="1" onclick="selectFast(this)">
+                        <span class="fo-hours">12/12</span>
+                        <span class="fo-name">Initiate's Fast</span>
+                        <span class="fo-tag">Full intensity &middot; 2 wk ranks</span>
+                    </div>
+                    <div class="fast-opt" data-fast="2" onclick="selectFast(this)">
+                        <span class="fo-hours">18/6</span>
+                        <span class="fo-name">Sergeant's Discipline</span>
+                        <span class="fo-tag">Moderate intensity &middot; 2 wk ranks</span>
+                    </div>
+                    <div class="fast-opt" data-fast="3" onclick="selectFast(this)">
+                        <span class="fo-hours">20/4</span>
+                        <span class="fo-name">Knight's Trial</span>
+                        <span class="fo-tag">Reduced volume &middot; 2 wk ranks</span>
+                    </div>
+                    <div class="fast-opt" data-fast="4" onclick="selectFast(this)" style="border-color:rgba(248,113,113,0.3)">
+                        <span class="fo-hours" style="color:#f87171">24 hr</span>
+                        <span class="fo-name">Grand Master's Fast</span>
+                        <span class="fo-tag">Monthly purge &middot; extends to 4 wk ranks</span>
+                    </div>
+                </div>
+                <p style="margin-top:10px;font-size:0.7rem;font-family:'IM Fell English',serif;font-style:italic;color:rgba(220,140,160,0.5);line-height:1.6;padding:10px 12px;background:rgba(180,0,40,0.06);border-radius:5px;border:1px solid rgba(180,0,40,0.15);">&#10013; Selecting the 24-Hour fast extends every rank to <strong style="color:#e8a0b0">4 weeks</strong>. Use the toggle button in your workout view on days the fast falls.</p>
+            </div>
+
+            <div id="weekRebuildNote" style="display:none;margin-top:10px;font-size:0.72rem;color:rgba(248,113,113,0.8);font-family:'IM Fell English',serif;font-style:italic;padding:8px 12px;background:rgba(248,113,113,0.08);border-radius:5px;border:1px solid rgba(248,113,113,0.2);">&#10013; Fast changed — rebuild your program to apply the new week count.</div>
             <div class="jump-selector">
                 <span class="jump-label">⚡ Weekly Progression — How hungry are you?</span>
                 <div class="jump-options">
@@ -432,6 +489,8 @@ body {
                 <button class="reset-btn" onclick="resetSetup()">← New Program</button>
             </div>
 
+            <div class="fast-banner" id="fastBanner"></div>
+            <button id="fast24Btn" onclick="toggle24hrFast()" style="width:100%;margin-bottom:12px;padding:9px 18px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:rgba(248,113,113,0.7);border-radius:5px;font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:2px;cursor:pointer;text-align:left;transition:all 0.2s;">&#10013; Mark today as a 24-Hour Grand Master Fast day (1-2x per month)</button>
             <div class="ruck-note" id="ruckNote"></div>
 
             <!-- Translation toggle (mirrors Diet tab) -->
@@ -495,13 +554,31 @@ body {
             </div>
 
             <div class="diet-section">
-                <h3><span class="d-icon">⏱️</span> Fasting Protocols</h3>
-                <p style="font-size:0.8rem;color:rgba(220,160,175,0.7);margin-bottom:12px;">Try each for two weeks. Track fasting times, meals, energy, mood, and physical changes. Drink water, herbal tea, black coffee, veggie/fruit juice.</p>
-                <div class="fast-card"><h4>12/12 — The Initiate's Fast</h4><p>12 hours eating, 12 hours fasted. Begin here. Build the discipline before the discipline builds you.</p></div>
-                <div class="fast-card"><h4>18/6 — The Sergeant's Discipline</h4><p>18 hours fasted, 6-hour eating window. The body shifts to fat as fuel. Mental clarity sharpens. </p></div>
-                <div class="fast-card"><h4>20/4 — The Knight's Trial</h4><p>One major meal and one small meal. Intense focus. Train fasted if possible — this is combat readiness.</p></div>
-                <div class="fast-card"><h4>24 Hours — The Grand Master's Fast</h4><p>Once or twice per month. One day of purging. Allow one hour of all-you-can-eat foods once or twice a week.</p></div>
-                <p class="scripture" style="margin-top:14px;">"Is anyone among you sick? Let them call the elders of the church to pray over them and anoint them with oil in the name of the Lord." — James 5:14</p>
+                <h3><span class="d-icon">&#9201;</span> Fasting Protocols &mdash; The 8-Week Journey</h3>
+                <p style="font-size:0.8rem;color:rgba(220,160,175,0.7);margin-bottom:4px;">Spend <strong>2 weeks on each fast</strong> in order. Log fasting times, meals, energy, mood, and physical changes daily. Drink water, herbal tea, black coffee (no cream), veggie or fruit juice.</p>
+                <p style="font-size:0.78rem;color:rgba(220,160,175,0.5);margin-bottom:14px;font-style:italic;">Benefits: fat loss, improved insulin sensitivity, reduced inflammation, heart health, brain health, gut health, longevity, mental clarity, and spiritual focus.</p>
+                <div class="fast-card" style="border-color:rgba(74,222,128,0.3)">
+                    <h4 style="color:#4ade80">12/12 &mdash; The Initiate's Fast</h4>
+                    <p>12 hours eating, 12 hours fasted. Begin here. Build the discipline before the discipline builds you. Full training intensity &mdash; eat before and after training within your window.</p>
+                    <p style="margin-top:6px;font-size:0.7rem;color:rgba(74,222,128,0.7);font-style:normal;font-family:'Cinzel',serif;letter-spacing:1px;">&#9876; WORKOUT: Full volume &middot; Full intensity &middot; Normal rest</p>
+                </div>
+                <div class="fast-card" style="border-color:rgba(96,165,250,0.3)">
+                    <h4 style="color:#60a5fa">18/6 &mdash; The Sergeant's Discipline</h4>
+                    <p>18 hours fasted, 6-hour eating window. The body shifts to fat as fuel. Train inside your eating window when possible. If training fasted, top sets drop 7% and rest periods extend.</p>
+                    <p style="margin-top:6px;font-size:0.7rem;color:rgba(96,165,250,0.7);font-style:normal;font-family:'Cinzel',serif;letter-spacing:1px;">&#9876; WORKOUT: &ndash;1 accessory set &middot; Weights &ndash;7% &middot; Train inside window</p>
+                </div>
+                <div class="fast-card" style="border-color:rgba(245,158,11,0.3)">
+                    <h4 style="color:#f59e0b">20/4 &mdash; The Knight's Trial</h4>
+                    <p>One major meal and one small meal in a 4-hour window. One fewer main lift set. Accessories lighter. Train close to your meal window. Mental focus is sharpest here &mdash; clarity over load.</p>
+                    <p style="margin-top:6px;font-size:0.7rem;color:rgba(245,158,11,0.7);font-style:normal;font-family:'Cinzel',serif;letter-spacing:1px;">&#9876; WORKOUT: &ndash;1 main set &middot; Weights &ndash;12% &middot; Accessories lighter</p>
+                </div>
+                <div class="fast-card" style="border-color:rgba(248,113,113,0.3)">
+                    <h4 style="color:#f87171">The Grand Master's Fast &mdash; 24 Hours &nbsp;&middot;&nbsp; <span style="font-size:0.72rem;opacity:0.7">1&ndash;2 days per month only</span></h4>
+                    <p>Not a weekly phase &mdash; a monthly act of purging and renewal. Done 1 or 2 days per month alongside your normal fasting schedule. Allow one hour of all-you-can-eat foods once or twice a week.</p>
+                    <p style="margin-top:8px;">On training days that fall on a 24-hour fast, use the <strong style="color:#f87171">toggle button</strong> in your workout view. All sets reduce, weights drop to ~75%, and the ruck replaces all conditioning.</p>
+                    <p style="margin-top:6px;font-size:0.7rem;color:rgba(248,113,113,0.7);font-style:normal;font-family:'Cinzel',serif;letter-spacing:1px;">&#9876; WORKOUT: &ndash;1 to 2 sets &middot; Weights &ndash;25% &middot; Ruck only &middot; Form and prayer first &middot; OMAD after sundown</p>
+                </div>
+                <p class="scripture" style="margin-top:14px;">"Is anyone among you sick? Let them call the elders of the church to pray over them and anoint them with oil in the name of the Lord. And the prayer offered in faith will make the sick person well." &mdash; James 5:14&ndash;15</p>
             </div>
 
             <div class="diet-section">
@@ -604,13 +681,136 @@ body {
 <div class="cross-footer"><canvas id="crossCanvas"></canvas></div>
 
 <script>
+// ====== FASTING PROTOCOL CONFIG ======
+var fastingPhases = {
+    1: {
+        name: "12/12 — Initiate's Fast", badge: "WEEKS 1-2",
+        cls: "phase-1", titleCls: "fb-phase-1", badgeCls: "fb-badge-1",
+        guidance: "Full training load. Eat within your 12-hour window. Pre-workout meal 1-2 hours before. Post-workout within the window.",
+        volScale: 1.00, intScale: 1.00,
+        mods: ["Full volume", "Normal rest", "Pre-workout meal allowed", "Post-workout window open"]
+    },
+    2: {
+        name: "18/6 — Sergeant's Discipline", badge: "WEEKS 3-4",
+        cls: "phase-2", titleCls: "fb-phase-2", badgeCls: "fb-badge-2",
+        guidance: "Train inside your 6-hour eating window when possible. If training fasted, top sets drop 7%. Mental clarity sharpens — use it.",
+        volScale: 0.90, intScale: 0.93,
+        mods: ["Drop 1 accessory set", "Top sets -7%", "Train inside eating window", "Extend rest if fasted"]
+    },
+    3: {
+        name: "20/4 — Knight's Trial", badge: "WEEK 5+",
+        cls: "phase-3", titleCls: "fb-phase-3", badgeCls: "fb-badge-3",
+        guidance: "One major meal and one small meal. Train close to your eating window. One fewer main set. Accessories lighter. Clarity over load.",
+        volScale: 0.80, intScale: 0.88,
+        mods: ["Drop 1 main set", "Top sets -12%", "Accessories lighter", "Train near meal window"]
+    }
+};
+
+var fast24Active = false;
+var fast24Phase = {
+    name: "24 Hour — Grand Master's Fast", badge: "1-2x PER MONTH",
+    cls: "phase-4", titleCls: "fb-phase-4", badgeCls: "fb-badge-4",
+    guidance: "Today is a day of purging and renewal. Movement and prayer over max load. The ruck replaces all conditioning. Form, breath, and scripture before each set.",
+    volScale: 0.65, intScale: 0.75,
+    mods: ["-1 to 2 sets all lifts", "Weights at ~75%", "Ruck replaces conditioning", "Form and breath first", "Pray before each set", "OMAD after sundown"]
+};
+
+var currentFast = 1;
+
+function selectFast(el) {
+    document.querySelectorAll('.fast-opt').forEach(function(b) { b.classList.remove('fast-active'); });
+    el.classList.add('fast-active');
+    currentFast = parseInt(el.getAttribute('data-fast'));
+    fast24Active = false;
+    updateFast24Btn();
+    updateRankWeeks();
+    updateRankDetails();
+}
+
+function updateRankWeeks() {
+    // 24hr fast selected = all ranks run 4 weeks; otherwise 2 weeks
+    var w = (currentFast === 4) ? 4 : 2;
+    Object.keys(rankConfig).forEach(function(r) {
+        rankConfig[r].weeks = w;
+    });
+    // Update rank info text to reflect current week count
+    updateRankInfo();
+    // If program already built, notify user to rebuild
+    if(program.length > 0) {
+        document.getElementById('weekRebuildNote').style.display = 'block';
+    }
+}
+
+function updateRankInfo() {
+    var w = (currentFast === 4) ? 4 : 2;
+    rankConfig.Initiate.info    = w+' weeks · 50% TM · 3 days/week. Learn the movements. Build the foundation of the Order.';
+    rankConfig.Sergeant.info    = w+' weeks · 60% TM · 3 days/week. Load steps up. You are proving your commitment.';
+    rankConfig.Knight.info      = w+' weeks · 70% TM · 4 days/week. Volume moderates. Strength builds.';
+    rankConfig.Preceptor.info   = w+' weeks · 80–85% TM · 4 days/week. Heavy work. Less volume. Strength is forged here.';
+    rankConfig.GrandMaster.info = w+' weeks · 80–100% TM · 5 days/week. Peak intensity. Intensity climbs to your max.';
+    // Refresh the visible rank info box if shown
+    if(currentRank) showRankInfo(currentRank);
+    // Update the small detail labels on the rank cards
+    document.querySelectorAll('.rank-opt').forEach(function(opt) {
+        var r = opt.getAttribute('data-rank');
+        if(!r) return;
+        var pcts = {Initiate:'50%', Sergeant:'60%', Knight:'70%', Preceptor:'80%', GrandMaster:'80–100%'};
+        opt.querySelector('.rk-detail').textContent = w+' wks · '+(pcts[r]||'')+' TM';
+    });
+}
+
+function toggle24hrFast() {
+    fast24Active = !fast24Active;
+    updateFast24Btn();
+    renderWorkout();
+}
+
+function updateFast24Btn() {
+    var btn = document.getElementById('fast24Btn');
+    if (!btn) return;
+    if (fast24Active) {
+        btn.style.background = 'rgba(248,113,113,0.22)';
+        btn.style.borderColor = 'rgba(248,113,113,0.65)';
+        btn.style.color = '#f87171';
+        btn.innerHTML = '&#10003; 24-Hour Grand Master Fast &mdash; <strong>ACTIVE TODAY</strong> &nbsp;&middot;&nbsp; tap to remove';
+    } else {
+        btn.style.background = 'rgba(248,113,113,0.08)';
+        btn.style.borderColor = 'rgba(248,113,113,0.25)';
+        btn.style.color = 'rgba(248,113,113,0.7)';
+        btn.innerHTML = '&#10013; Mark today as a 24-Hour Grand Master Fast day (1-2x per month)';
+    }
+}
+
+function renderFastBanner(week) {
+    var banner = document.getElementById('fastBanner');
+    var phase;
+    if (fast24Active) {
+        phase = fast24Phase;
+    } else {
+        phase = fastingPhases[currentFast];
+        phase._note = '';
+    }
+    banner.className = 'fast-banner ' + phase.cls;
+    banner.style.display = 'block';
+    var modsHTML = phase.mods.map(function(m) { return '<span class="fb-mod">' + m + '</span>'; }).join('');
+    var titleNote = phase._note || '';
+    phase._note = '';
+    banner.innerHTML =
+        '<div class="fb-top">' +
+            '<span class="fb-title ' + phase.titleCls + '">&#10013; ' + phase.name + titleNote + '</span>' +
+            '<span class="fb-badge ' + phase.badgeCls + '">' + phase.badge + '</span>' +
+        '</div>' +
+        '<div class="fb-body">' + phase.guidance + '</div>' +
+        '<div class="fb-mods">' + modsHTML + '</div>';
+}
+
 // ====== RANK CONFIG ======
 var rankConfig = {
-    Initiate:    { weeks:2,  pct:0.50, days:3, mainSets:3, accSets:2, repScheme:"High Volume", info:"2 weeks · 50% TM · 3 days/week. Intense volume, controlled load. Learn the movements. Build the foundation of the Order." },
-    Sergeant:    { weeks:4,  pct:0.60, days:3, mainSets:4, accSets:3, repScheme:"High Volume", info:"4 weeks · 60% TM · 3 days/week. Volume stays heavy, load steps up. You are proving your commitment." },
-    Knight:      { weeks:6,  pct:0.70, days:4, mainSets:4, accSets:3, repScheme:"Moderate",   info:"6 weeks · 70% TM · 4 days/week. Volume decreases slightly. Strength starts to build." },
-    Preceptor:   { weeks:8,  pct:0.825, days:4, mainSets:3, accSets:3, repScheme:"Strength",  info:"8 weeks · 80–85% TM · 4 days/week. Heavy work. Less volume. This is where strength is forged." },
-    GrandMaster: { weeks:13, pct:0.80, days:5, mainSets:3, accSets:2, repScheme:"Peak",       info:"13 weeks · 80–100% TM · 5 days/week. Volume matches Preceptor early, then tapers as intensity climbs toward your max." }
+    Initiate:    { weeks:2,  pct:0.50, days:3, mainSets:3, accSets:2, repScheme:"High Volume", info:"2 weeks · 50% TM · 3 days/week. Learn the movements. Build the foundation of the Order." },
+    Sergeant:    { weeks:2,  pct:0.60, days:3, mainSets:4, accSets:3, repScheme:"High Volume", info:"2 weeks · 60% TM · 3 days/week. Load steps up. You are proving your commitment." },
+    Knight:      { weeks:2,  pct:0.70, days:4, mainSets:4, accSets:3, repScheme:"Moderate",   info:"2 weeks · 70% TM · 4 days/week. Volume moderates. Strength builds." },
+    Preceptor:   { weeks:2,  pct:0.825, days:4, mainSets:3, accSets:3, repScheme:"Strength",  info:"2 weeks · 80–85% TM · 4 days/week. Heavy work. Less volume. Strength is forged here." },
+    GrandMaster: { weeks:2,  pct:0.80, days:5, mainSets:3, accSets:2, repScheme:"Peak",       info:"2 weeks · 80–100% TM · 5 days/week. Peak intensity. Select the 24-Hour fast below to extend all ranks to 4 weeks." }
 };
 
 var rankOrder = ["Initiate","Sergeant","Knight","Preceptor","GrandMaster"];
@@ -788,6 +988,7 @@ function buildProgram(){
     var ds = document.getElementById('daySel'); ds.innerHTML='';
     for(var i=1;i<=rk.days;i++) ds.innerHTML+='<option value="'+i+'">Day '+i+'</option>';
 
+    document.getElementById('weekRebuildNote').style.display='none';
     document.getElementById('setupPanel').style.display='none';
     document.getElementById('workoutView').style.display='block';
     updateWorkoutRankBar(currentRank, 1);
@@ -797,6 +998,7 @@ function buildProgram(){
 function renderWorkout(){
     var w=parseInt(document.getElementById('weekSel').value);
     var d=parseInt(document.getElementById('daySel').value);
+    renderFastBanner(w);
     var entry=program.find(function(p){ return p.week===w&&p.day===d; });
     var tbody=document.getElementById('exBody'); tbody.innerHTML='';
 
@@ -810,15 +1012,33 @@ function renderWorkout(){
     ruckNote.style.display = 'none';
 
     if(!entry) return;
+
+    // Live fasting scaling — reads current phase every render
+    var fp = fast24Active ? fast24Phase : fastingPhases[currentFast];
+    var rk = rankConfig[currentRank];
+    var maxMain = Math.max(1, Math.round(rk.mainSets * fp.volScale));
+    var maxAcc  = Math.max(1, Math.round(rk.accSets  * fp.volScale));
+    var nMain = 0, nAcc = 0;
+
     entry.sets.forEach(function(s){
         if(s.isRuck){
             ruckNote.style.display='block';
-            ruckNote.innerHTML = '✝ <strong>Templar Ruck March</strong> — '+s.scheme+' with '+s.weight+'. Walk with intention. Pray. Reflect on the week\'s labor.';
+            ruckNote.innerHTML = '&#10013; <strong>Templar Ruck March</strong> &mdash; '+s.scheme+' with '+s.weight+'. Walk with intention. Pray. Reflect on the week\'s labor.';
             return;
         }
-        var wt=typeof s.weight==='number'?s.weight+' lbs ('+s.pct+'%)':s.weight;
-        var cls=s.type==='Main'?'type-main':s.type==='Ruck'?'type-ruck':'type-acc';
-        tbody.innerHTML+='<tr><td class="'+cls+'">'+s.type+'</td><td>'+s.name+'</td><td>'+s.scheme+'</td><td>'+wt+'</td></tr>';
+        if(s.type==='Main'){ if(nMain >= maxMain) return; nMain++; }
+        if(s.type==='Accessory'){ if(nAcc >= maxAcc) return; nAcc++; }
+        var wt;
+        if(s.type==='Main' && typeof s.weight==='number'){
+            var sw = Math.max(45, Math.round(s.weight * fp.intScale / 5) * 5);
+            var sp = Math.round(s.pct * fp.intScale);
+            wt = sw+' lbs ('+sp+'%)';
+            if(fp.intScale < 1.0) wt += ' <span style="font-size:0.7rem;opacity:0.4;font-style:italic">&darr; fast</span>';
+        } else {
+            wt = typeof s.weight==='number' ? s.weight+' lbs ('+s.pct+'%)' : s.weight;
+        }
+        var cls = s.type==='Main' ? 'type-main' : s.type==='Ruck' ? 'type-ruck' : 'type-acc';
+        tbody.innerHTML += '<tr><td class="'+cls+'">'+s.type+'</td><td>'+s.name+'</td><td>'+s.scheme+'</td><td>'+wt+'</td></tr>';
     });
 }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STRONGLIFTS 5×5</title>
+<title>Classic 5×5</title>
 <style>
 * { box-sizing: border-box; }
 body {
@@ -104,6 +104,32 @@ tr:hover { background: rgba(255,255,255,0.06); }
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+/* END GOAL PROJECTION */
+.proj-wrap {
+    display: none;
+    margin: 20px 0 6px;
+}
+.proj-label {
+    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(100,181,246,0.65); margin-bottom: 10px;
+    border-left: 3px solid #64b5f6; padding-left: 10px;
+}
+.proj-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+.proj-card {
+    background: rgba(100,181,246,0.07);
+    border: 1px solid rgba(100,181,246,0.18);
+    border-radius: 8px; padding: 9px 6px; text-align: center;
+}
+.proj-lift { font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.45; margin-bottom: 3px; }
+.proj-end  { font-size: 1rem; font-weight: 800; color: #64b5f6; }
+.proj-end small { font-size: 0.55rem; font-weight: 400; opacity: 0.6; margin-left: 1px; }
+.proj-gain { font-size: 0.65rem; color: #81c784; margin-top: 2px; }
+@media (max-width: 600px) { .proj-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
@@ -111,32 +137,32 @@ tr:hover { background: rgba(255,255,255,0.06); }
     <a href="index.html" class="back-link">&larr; Home</a>
     <div class="header-inner">
         <img src="gorillavsbull.png" alt="Logo" class="logo">
-        <div class="header-text">STRONGLIFTS 5×5</div>
+        <div class="header-text">Classic 5×5</div>
     </div>
 </div>
 
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
-        <h2>THE STRONGLIFTS 5×5 SYSTEM</h2>
+        <h2>THE Classic 5×5 SYSTEM</h2>
         <p>The <strong>no-nonsense beginner blueprint</strong> that builds real-world strength fast. Two workouts. Five lifts. Add weight every single session until you're moving serious iron.</p>
         <ul>
             <li><strong>Workout A:</strong> Squat, Bench Press, Barbell Row</li>
             <li><strong>Workout B:</strong> Squat, Overhead Press, Deadlift</li>
             <li>Alternate A/B, <strong>3x per week</strong> with rest days between</li>
-            <li>Add <strong>5 lbs per session</strong> on upper body, <strong>10 lbs</strong> on lower</li>
+            <li>Add <strong>5 lbs per session</strong> on all lifts, <strong>10 lbs</strong> on deadlift</li>
             <li>Deload by 10% if you miss reps <strong>3 sessions in a row</strong></li>
             <li><strong>12 weeks</strong> will take most lifters from beginner to intermediate territory</li>
         </ul>
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR STARTING WEIGHTS</h2>
-    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="135" min="45"></div>
-    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="95" min="45"></div>
-    <div class="form-row"><label>Barbell Row (lbs)</label><input type="number" id="row" placeholder="95" min="45"></div>
-    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="65" min="45"></div>
-    <div class="form-row"><label>Deadlift (lbs)</label><input type="number" id="deadlift" placeholder="135" min="45"></div>
+    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="135" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="95" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Barbell Row (lbs)</label><input type="number" id="row" placeholder="95" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="65" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Deadlift (lbs)</label><input type="number" id="deadlift" placeholder="135" min="45" oninput="updateProjection()"></div>
     <div class="form-row"><label>Program Weeks</label>
-        <select id="numWeeks">
+        <select id="numWeeks" onchange="updateProjection()">
             <option value="8">8 Weeks</option>
             <option value="12" selected>12 Weeks</option>
             <option value="16">16 Weeks</option>
@@ -145,11 +171,17 @@ tr:hover { background: rgba(255,255,255,0.06); }
     <div class="jump-selector">
         <label class="jump-label">&#9889; WEIGHT INCREMENT PER SESSION &mdash; How hungry are you?</label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.5" onclick="selectJump(this)"><span class="jump-pct">½x</span><span class="jump-tag">Slow (+5/+5 lbs)</span></button>
+            <button type="button" class="jump-btn" data-pct="0.5" onclick="selectJump(this)"><span class="jump-pct">½x</span><span class="jump-tag">Slow (+2.5/+5 lbs)</span></button>
             <button type="button" class="jump-btn jump-active" data-pct="1.0" onclick="selectJump(this)"><span class="jump-pct">1x</span><span class="jump-tag">Standard (+5/+10 lbs)</span></button>
-            <button type="button" class="jump-btn" data-pct="1.5" onclick="selectJump(this)"><span class="jump-pct">1.5x</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="1.5" onclick="selectJump(this)"><span class="jump-pct">1.5x</span><span class="jump-tag">Aggressive (+7.5/+15)</span></button>
             <button type="button" class="jump-btn" data-pct="2.0" onclick="selectJump(this)"><span class="jump-pct">2x</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
+    </div>
+    <!-- END GOAL PROJECTION -->
+    <div class="proj-wrap" id="projWrap">
+        <div class="proj-label">Realistic End-of-Program Goal</div>
+        <div class="proj-grid" id="projGrid"></div>
+        <div style="font-size:0.68rem;opacity:0.38;margin-top:8px;line-height:1.5;font-style:italic">Based on realistic progression — accounts for stalls and deloads. Actual results depend on consistency, sleep, and nutrition.</div>
     </div>
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
@@ -180,14 +212,81 @@ tr:hover { background: rgba(255,255,255,0.06); }
 var programData = [];
 var programStarts = {};
 
-// True 5x5 increments: lower body +10 lbs/session, upper body +5 lbs/session
-var INCREMENT = { squat: 10, bench: 5, row: 5, ohp: 5, dead: 10 };
+// Stronglifts 5x5 increments: +5 lbs/session upper body, +5 lbs/session squat, +10 lbs/session deadlift
+var INCREMENT = { squat: 5, bench: 5, row: 5, ohp: 5, dead: 10 };
 
 function round5(v) { return Math.max(45, Math.round(v / 5) * 5); }
 
 function selectJump(btn) {
     document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
+    updateProjection();
+}
+
+function updateProjection() {
+    var starts = {
+        squat: parseInt(document.getElementById("squat").value)    || 0,
+        bench: parseInt(document.getElementById("bench").value)    || 0,
+        row:   parseInt(document.getElementById("row").value)      || 0,
+        ohp:   parseInt(document.getElementById("ohp").value)      || 0,
+        dead:  parseInt(document.getElementById("deadlift").value) || 0
+    };
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+    var activeBtn = document.querySelector('.jump-btn.jump-active');
+    var jumpMult  = activeBtn ? parseFloat(activeBtn.getAttribute('data-pct')) : 1.0;
+
+    var hasAny = Object.values(starts).some(function(v) { return v > 0; });
+    var wrap = document.getElementById("projWrap");
+    if (!hasAny) { wrap.style.display = "none"; return; }
+    wrap.style.display = "block";
+
+    // How many times each lift actually appears across all sessions
+    var totalSessions = weeks * 3;
+    var aSessions = Math.ceil(totalSessions / 2);  // Squat/Bench/Row sessions
+    var bSessions = Math.floor(totalSessions / 2); // OHP/Deadlift sessions
+
+    var inc = {
+        squat: Math.max(5,  Math.round(INCREMENT.squat * jumpMult / 5) * 5),
+        bench: Math.max(5,  Math.round(INCREMENT.bench * jumpMult / 5) * 5),
+        row:   Math.max(5,  Math.round(INCREMENT.row   * jumpMult / 5) * 5),
+        ohp:   Math.max(5,  Math.round(INCREMENT.ohp   * jumpMult / 5) * 5),
+        dead:  Math.max(10, Math.round(INCREMENT.dead  * jumpMult / 5) * 5)
+    };
+
+    // Realistic completion rate — beginners stall and deload.
+    // Most lifters cleanly progress ~55% of their sessions before hitting a wall.
+    // Squat stalls earliest (every session), upper lifts are more forgiving.
+    var realism = { squat: 0.50, bench: 0.55, row: 0.55, ohp: 0.60, dead: 0.60 };
+
+    var lifts = [
+        { key:'squat', label:'Squat',    sessions: aSessions },
+        { key:'bench', label:'Bench',    sessions: aSessions },
+        { key:'row',   label:'Row',      sessions: aSessions },
+        { key:'ohp',   label:'OHP',      sessions: bSessions },
+        { key:'dead',  label:'Deadlift', sessions: bSessions }
+    ];
+
+    var grid = document.getElementById("projGrid");
+    grid.innerHTML = "";
+
+    lifts.forEach(function(l) {
+        var start = starts[l.key];
+        var card  = document.createElement("div");
+        card.className = "proj-card";
+        if (!start) {
+            card.innerHTML = '<div class="proj-lift">' + l.label + '</div>' +
+                             '<div class="proj-end" style="opacity:0.25">—</div>';
+        } else {
+            var effectiveSessions = Math.round(l.sessions * realism[l.key]);
+            var end  = round5(start + inc[l.key] * effectiveSessions);
+            var gain = end - start;
+            card.innerHTML =
+                '<div class="proj-lift">' + l.label + '</div>' +
+                '<div class="proj-end">' + end + '<small>lbs</small></div>' +
+                '<div class="proj-gain">+' + gain + ' lbs</div>';
+        }
+        grid.appendChild(card);
+    });
 }
 
 function generateProgram() {
