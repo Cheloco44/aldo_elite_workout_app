@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALDO ELITE — MY ACCOUNT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #ffd700;
+  --gold-dim: rgba(255,215,0,0.15);
+  --gold-border: rgba(255,215,0,0.22);
+  --red: #ff512f;
+  --red-dim: rgba(255,81,47,0.12);
+  --green: #38ef7d;
+  --green-dim: rgba(56,239,125,0.12);
+  --purple: #a044ff;
+  --purple-dim: rgba(160,68,255,0.12);
+  --bg: #080808;
+  --surface: rgba(255,255,255,0.05);
+  --surface2: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.1);
+  --text: #f0e8d8;
+  --text-dim: rgba(240,232,216,0.55);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: url('gorillavsbull.png') no-repeat center center;
+  background-size: contain; opacity: 0.04;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+  border-bottom: 2px solid var(--gold);
+  padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.8);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-logo { height: 44px; border-radius: 8px; }
+.header-title { font-size: 1.1rem; font-weight: 900; letter-spacing: 3px; color: var(--gold); text-shadow: 0 0 20px rgba(255,215,0,0.3); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.82rem; letter-spacing: 1px; transition: color 0.2s; }
+.back-link:hover { color: var(--gold); }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 0.8rem; font-weight: 700; color: var(--gold);
+  display: none;
+}
+.user-chip .plan-badge {
+  font-size: 0.62rem; padding: 2px 6px; border-radius: 10px;
+  font-weight: 800; letter-spacing: 1px;
+}
+.badge-free { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+.badge-basic { background: rgba(255,150,0,0.2); color: #ffb347; }
+.badge-pro { background: rgba(255,81,47,0.2); color: #ff8c42; }
+.badge-coach { background: rgba(160,68,255,0.2); color: #ce93d8; }
+
+/* ── AUTH SCREEN ── */
+#authScreen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - 75px); padding: 40px 20px;
+  position: relative; z-index: 1;
+}
+.auth-box {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
+}
+.auth-box h2 {
+  text-align: center; margin-bottom: 6px;
+  font-size: 1.5rem; font-weight: 900; letter-spacing: 2px;
+  color: var(--gold);
+}
+.auth-box .auth-sub {
+  text-align: center; font-size: 0.82rem; color: var(--text-dim);
+  margin-bottom: 30px;
+}
+.auth-tabs {
+  display: flex; background: rgba(255,255,255,0.05);
+  border-radius: 8px; padding: 4px; margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1; padding: 9px; text-align: center;
+  font-size: 0.82rem; font-weight: 700; letter-spacing: 1px;
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+  color: var(--text-dim); border: none; background: none;
+}
+.auth-tab.active {
+  background: linear-gradient(135deg, #b8860b, #ffd700);
+  color: #111;
+}
+.form-field { margin-bottom: 16px; }
+.form-field label { display: block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+.form-field input {
+  width: 100%; padding: 12px 16px;
+  background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.form-field input:focus { outline: none; border-color: var(--gold); }
+.auth-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #b8860b, #ffd700);
+  color: #111; border: none; border-radius: 10px;
+  font-size: 1rem; font-weight: 900; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.2s; margin-top: 8px;
+}
+.auth-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255,215,0,0.3); }
+.auth-error { color: #ff6b6b; font-size: 0.82rem; text-align: center; margin-top: 10px; display: none; }
+.auth-success { color: var(--green); font-size: 0.82rem; text-align: center; margin-top: 10px; display: none; }
+.auth-divider { text-align: center; color: var(--text-dim); font-size: 0.75rem; margin: 16px 0; }
+
+/* ── MAIN DASHBOARD ── */
+#dashboard {
+  display: none; position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px;
+}
+
+/* ── NAV TABS ── */
+.dash-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.dash-tab {
+  padding: 12px 22px; font-size: 0.8rem; letter-spacing: 1.5px;
+  text-transform: uppercase; font-weight: 700;
+  border: none; background: none; color: var(--text-dim);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  cursor: pointer; transition: all 0.2s;
+}
+.dash-tab:hover { color: var(--text); }
+.dash-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.dash-panel { display: none; }
+.dash-panel.active { display: block; }
+
+/* ── SECTION HEADERS ── */
+.section-title {
+  font-size: 0.65rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 16px; display: flex;
+  align-items: center; gap: 10px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── SUBSCRIPTION CARDS ── */
+.plan-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin-bottom: 30px;
+}
+.plan-card {
+  border-radius: 14px; padding: 24px; border: 2px solid var(--border);
+  background: var(--surface); transition: all 0.25s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.plan-card:hover { transform: translateY(-4px); }
+.plan-card.current-plan { pointer-events: none; }
+.plan-card.plan-free { border-color: rgba(255,255,255,0.12); }
+.plan-card.plan-basic { border-color: rgba(255,150,0,0.3); }
+.plan-card.plan-basic:hover { border-color: rgba(255,150,0,0.6); box-shadow: 0 8px 30px rgba(255,150,0,0.15); }
+.plan-card.plan-pro { border-color: rgba(255,81,47,0.3); }
+.plan-card.plan-pro:hover { border-color: rgba(255,81,47,0.6); box-shadow: 0 8px 30px rgba(255,81,47,0.15); }
+.plan-card.plan-coach { border-color: rgba(160,68,255,0.3); }
+.plan-card.plan-coach:hover { border-color: rgba(160,68,255,0.6); box-shadow: 0 8px 30px rgba(160,68,255,0.15); }
+.plan-card.current-plan::after {
+  content: '✓ CURRENT';
+  position: absolute; top: 12px; right: 12px;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 10px;
+}
+.plan-free.current-plan::after { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+.plan-basic.current-plan::after { background: rgba(255,150,0,0.2); color: #ffb347; }
+.plan-pro.current-plan::after { background: rgba(255,81,47,0.2); color: #ff8c42; }
+.plan-coach.current-plan::after { background: rgba(160,68,255,0.2); color: #ce93d8; }
+.plan-name { font-size: 1.1rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 4px; }
+.plan-free .plan-name { color: rgba(255,255,255,0.6); }
+.plan-basic .plan-name { color: #ffb347; }
+.plan-pro .plan-name { color: #ff8c42; }
+.plan-coach .plan-name { color: #ce93d8; }
+.plan-price { font-size: 2rem; font-weight: 900; margin: 10px 0 4px; }
+.plan-price span { font-size: 0.9rem; font-weight: 400; opacity: 0.6; }
+.plan-features { list-style: none; margin: 14px 0 18px; }
+.plan-features li { font-size: 0.8rem; padding: 4px 0; color: var(--text-dim); display: flex; align-items: center; gap: 7px; }
+.plan-features li::before { content: '▸'; color: var(--gold); }
+.plan-features li.feat-lock::before { content: '🔒'; }
+.plan-features li.feat-lock { opacity: 0.4; }
+.plan-action {
+  width: 100%; padding: 10px; border-radius: 8px; border: none;
+  font-size: 0.82rem; font-weight: 800; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.2s;
+}
+.plan-free .plan-action { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); cursor: default; }
+.plan-basic .plan-action { background: linear-gradient(135deg, #b8500b, #ffb347); color: #111; }
+.plan-pro .plan-action { background: linear-gradient(135deg, #ff512f, #dd2476); color: #fff; }
+.plan-coach .plan-action { background: linear-gradient(135deg, #6a3093, #a044ff); color: #fff; }
+.plan-action:hover { transform: scale(1.03); }
+
+/* ── PROFILE SECTION ── */
+.profile-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+}
+@media (max-width: 600px) { .profile-grid { grid-template-columns: 1fr; } }
+.profile-field { display: flex; flex-direction: column; gap: 6px; }
+.profile-field label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
+.profile-field input, .profile-field select {
+  padding: 10px 14px; background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 0.9rem;
+}
+.profile-field input:focus, .profile-field select:focus { outline: none; border-color: var(--gold); }
+.save-btn {
+  padding: 12px 28px; background: linear-gradient(135deg, #b8860b, #ffd700);
+  color: #111; border: none; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 800; letter-spacing: 1px; cursor: pointer;
+  transition: all 0.2s;
+}
+.save-btn:hover { transform: scale(1.02); box-shadow: 0 4px 16px rgba(255,215,0,0.3); }
+.danger-zone {
+  background: rgba(255,50,50,0.06); border: 1px solid rgba(255,50,50,0.2);
+  border-radius: 12px; padding: 20px; margin-top: 20px;
+}
+.danger-zone h4 { color: #ff6b6b; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.danger-btn {
+  padding: 10px 20px; background: transparent; border: 1px solid rgba(255,50,50,0.4);
+  color: #ff6b6b; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; margin-right: 10px;
+}
+.danger-btn:hover { background: rgba(255,50,50,0.12); }
+
+/* ── LOG WORKOUT ── */
+.log-form {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; margin-bottom: 24px;
+}
+.log-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 10px; align-items: end; margin-bottom: 10px;
+}
+@media (max-width: 600px) { .log-row { grid-template-columns: 1fr 1fr; } }
+.log-row input, .log-row select {
+  padding: 9px 12px; background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 0.88rem;
+}
+.log-row input:focus, .log-row select:focus { outline: none; border-color: var(--gold); }
+.log-row input::placeholder { color: var(--text-dim); }
+.add-set-btn {
+  padding: 9px 16px; background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); border-radius: 8px; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.add-set-btn:hover { background: rgba(255,215,0,0.2); }
+.remove-set {
+  padding: 9px 12px; background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.2);
+  color: #ff6b6b; border-radius: 8px; font-size: 0.82rem; cursor: pointer;
+}
+.workout-meta {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px; margin-bottom: 16px;
+}
+@media (max-width: 600px) { .workout-meta { grid-template-columns: 1fr; } }
+.workout-meta input, .workout-meta select, .workout-meta textarea {
+  padding: 10px 14px; background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 0.88rem; font-family: inherit;
+}
+.workout-meta textarea { grid-column: 1/-1; resize: vertical; min-height: 60px; }
+.submit-log {
+  padding: 13px 28px; background: linear-gradient(135deg, #ff512f, #dd2476);
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 800; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.2s;
+}
+.submit-log:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(255,81,47,0.35); }
+.sets-container { margin: 12px 0; }
+.set-header {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 40px;
+  gap: 10px; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim); padding: 0 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px;
+}
+@media (max-width: 600px) { .set-header { display: none; } }
+
+/* ── LOG HISTORY ── */
+.log-entry {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.log-entry:hover { border-color: rgba(255,215,0,0.2); }
+.log-entry-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+}
+.log-entry-title { font-weight: 700; font-size: 1rem; color: var(--gold); }
+.log-entry-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+.log-entry-program {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 10px; background: var(--gold-dim);
+  border: 1px solid var(--gold-border); color: var(--gold);
+}
+.sets-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.sets-table th { text-align: left; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); padding: 4px 8px; }
+.sets-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sets-table tr:last-child td { border-bottom: none; }
+.note-text { font-size: 0.82rem; color: var(--text-dim); font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.delete-log {
+  padding: 6px 12px; background: transparent; border: 1px solid rgba(255,50,50,0.2);
+  color: rgba(255,107,107,0.6); border-radius: 6px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+}
+.delete-log:hover { background: rgba(255,50,50,0.1); color: #ff6b6b; border-color: rgba(255,50,50,0.4); }
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-dim); font-size: 0.95rem;
+}
+.empty-state .es-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.4; }
+
+/* ── PR TRACKER ── */
+.pr-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+.pr-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; text-align: center;
+}
+.pr-lift { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+.pr-weight { font-size: 2.2rem; font-weight: 900; color: var(--gold); line-height: 1; }
+.pr-weight span { font-size: 0.9rem; font-weight: 400; color: var(--text-dim); }
+.pr-date { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; }
+.pr-update {
+  margin-top: 12px; width: 100%; padding: 7px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); border-radius: 6px; font-size: 0.75rem;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.pr-update:hover { background: rgba(255,215,0,0.2); }
+
+/* ── PROGRAM HISTORY ── */
+.ph-entry {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+.ph-name { font-weight: 700; color: var(--text); }
+.ph-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+.ph-badge {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 10px;
+}
+.ph-active { background: rgba(56,239,125,0.15); color: var(--green); border: 1px solid rgba(56,239,125,0.25); }
+.ph-complete { background: rgba(255,255,255,0.08); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* ── STATS CHART ── */
+.chart-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px; margin-bottom: 20px;
+}
+.chart-box h4 { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px); z-index: 200;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #111; border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 32px; width: 100%; max-width: 440px;
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.3rem; cursor: pointer;
+}
+.modal-close:hover { color: var(--text); }
+.modal-box h3 { font-size: 1.1rem; font-weight: 900; letter-spacing: 2px; color: var(--gold); margin-bottom: 16px; }
+.modal-box p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+.modal-input {
+  width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 0.95rem; margin-bottom: 14px;
+}
+.modal-input:focus { outline: none; border-color: var(--gold); }
+.modal-btn {
+  width: 100%; padding: 13px; border: none; border-radius: 9px;
+  font-size: 0.95rem; font-weight: 800; letter-spacing: 1px; cursor: pointer;
+}
+.modal-btn-gold { background: linear-gradient(135deg, #b8860b, #ffd700); color: #111; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #1a1a1a; border: 1px solid var(--gold-border);
+  border-radius: 10px; padding: 12px 22px;
+  font-size: 0.88rem; font-weight: 600; color: var(--gold);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease; z-index: 300; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { border-color: rgba(255,50,50,0.4); color: #ff6b6b; }
+.toast.success { border-color: rgba(56,239,125,0.3); color: var(--green); }
+
+/* ── UTILS ── */
+.flex-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.loader { text-align: center; padding: 40px; color: var(--text-dim); font-size: 0.88rem; }
+.loader-spin { display: inline-block; width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+  .plan-grid { grid-template-columns: 1fr 1fr; }
+  .log-row { grid-template-columns: 1fr 1fr; }
+  .header-title { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div class="header-left">
+    <img src="gorillavsbull.png" alt="Logo" class="header-logo">
+    <div class="header-title">ALDO ELITE</div>
+  </div>
+  <div class="header-right">
+    <a href="index.html" class="back-link">← Programs</a>
+    <div class="user-chip" id="userChip">
+      <span id="userEmail"></span>
+      <span class="plan-badge" id="planBadge"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="authScreen">
+  <div class="auth-box">
+    <h2>⚡ ALDO ELITE</h2>
+    <p class="auth-sub">Log in to access your programs, track PRs, and log every session.</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">Log In</button>
+      <button class="auth-tab" onclick="switchAuth('signup')">Sign Up</button>
+    </div>
+
+    <div id="loginForm">
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" onclick="handleLogin()">LOG IN</button>
+      <div style="text-align:center;margin-top:12px">
+        <button onclick="handleForgotPassword()" style="background:none;border:none;color:var(--text-dim);font-size:0.78rem;cursor:pointer;text-decoration:underline">Forgot password?</button>
+      </div>
+    </div>
+
+    <div id="signupForm" style="display:none">
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-field">
+        <label>Password (min 6 chars)</label>
+        <input type="password" id="signupPassword" placeholder="••••••••">
+      </div>
+      <div class="form-field">
+        <label>Display Name</label>
+        <input type="text" id="signupName" placeholder="Your name">
+      </div>
+      <button class="auth-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+  <div class="dash-tabs">
+    <button class="dash-tab active" onclick="switchTab('log')">📋 Log Workout</button>
+    <button class="dash-tab" onclick="switchTab('history')">📅 History</button>
+    <button class="dash-tab" onclick="switchTab('prs')">🏆 PRs</button>
+    <button class="dash-tab" onclick="switchTab('programs')">⚡ Programs</button>
+    <button class="dash-tab" onclick="switchTab('subscription')">💳 Subscription</button>
+    <button class="dash-tab" onclick="switchTab('account')">👤 Account</button>
+  </div>
+
+  <!-- LOG WORKOUT -->
+  <div class="dash-panel active" id="panel-log">
+    <div class="section-title">Log a Session</div>
+    <div class="log-form">
+      <div class="workout-meta">
+        <input type="date" id="wDate" value="">
+        <select id="wProgram">
+          <option value="">— Select Program —</option>
+          <option>5/3/1 Program</option>
+          <option>Old Man Strength</option>
+          <option>Arnold Split</option>
+          <option>Bro Split</option>
+          <option>Cube Method</option>
+          <option>Juggernaut Method</option>
+          <option>StrongLifts 5×5</option>
+          <option>Strongman 5/3/1</option>
+          <option>Westside Conjugate</option>
+          <option>Viking Berserker</option>
+          <option>Knight Templar</option>
+          <option>Custom / Other</option>
+        </select>
+        <input type="text" id="wName" placeholder="Session name (e.g. Day 1 – OHP)">
+        <textarea id="wNotes" placeholder="Notes, how you felt, what to improve..."></textarea>
+      </div>
+
+      <div class="set-header">
+        <span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight (lbs)</span><span></span>
+      </div>
+      <div class="sets-container" id="setsContainer"></div>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px">
+        <button class="add-set-btn" onclick="addExerciseRow()">+ Add Exercise</button>
+        <button class="submit-log" onclick="submitWorkout()">💾 Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="dash-panel" id="panel-history">
+    <div class="flex-between" style="margin-bottom:20px">
+      <div class="section-title" style="margin:0">Workout History</div>
+      <div style="display:flex;gap:8px">
+        <select id="historyFilter" style="padding:8px 12px;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.82rem" onchange="loadHistory()">
+          <option value="">All Programs</option>
+          <option>5/3/1 Program</option>
+          <option>Old Man Strength</option>
+          <option>Arnold Split</option>
+          <option>Bro Split</option>
+          <option>Cube Method</option>
+          <option>StrongLifts 5×5</option>
+          <option>Westside Conjugate</option>
+          <option>Viking Berserker</option>
+          <option>Knight Templar</option>
+        </select>
+      </div>
+    </div>
+    <div id="historyList"><div class="loader"><span class="loader-spin"></span>Loading sessions...</div></div>
+  </div>
+
+  <!-- PRs -->
+  <div class="dash-panel" id="panel-prs">
+    <div class="section-title">Personal Records</div>
+    <div class="pr-grid" id="prGrid"></div>
+    <div class="chart-box">
+      <h4>Volume Over Time (Last 12 Weeks)</h4>
+      <canvas id="volumeChart" height="200"></canvas>
+    </div>
+    <div class="chart-box">
+      <h4>Session Frequency</h4>
+      <canvas id="freqChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- PROGRAMS -->
+  <div class="dash-panel" id="panel-programs">
+    <div class="section-title">Program History & Active Programs</div>
+    <div style="margin-bottom:16px">
+      <button onclick="openAddProgram()" class="add-set-btn">+ Mark Program as Started</button>
+    </div>
+    <div id="programHistoryList"><div class="loader"><span class="loader-spin"></span>Loading...</div></div>
+  </div>
+
+  <!-- SUBSCRIPTION -->
+  <div class="dash-panel" id="panel-subscription">
+    <div class="section-title">Your Plan</div>
+    <div class="plan-grid">
+      <div class="plan-card plan-free" id="planCardFree">
+        <div class="plan-name">FREE</div>
+        <div class="plan-price">$0<span>/mo</span></div>
+        <ul class="plan-features">
+          <li>Access 2 programs</li>
+          <li>10 workout logs</li>
+          <li class="feat-lock">PR tracking</li>
+          <li class="feat-lock">Program history</li>
+          <li class="feat-lock">Unlimited logs</li>
+        </ul>
+        <button class="plan-action" disabled>Free Tier</button>
+      </div>
+      <div class="plan-card plan-basic" id="planCardBasic" onclick="openUpgrade('basic')">
+        <div class="plan-name">BASIC</div>
+        <div class="plan-price">$4.99<span>/mo</span></div>
+        <ul class="plan-features">
+          <li>All programs unlocked</li>
+          <li>Unlimited workout logs</li>
+          <li>PR tracking & history</li>
+          <li class="feat-lock">AI Coach analysis</li>
+          <li class="feat-lock">Coach Import Tool</li>
+        </ul>
+        <button class="plan-action">Upgrade to Basic</button>
+      </div>
+      <div class="plan-card plan-pro" id="planCardPro" onclick="openUpgrade('pro')">
+        <div class="plan-name">PRO</div>
+        <div class="plan-price">$6.99<span>/mo</span></div>
+        <ul class="plan-features">
+          <li>Everything in Basic</li>
+          <li>AI Coach analysis</li>
+          <li>Volume & trend charts</li>
+          <li>Export logs (CSV/PDF)</li>
+          <li class="feat-lock">Coach Import Tool</li>
+        </ul>
+        <button class="plan-action">Upgrade to Pro</button>
+      </div>
+      <div class="plan-card plan-coach" id="planCardCoach" onclick="openUpgrade('coach')">
+        <div class="plan-name">COACH</div>
+        <div class="plan-price">$9.99<span>/mo</span></div>
+        <ul class="plan-features">
+          <li>Everything in Pro</li>
+          <li>Coach Import Tool</li>
+          <li>Unlimited client programs</li>
+          <li>Shareable program links</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="plan-action">Upgrade to Coach</button>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;max-width:480px">
+      <div class="section-title" style="margin-bottom:14px">Billing Info</div>
+      <p style="font-size:0.85rem;color:var(--text-dim);line-height:1.7">
+        Current Plan: <strong id="billingPlan" style="color:var(--gold)">Free</strong><br>
+        Status: <strong id="billingStatus" style="color:var(--green)">Active</strong><br>
+        Next Billing: <span id="billingDate" style="color:var(--text-dim)">—</span>
+      </p>
+      <button onclick="openCancelModal()" class="danger-btn" style="margin-top:14px;display:none" id="cancelSubBtn">Cancel Subscription</button>
+      <p style="font-size:0.75rem;color:var(--text-dim);margin-top:12px;opacity:0.6">
+        Payments are processed securely via Stripe. We never store your card details.
+      </p>
+    </div>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div class="dash-panel" id="panel-account">
+    <div class="section-title">Profile Settings</div>
+    <div class="profile-grid">
+      <div class="profile-field"><label>Display Name</label><input type="text" id="profileName" placeholder="Your name"></div>
+      <div class="profile-field"><label>Email</label><input type="email" id="profileEmail" readonly style="opacity:0.5"></div>
+      <div class="profile-field"><label>Age</label><input type="number" id="profileAge" placeholder="e.g. 35"></div>
+      <div class="profile-field"><label>Experience Level</label>
+        <select id="profileLevel">
+          <option value="">— Select —</option>
+          <option>Beginner (< 1 year)</option>
+          <option>Intermediate (1–3 years)</option>
+          <option>Advanced (3–5 years)</option>
+          <option>Elite (5+ years)</option>
+        </select>
+      </div>
+      <div class="profile-field"><label>Primary Goal</label>
+        <select id="profileGoal">
+          <option value="">— Select —</option>
+          <option>Powerlifting / Max Strength</option>
+          <option>Bodybuilding / Hypertrophy</option>
+          <option>Strongman Competition</option>
+          <option>Athletic Performance</option>
+          <option>Fat Loss & Conditioning</option>
+          <option>General Fitness</option>
+          <option>Longevity & Health</option>
+        </select>
+      </div>
+      <div class="profile-field"><label>Units</label>
+        <select id="profileUnits">
+          <option value="lbs">Pounds (lbs)</option>
+          <option value="kg">Kilograms (kg)</option>
+        </select>
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+
+    <div class="danger-zone">
+      <h4>⚠️ Danger Zone</h4>
+      <button class="danger-btn" onclick="handleLogout()">Sign Out</button>
+      <button class="danger-btn" onclick="openDeleteAccount()">Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALS ══ -->
+<div class="modal-overlay" id="upgradeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('upgradeModal')">×</button>
+    <h3 id="upgradeTitle">UPGRADE PLAN</h3>
+    <p id="upgradeBody">Unlock the full Aldo Elite experience.</p>
+    <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px">
+      Payment integration is handled via <strong style="color:var(--text)">Stripe</strong>. 
+      Connect your Stripe account in Supabase and replace the checkout URL below.
+    </p>
+    <button class="modal-btn modal-btn-gold" onclick="redirectToStripe()">PROCEED TO CHECKOUT →</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="prModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('prModal')">×</button>
+    <h3 id="prModalTitle">UPDATE PR</h3>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:16px">Enter your new personal record weight.</p>
+    <input type="number" class="modal-input" id="prModalInput" placeholder="Weight in lbs">
+    <button class="modal-btn modal-btn-gold" onclick="savePR()">SAVE PR</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addProgramModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('addProgramModal')">×</button>
+    <h3>START PROGRAM</h3>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:16px">Record that you've started a new program.</p>
+    <select class="modal-input" id="addProgramSelect">
+      <option value="">— Select Program —</option>
+      <option>5/3/1 Program</option>
+      <option>Old Man Strength</option>
+      <option>Arnold Split</option>
+      <option>Bro Split</option>
+      <option>Cube Method</option>
+      <option>Juggernaut Method</option>
+      <option>StrongLifts 5×5</option>
+      <option>Strongman 5/3/1</option>
+      <option>Westside Conjugate</option>
+      <option>Viking Berserker</option>
+      <option>Knight Templar</option>
+    </select>
+    <button class="modal-btn modal-btn-gold" onclick="addProgramEntry()">START PROGRAM</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('cancelModal')">×</button>
+    <h3 style="color:#ff6b6b">CANCEL SUBSCRIPTION</h3>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:16px">Are you sure? You'll keep access until the end of your billing period, then revert to Free.</p>
+    <button class="modal-btn" style="background:rgba(255,50,50,0.15);color:#ff6b6b;border:1px solid rgba(255,50,50,0.3)" onclick="cancelSubscription()">YES, CANCEL</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// SUPABASE CONFIG — Replace these with your project values
+// Get them from: https://supabase.com → Project Settings → API
+// ══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
+
+// Stripe checkout URLs — replace with your actual Stripe payment links
+const STRIPE_LINKS = {
+  basic: 'https://buy.stripe.com/your_basic_link',
+  pro:   'https://buy.stripe.com/your_pro_link',
+  coach: 'https://buy.stripe.com/your_coach_link'
+};
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentUser = null;
+let userProfile = null;
+let currentPlanForUpgrade = null;
+let currentPRLift = null;
+let volumeChart = null;
+let freqChart = null;
+
+const LIFTS = ['Squat','Bench Press','Deadlift','OHP / Log Press'];
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  // Set today's date
+  document.getElementById('wDate').value = new Date().toISOString().split('T')[0];
+
+  // Seed initial exercise row
+  addExerciseRow();
+
+  // Check session
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await initDashboard();
+  }
+
+  // Auth state changes
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await initDashboard();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showAuth();
+    }
+  });
+});
+
+async function initDashboard() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('userChip').style.display = 'flex';
+  document.getElementById('userEmail').textContent = currentUser.email.split('@')[0];
+
+  await loadProfile();
+  await loadPRs();
+  await loadHistory();
+  await loadProgramHistory();
+  renderPlanCards();
+}
+
+function showAuth() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('userChip').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+function switchAuth(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'signup'));
+  });
+  clearAuthMessages();
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthError('Please enter email and password.');
+
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  if (error) showAuthError(error.message);
+}
+
+async function handleSignup() {
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const name = document.getElementById('signupName').value.trim();
+  if (!email || !password) return showAuthError('Please fill in all fields.');
+  if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+
+  const { data, error } = await db.auth.signUp({ email, password, options: { data: { display_name: name } } });
+  if (error) {
+    showAuthError(error.message);
+  } else {
+    showAuthSuccess('Account created! Check your email to confirm.');
+    // Create profile row
+    if (data.user) {
+      await db.from('profiles').upsert({ id: data.user.id, display_name: name, plan: 'free' });
+    }
+  }
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) return showAuthError('Enter your email first.');
+  const { error } = await db.auth.resetPasswordForEmail(email);
+  if (error) showAuthError(error.message);
+  else showAuthSuccess('Password reset email sent!');
+}
+
+async function handleLogout() {
+  await db.auth.signOut();
+  showToast('Logged out.', 'success');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+function showAuthSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
+}
+function clearAuthMessages() {
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════════
+async function loadProfile() {
+  const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  userProfile = data || { plan: 'free' };
+
+  document.getElementById('profileName').value = data?.display_name || '';
+  document.getElementById('profileEmail').value = currentUser.email;
+  document.getElementById('profileAge').value = data?.age || '';
+  document.getElementById('profileLevel').value = data?.experience_level || '';
+  document.getElementById('profileGoal').value = data?.primary_goal || '';
+  document.getElementById('profileUnits').value = data?.units || 'lbs';
+
+  updatePlanBadge(data?.plan || 'free');
+}
+
+async function saveProfile() {
+  const { error } = await db.from('profiles').upsert({
+    id: currentUser.id,
+    display_name: document.getElementById('profileName').value,
+    age: parseInt(document.getElementById('profileAge').value) || null,
+    experience_level: document.getElementById('profileLevel').value,
+    primary_goal: document.getElementById('profileGoal').value,
+    units: document.getElementById('profileUnits').value
+  });
+  if (error) showToast('Error saving profile.', 'error');
+  else showToast('Profile saved!', 'success');
+}
+
+function updatePlanBadge(plan) {
+  const badge = document.getElementById('planBadge');
+  badge.textContent = plan.toUpperCase();
+  badge.className = 'plan-badge badge-' + plan;
+  document.getElementById('billingPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+  document.getElementById('cancelSubBtn').style.display = plan !== 'free' ? 'inline-block' : 'none';
+}
+
+// ══════════════════════════════════════════════════
+// LOG WORKOUT
+// ══════════════════════════════════════════════════
+function addExerciseRow() {
+  const container = document.getElementById('setsContainer');
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Exercise name" class="ex-name">
+    <input type="number" placeholder="Sets" class="ex-sets" min="1" value="3">
+    <input type="number" placeholder="Reps" class="ex-reps" min="1" value="5">
+    <input type="number" placeholder="lbs" class="ex-weight" min="0">
+    <button class="remove-set" onclick="this.parentElement.remove()">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+async function submitWorkout() {
+  const date = document.getElementById('wDate').value;
+  const program = document.getElementById('wProgram').value;
+  const name = document.getElementById('wName').value;
+  const notes = document.getElementById('wNotes').value;
+
+  const rows = document.querySelectorAll('#setsContainer .log-row');
+  const exercises = [];
+  rows.forEach(row => {
+    const exName = row.querySelector('.ex-name').value.trim();
+    if (!exName) return;
+    exercises.push({
+      name: exName,
+      sets: parseInt(row.querySelector('.ex-sets').value) || 0,
+      reps: parseInt(row.querySelector('.ex-reps').value) || 0,
+      weight: parseFloat(row.querySelector('.ex-weight').value) || 0
+    });
+  });
+
+  if (!date || exercises.length === 0) {
+    showToast('Add at least one exercise.', 'error'); return;
+  }
+
+  // Free tier: limit to 10 logs
+  if (userProfile?.plan === 'free') {
+    const { count } = await db.from('workout_logs').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+    if (count >= 10) {
+      showToast('Free tier limit (10 logs). Upgrade for unlimited.', 'error');
+      switchTab('subscription'); return;
+    }
+  }
+
+  const { error } = await db.from('workout_logs').insert({
+    user_id: currentUser.id,
+    date,
+    program_name: program || null,
+    session_name: name || null,
+    exercises: exercises,
+    notes: notes || null
+  });
+
+  if (error) {
+    showToast('Error saving workout.', 'error');
+  } else {
+    showToast('Session logged! 💪', 'success');
+    // Reset form
+    document.getElementById('setsContainer').innerHTML = '';
+    document.getElementById('wNotes').value = '';
+    document.getElementById('wName').value = '';
+    document.getElementById('wDate').value = new Date().toISOString().split('T')[0];
+    addExerciseRow();
+    // Check if any PR-worthy weights
+    await checkAutoUpdatePRs(exercises);
+    // Reload history & charts
+    await loadHistory();
+    await loadPRs();
+  }
+}
+
+async function checkAutoUpdatePRs(exercises) {
+  for (const ex of exercises) {
+    const liftMatch = LIFTS.find(l => ex.name.toLowerCase().includes(l.toLowerCase().split(' ')[0]));
+    if (!liftMatch || ex.weight <= 0) continue;
+    const { data: existing } = await db.from('personal_records').select('weight').eq('user_id', currentUser.id).eq('lift_name', liftMatch).single();
+    if (!existing || ex.weight > existing.weight) {
+      await db.from('personal_records').upsert({ user_id: currentUser.id, lift_name: liftMatch, weight: ex.weight, date: new Date().toISOString().split('T')[0] }, { onConflict: 'user_id,lift_name' });
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════
+async function loadHistory() {
+  const filter = document.getElementById('historyFilter')?.value || '';
+  let query = db.from('workout_logs').select('*').eq('user_id', currentUser.id).order('date', { ascending: false }).limit(50);
+  if (filter) query = query.eq('program_name', filter);
+
+  const { data, error } = await query;
+  const el = document.getElementById('historyList');
+
+  if (error || !data || data.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><div>No sessions logged yet.<br>Log your first workout above!</div></div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(w => `
+    <div class="log-entry">
+      <div class="log-entry-header">
+        <div>
+          <div class="log-entry-title">${w.session_name || 'Training Session'}</div>
+          <div class="log-entry-meta">${formatDate(w.date)} &nbsp;·&nbsp; ${(w.exercises || []).length} exercises</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${w.program_name ? `<span class="log-entry-program">${w.program_name}</span>` : ''}
+          <button class="delete-log" onclick="deleteLog('${w.id}')">Delete</button>
+        </div>
+      </div>
+      <table class="sets-table">
+        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Weight</th></tr></thead>
+        <tbody>
+          ${(w.exercises || []).map(ex => `<tr><td>${ex.name}</td><td>${ex.sets}</td><td>${ex.reps}</td><td>${ex.weight > 0 ? ex.weight + ' lbs' : 'BW'}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      ${w.notes ? `<div class="note-text">📝 ${w.notes}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Update volume chart data
+  updateVolumeChart(data);
+  updateFreqChart(data);
+}
+
+async function deleteLog(id) {
+  if (!confirm('Delete this session log?')) return;
+  const { error } = await db.from('workout_logs').delete().eq('id', id);
+  if (error) showToast('Error deleting.', 'error');
+  else { showToast('Deleted.', 'success'); await loadHistory(); }
+}
+
+// ══════════════════════════════════════════════════
+// PRs
+// ══════════════════════════════════════════════════
+async function loadPRs() {
+  const { data } = await db.from('personal_records').select('*').eq('user_id', currentUser.id);
+  const grid = document.getElementById('prGrid');
+
+  // Build PR map
+  const prMap = {};
+  (data || []).forEach(pr => { prMap[pr.lift_name] = pr; });
+
+  grid.innerHTML = LIFTS.map(lift => {
+    const pr = prMap[lift];
+    return `
+      <div class="pr-card">
+        <div class="pr-lift">${lift}</div>
+        <div class="pr-weight">${pr ? pr.weight : '—'}<span>${pr ? ' lbs' : ''}</span></div>
+        <div class="pr-date">${pr ? formatDate(pr.date) : 'Not set'}</div>
+        <button class="pr-update" onclick="openPRModal('${lift}')">Update PR</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function openPRModal(lift) {
+  currentPRLift = lift;
+  document.getElementById('prModalTitle').textContent = 'UPDATE — ' + lift.toUpperCase();
+  document.getElementById('prModalInput').value = '';
+  document.getElementById('prModal').classList.add('open');
+}
+
+async function savePR() {
+  const weight = parseFloat(document.getElementById('prModalInput').value);
+  if (!weight || weight <= 0) return showToast('Enter a valid weight.', 'error');
+  const { error } = await db.from('personal_records').upsert({
+    user_id: currentUser.id,
+    lift_name: currentPRLift,
+    weight,
+    date: new Date().toISOString().split('T')[0]
+  }, { onConflict: 'user_id,lift_name' });
+  if (error) showToast('Error saving PR.', 'error');
+  else {
+    showToast(`${currentPRLift} PR updated to ${weight} lbs 🏆`, 'success');
+    closeModal('prModal');
+    await loadPRs();
+  }
+}
+
+// ══════════════════════════════════════════════════
+// PROGRAM HISTORY
+// ══════════════════════════════════════════════════
+async function loadProgramHistory() {
+  const { data } = await db.from('program_history').select('*').eq('user_id', currentUser.id).order('started_at', { ascending: false });
+  const el = document.getElementById('programHistoryList');
+  if (!data || data.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">⚡</div><div>No programs recorded yet.</div></div>`;
+    return;
+  }
+  el.innerHTML = data.map(p => `
+    <div class="ph-entry">
+      <div>
+        <div class="ph-name">${p.program_name}</div>
+        <div class="ph-meta">Started ${formatDate(p.started_at)}${p.completed_at ? ' · Completed ' + formatDate(p.completed_at) : ''}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="ph-badge ${p.completed_at ? 'ph-complete' : 'ph-active'}">${p.completed_at ? 'Complete' : 'Active'}</span>
+        ${!p.completed_at ? `<button class="danger-btn" onclick="markProgramComplete('${p.id}')">Mark Complete</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddProgram() {
+  document.getElementById('addProgramModal').classList.add('open');
+}
+
+async function addProgramEntry() {
+  const program = document.getElementById('addProgramSelect').value;
+  if (!program) return showToast('Select a program first.', 'error');
+  const { error } = await db.from('program_history').insert({ user_id: currentUser.id, program_name: program, started_at: new Date().toISOString().split('T')[0] });
+  if (error) showToast('Error.', 'error');
+  else { showToast(`${program} started!`, 'success'); closeModal('addProgramModal'); await loadProgramHistory(); }
+}
+
+async function markProgramComplete(id) {
+  const { error } = await db.from('program_history').update({ completed_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+  if (error) showToast('Error.', 'error');
+  else { showToast('Program marked complete! 🏆', 'success'); await loadProgramHistory(); }
+}
+
+// ══════════════════════════════════════════════════
+// SUBSCRIPTION
+// ══════════════════════════════════════════════════
+function renderPlanCards() {
+  const plan = userProfile?.plan || 'free';
+  ['free','basic','pro','coach'].forEach(p => {
+    const card = document.getElementById('planCard' + p.charAt(0).toUpperCase() + p.slice(1));
+    if (card) card.classList.toggle('current-plan', p === plan);
+  });
+}
+
+function openUpgrade(plan) {
+  currentPlanForUpgrade = plan;
+  const prices = { basic: '$4.99/mo', pro: '$6.99/mo', coach: '$9.99/mo' };
+  document.getElementById('upgradeTitle').textContent = 'UPGRADE TO ' + plan.toUpperCase();
+  document.getElementById('upgradeBody').textContent = `Unlock ${plan} features for ${prices[plan]}.`;
+  document.getElementById('upgradeModal').classList.add('open');
+}
+
+function redirectToStripe() {
+  const url = STRIPE_LINKS[currentPlanForUpgrade];
+  if (!url || url.includes('your_')) {
+    showToast('Stripe not configured yet. Add your payment links in the code.', 'error');
+    closeModal('upgradeModal'); return;
+  }
+  window.open(url + '?client_reference_id=' + currentUser.id, '_blank');
+  closeModal('upgradeModal');
+}
+
+function openCancelModal() {
+  document.getElementById('cancelModal').classList.add('open');
+}
+
+async function cancelSubscription() {
+  // In production: call a Supabase Edge Function to cancel via Stripe API
+  // For now, update locally
+  await db.from('profiles').update({ plan: 'free', plan_expires_at: null }).eq('id', currentUser.id);
+  userProfile.plan = 'free';
+  updatePlanBadge('free');
+  renderPlanCards();
+  closeModal('cancelModal');
+  showToast('Subscription cancelled. You\'re now on Free.', 'success');
+}
+
+// ══════════════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════════════
+function updateVolumeChart(logs) {
+  const ctx = document.getElementById('volumeChart');
+  if (!ctx) return;
+
+  // Build weekly volume data (last 12 weeks)
+  const weekMap = {};
+  const now = new Date();
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * 7);
+    const label = `W${12-i}`;
+    weekMap[label] = 0;
+  }
+
+  logs.forEach(log => {
+    const d = new Date(log.date);
+    const weeksAgo = Math.floor((now - d) / (7*24*3600*1000));
+    if (weeksAgo >= 12) return;
+    const label = `W${12-weeksAgo}`;
+    (log.exercises || []).forEach(ex => {
+      weekMap[label] = (weekMap[label] || 0) + (ex.sets * ex.reps * ex.weight);
+    });
+  });
+
+  if (volumeChart) volumeChart.destroy();
+  volumeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(weekMap),
+      datasets: [{ label: 'Volume (lbs × reps)', data: Object.values(weekMap), backgroundColor: 'rgba(255,215,0,0.3)', borderColor: '#ffd700', borderWidth: 2, borderRadius: 4 }]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#fff' } } }, scales: { x: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.06)' } }, y: { ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.06)' } } } }
+  });
+}
+
+function updateFreqChart(logs) {
+  const ctx = document.getElementById('freqChart');
+  if (!ctx) return;
+  const programCount = {};
+  logs.forEach(l => {
+    const p = l.program_name || 'Other';
+    programCount[p] = (programCount[p] || 0) + 1;
+  });
+  const colors = ['#ffd700','#ff512f','#38ef7d','#a044ff','#4776e6','#ff8c42','#ce93d8','#81d4fa','#fbbf24'];
+  if (freqChart) freqChart.destroy();
+  freqChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(programCount),
+      datasets: [{ data: Object.values(programCount), backgroundColor: colors.slice(0, Object.keys(programCount).length), borderWidth: 0 }]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#fff', font: { size: 11 } }, position: 'right' } } }
+  });
+}
+
+// ══════════════════════════════════════════════════
+// ACCOUNT DELETION
+// ══════════════════════════════════════════════════
+function openDeleteAccount() {
+  if (!confirm('⚠️ This will permanently delete your account and ALL your data. This cannot be undone.\n\nType DELETE in the next prompt to confirm.')) return;
+  const confirm2 = prompt('Type DELETE to confirm account deletion:');
+  if (confirm2 === 'DELETE') {
+    deleteAccount();
+  } else {
+    showToast('Account deletion cancelled.', 'success');
+  }
+}
+
+async function deleteAccount() {
+  // Delete user data from all tables
+  await db.from('workout_logs').delete().eq('user_id', currentUser.id);
+  await db.from('personal_records').delete().eq('user_id', currentUser.id);
+  await db.from('program_history').delete().eq('user_id', currentUser.id);
+  await db.from('profiles').delete().eq('id', currentUser.id);
+  // Sign out (actual user deletion requires a Supabase Edge Function with service role)
+  await db.auth.signOut();
+  showToast('Account deleted.', 'success');
+}
+
+// ══════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+  const idx = ['log','history','prs','programs','subscription','account'].indexOf(tab);
+  document.querySelectorAll('.dash-tab')[idx]?.classList.add('active');
+  document.getElementById('panel-' + tab)?.classList.add('active');
+  if (tab === 'prs') loadPRs();
+  if (tab === 'history') loadHistory();
+  if (tab === 'programs') loadProgramHistory();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg, type = 'default') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+</script>
+</body>
+</html>
