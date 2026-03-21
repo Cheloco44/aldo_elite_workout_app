@@ -128,7 +128,38 @@ tr:last-child td { border-bottom: none; }
 .proj-val small { font-size: 0.6rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
 .proj-sub  { font-size: 0.65rem; color: #86efac; margin-top: 3px; }
 .proj-sub2 { font-size: 0.63rem; color: #93c5fd; margin-top: 2px; }
+
+/* ── Complete Day/Week banner ── */
+#completeBanner {
+    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
+    position: relative; z-index: 2;
+}
+#completeBannerInner {
+    background: rgba(56,239,125,0.08);
+    border: 1px solid rgba(56,239,125,0.25);
+    border-radius: 12px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+}
+#completeBannerInner.done {
+    background: rgba(56,239,125,0.13);
+    border-color: rgba(56,239,125,0.4);
+    justify-content: center;
+}
+.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
+.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
+.cb-btn {
+    background: linear-gradient(135deg, #11a54a, #38ef7d);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+}
+.cb-btn:hover { transform: scale(1.03); }
+.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+
 </style>
+<script src="eatt-program-save.js"></script>
 </head>
 <body>
 <div class="header">
@@ -190,7 +221,7 @@ tr:last-child td { border-bottom: none; }
     <button class="btn btn-sm" onclick="resetSetup()" style="color:#111">&larr; New Program</button>
 </div>
 
-<div class="week-grid" id="weekGrid"></div>
+<div id="completeBanner" style="display:none"><div id="completeBannerInner"><div><div class="cb-label">Cube Method — Week Tracker</div><div class="cb-title" id="cbTitle">Week loaded</div></div><button class="cb-btn" id="cbBtn" onclick="completeCubeWeek()">&#10003; Complete This Week</button></div></div><div class="week-grid" id="weekGrid"></div>
 
 <script>
 var baseTms    = {};
@@ -282,6 +313,15 @@ function generateProgram(){
         ws.innerHTML += '<option value="' + i + '">Week ' + i + '</option>';
     }
 
+    
+    EATT.saveProgram("Cube Method", {
+        squat1rm: document.getElementById("squat1rm").value,
+        bench1rm: document.getElementById("bench1rm").value,
+        dead1rm:  document.getElementById("dead1rm").value,
+        numWeeks: document.getElementById("numWeeks").value,
+        useTM:    document.getElementById("useTM").checked,
+        weeklyJump: weeklyJump
+    }, [], 0);
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
     document.getElementById("weekGrid").classList.add("visible");
@@ -316,6 +356,8 @@ function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
     return html;
 }
 
+var completedWeeks = {};
+
 function renderWeek(){
     var week = parseInt(document.getElementById("weekSel").value) || 1;
     var rot  = rotations[(week - 1) % 3];
@@ -328,6 +370,7 @@ function renderWeek(){
         {name:"Deadlift", key:"dead",  mode:rot.dead,  accs:dlAccs}
     ];
 
+    showCompleteBanner();
     lifts.forEach(function(l){
         var card      = document.createElement("div");
         card.className = "day-card";
@@ -343,11 +386,67 @@ function renderWeek(){
     });
 }
 
+function showCompleteBanner(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var totalWeeks = parseInt(document.getElementById("numWeeks").value) || 12;
+    var banner = document.getElementById("completeBanner");
+    var inner  = document.getElementById("completeBannerInner");
+    var btn    = document.getElementById("cbBtn");
+    var title  = document.getElementById("cbTitle");
+    banner.style.display = "block";
+    if(completedWeeks[week]){
+        inner.className = "done";
+        inner.innerHTML = '<div class="cb-done-text">&#10003; Week ' + week + ' logged</div>';
+    } else {
+        inner.className = "";
+        inner.innerHTML = '<div><div class="cb-label">Cube Method &mdash; Week Tracker</div>'
+            + '<div class="cb-title">Week ' + week + ' of ' + totalWeeks + '</div></div>'
+            + '<button class="cb-btn" onclick="completeCubeWeek()">&#10003; Complete This Week</button>';
+    }
+}
+
+function completeCubeWeek(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    if(completedWeeks[week]) return;
+    completedWeeks[week] = true;
+    var payload = {
+        programName: "Cube Method",
+        week: week, day: 1,
+        label: "Week " + week,
+        exercises: [{name:"Squat (Cube)",sets:3,reps:5,weight:baseTms.squat||0},
+                    {name:"Bench (Cube)",sets:3,reps:5,weight:baseTms.bench||0},
+                    {name:"Deadlift (Cube)",sets:3,reps:5,weight:baseTms.dead||0}],
+        notes: null, completedAt: new Date().toISOString()
+    };
+    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
+    // Advance saved week
+    try {
+        var raw = localStorage.getItem("eatt_prog_cube_method");
+        if(raw){ var s=JSON.parse(raw); s.cursor=week; localStorage.setItem("eatt_prog_cube_method",JSON.stringify(s)); }
+    } catch(e){}
+    showCompleteBanner();
+}
+
 function resetSetup(){
     document.getElementById("setupPanel").style.display = "block";
     document.getElementById("controls").style.display   = "none";
     document.getElementById("weekGrid").classList.remove("visible");
 }
+
+document.addEventListener("DOMContentLoaded", function(){
+    EATT.checkResume("Cube Method", function(saved){
+        if(saved.config){
+            if(saved.config.squat1rm) document.getElementById("squat1rm").value = saved.config.squat1rm;
+            if(saved.config.bench1rm) document.getElementById("bench1rm").value = saved.config.bench1rm;
+            if(saved.config.dead1rm)  document.getElementById("dead1rm").value  = saved.config.dead1rm;
+            if(saved.config.numWeeks) document.getElementById("numWeeks").value = saved.config.numWeeks;
+            if(saved.config.useTM !== undefined) document.getElementById("useTM").checked = saved.config.useTM;
+            if(saved.config.weeklyJump !== undefined){ weeklyJump = saved.config.weeklyJump; document.querySelectorAll(".jump-btn").forEach(function(b){ b.classList.toggle("jump-active", parseFloat(b.getAttribute("data-pct")) === weeklyJump); }); }
+        }
+        generateProgram();
+        if(saved.cursor){ document.getElementById("weekSel").value = saved.cursor; renderWeek(); }
+    });
+});
 </script>
 </body>
 </html>

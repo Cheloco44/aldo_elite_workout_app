@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELITE ALDO TRAINING TEMPLATES</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="eatt-program-save.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -371,6 +372,37 @@ nav {
 }
 .cp-complete-btn:hover { border-color: rgba(56,239,125,0.4); color: #38ef7d; }
 
+/* Saved build cards (localStorage) */
+.cp-section-lbl {
+    font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,215,0,0.4); margin: 0 0 10px;
+}
+.saved-build-card {
+    background: linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,81,47,0.04));
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; text-align: left;
+}
+.sb-name { font-size: 0.95rem; font-weight: 800; color: #ffd700; margin-bottom: 3px; }
+.sb-meta { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+.sb-bar-wrap { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-top: 8px; width: 100%; }
+.sb-bar-fill { height: 100%; background: linear-gradient(90deg, #ff512f, #ffd700); border-radius: 2px; }
+.sb-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.sb-resume {
+    padding: 8px 16px; background: linear-gradient(135deg, #b8860b, #ffd700);
+    color: #111; border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 900;
+    letter-spacing: 1px; cursor: pointer; text-decoration: none; display: inline-block;
+    transition: transform 0.2s;
+}
+.sb-resume:hover { transform: scale(1.03); }
+.sb-clear {
+    padding: 7px 11px; background: transparent;
+    border: 1px solid rgba(255,50,50,0.2); color: rgba(255,107,107,0.5);
+    border-radius: 8px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+}
+.sb-clear:hover { background: rgba(255,50,50,0.1); color: #ff6b6b; border-color: rgba(255,50,50,0.4); }
+
 /* Archive entries */
 .archive-entry {
     background: rgba(255,255,255,0.04);
@@ -550,72 +582,95 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
 
             <!-- LOGGED OUT STATE -->
             <div id="authForms">
-                <div class="auth-subtabs">
-                    <button class="auth-subtab active" id="subtab-login" onclick="switchAuthTab('login')">Sign In</button>
-                    <button class="auth-subtab" id="subtab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+
+                <!-- STEP 1: LOGIN / SIGNUP -->
+                <div id="authStep1">
+                    <div class="auth-subtabs">
+                        <button class="auth-subtab active" id="subtab-login" onclick="switchAuthTab('login')">Sign In</button>
+                        <button class="auth-subtab" id="subtab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+                    </div>
+
+                    <!-- LOGIN FORM -->
+                    <div id="authLogin">
+                        <input class="login-field" type="email" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPassword').focus();}">
+                        <input class="login-field" type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin();}">
+                        <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
+                        <button class="forgot-link" onclick="handleForgotPassword()">Forgot password?</button>
+                        <div class="login-divider">or</div>
+                        <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
+                    </div>
+
+                    <!-- SIGNUP FORM — details only, plan comes next -->
+                    <div id="authSignup" style="display:none">
+                        <input class="login-field" type="text" id="signupName" placeholder="Your name">
+                        <input class="login-field" type="email" id="signupEmail" placeholder="Email address">
+                        <input class="login-field" type="password" id="signupPassword" placeholder="Password (min 6 chars)">
+                        <button class="login-btn" id="signupNextBtn" onclick="goToPlanPicker()">Next — Choose a Plan →</button>
+                        <div class="login-divider">or</div>
+                        <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
+                    </div>
+
+                    <div class="auth-msg" id="authMsg"></div>
                 </div>
 
-                <!-- LOGIN FORM -->
-                <div id="authLogin">
-                    <input class="login-field" type="email" id="loginEmail" placeholder="Email address">
-                    <input class="login-field" type="password" id="loginPassword" placeholder="Password">
-                    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
-                    <button class="forgot-link" onclick="handleForgotPassword()">Forgot password?</button>
-                </div>
-
-                <!-- SIGNUP FORM -->
-                <div id="authSignup" style="display:none">
-                    <input class="login-field" type="text" id="signupName" placeholder="Your name">
-                    <input class="login-field" type="email" id="signupEmail" placeholder="Email address">
-                    <input class="login-field" type="password" id="signupPassword" placeholder="Password (min 6 chars)">
-                    <button class="login-btn" id="signupBtn" onclick="handleSignup()">Create Account</button>
-                </div>
-
-                <div class="auth-msg" id="authMsg"></div>
-
-                <div class="login-divider">or continue as guest</div>
-                <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
-
-                <div style="margin:28px 0 16px;border-top:1px solid rgba(255,255,255,0.08);padding-top:24px">
-                    <div class="membership-heading">Choose Your Plan</div>
-                </div>
-                <div class="plans">
-                    <div class="plan">
-                        <div class="plan-name">Basic</div>
-                        <div class="plan-price">$4.99 <span>/ month</span></div>
-                        <div class="plan-desc">Full access to all workout templates.</div>
-                        <div class="plan-features">
-                            <div class="feature">✓ All program templates</div>
-                            <div class="feature muted">✗ AI Nutrition</div>
-                            <div class="feature muted">✗ Data tracking</div>
-                            <div class="feature muted">✗ Coach tools</div>
+                <!-- STEP 2: PLAN PICKER -->
+                <div id="authStep2" style="display:none">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+                        <button onclick="backToStep1()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">←</button>
+                        <div style="font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;opacity:0.5">Step 2 — Choose Your Plan</div>
+                    </div>
+                    <div class="plans">
+                        <div class="plan signup-plan" data-plan="free" onclick="selectSignupPlan(this)" style="cursor:pointer">
+                            <div class="plan-name">Free</div>
+                            <div class="plan-price">$0 <span>/ month</span></div>
+                            <div class="plan-desc">Try it out — no commitment.</div>
+                            <div class="plan-features">
+                                <div class="feature">✓ Access 2 programs</div>
+                                <div class="feature">✓ 10 workout logs</div>
+                                <div class="feature muted">✗ AI Nutrition</div>
+                                <div class="feature muted">✗ Unlimited tracking</div>
+                            </div>
+                        </div>
+                        <div class="plan signup-plan" data-plan="basic" onclick="selectSignupPlan(this)" style="cursor:pointer">
+                            <div class="plan-name">Basic</div>
+                            <div class="plan-price">$4.99 <span>/ month</span></div>
+                            <div class="plan-desc">Full access to all workout templates.</div>
+                            <div class="plan-features">
+                                <div class="feature">✓ All program templates</div>
+                                <div class="feature">✓ Unlimited logs</div>
+                                <div class="feature muted">✗ AI Nutrition</div>
+                                <div class="feature muted">✗ Coach tools</div>
+                            </div>
+                        </div>
+                        <div class="plan plan-popular signup-plan" data-plan="basic+" onclick="selectSignupPlan(this)" style="cursor:pointer">
+                            <div class="plan-badge">Most Popular</div>
+                            <div class="plan-name">Basic+</div>
+                            <div class="plan-price">$7.99 <span>/ month</span></div>
+                            <div class="plan-desc">Everything in Basic, plus AI nutrition.</div>
+                            <div class="plan-features">
+                                <div class="feature">✓ All program templates</div>
+                                <div class="feature">✓ AI Nutrition coach</div>
+                                <div class="feature">✓ Unlimited tracking</div>
+                                <div class="feature muted">✗ Coach tools</div>
+                            </div>
+                        </div>
+                        <div class="plan plan-coach signup-plan" data-plan="coach" onclick="selectSignupPlan(this)" style="cursor:pointer">
+                            <div class="plan-name">Coach</div>
+                            <div class="plan-price">$9.99 <span>/ month</span></div>
+                            <div class="plan-desc">Full platform for coaches &amp; athletes.</div>
+                            <div class="plan-features">
+                                <div class="feature">✓ Everything in Basic+</div>
+                                <div class="feature">✓ Coach Import Tool</div>
+                                <div class="feature">✓ Client tracking</div>
+                                <div class="feature">✓ Shareable programs</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="plan plan-popular">
-                        <div class="plan-badge">Most Popular</div>
-                        <div class="plan-name">Basic+</div>
-                        <div class="plan-price">$7.99 <span>/ month</span></div>
-                        <div class="plan-desc">Everything in Basic, plus AI-powered nutrition guidance.</div>
-                        <div class="plan-features">
-                            <div class="feature">✓ All program templates</div>
-                            <div class="feature">✓ AI Nutrition coach</div>
-                            <div class="feature muted">✗ Data tracking</div>
-                            <div class="feature muted">✗ Coach tools</div>
-                        </div>
-                    </div>
-                    <div class="plan plan-coach">
-                        <div class="plan-name">Coach</div>
-                        <div class="plan-price">$9.99 <span>/ month</span></div>
-                        <div class="plan-desc">Dynamic platform for coaches and serious athletes.</div>
-                        <div class="plan-features">
-                            <div class="feature">✓ All program templates</div>
-                            <div class="feature">✓ AI Nutrition coach</div>
-                            <div class="feature">✓ Client data input &amp; tracking</div>
-                            <div class="feature">✓ Coach dashboard</div>
-                        </div>
-                    </div>
+                    <div class="auth-msg" id="authMsg2"></div>
+                    <button class="login-btn" id="signupBtn" onclick="handleSignup()" style="display:none;margin-top:4px">Create Account</button>
+                    <div style="text-align:center;margin-top:12px;font-size:0.68rem;opacity:0.3;letter-spacing:1px">Paid plans launch soon — your selection is saved</div>
                 </div>
-                <div class="coming-soon-label">🚧 Subscriptions launching soon</div>
+
             </div>
 
             <!-- LOGGED IN STATE -->
@@ -627,9 +682,6 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
                 <div class="overlay-action-row">
                     <a href="account.html" class="overlay-action-btn btn-account">👤 My Account</a>
                     <button class="overlay-action-btn btn-signout" onclick="handleSignOut()">Sign Out</button>
-                </div>
-                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
-                    <div class="coming-soon-label">Upgrade plans — coming soon</div>
                 </div>
             </div>
 
@@ -840,12 +892,56 @@ function onSignedOut() {
 // ══════════════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════════════
+let selectedPlan = 'free';
+
 function switchAuthTab(tab) {
     document.getElementById('authLogin').style.display  = tab === 'login'  ? 'block' : 'none';
     document.getElementById('authSignup').style.display = tab === 'signup' ? 'block' : 'none';
     document.getElementById('subtab-login').classList.toggle('active',  tab === 'login');
     document.getElementById('subtab-signup').classList.toggle('active', tab === 'signup');
+    // Always show step 1 when switching tabs
+    document.getElementById('authStep1').style.display = 'block';
+    document.getElementById('authStep2').style.display = 'none';
     clearAuthMsg();
+}
+
+function goToPlanPicker() {
+    const name     = document.getElementById('signupName').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if (!email || !password) return showAuthMsg('Please fill in all fields.', 'error');
+    if (password.length < 6) return showAuthMsg('Password must be at least 6 characters.', 'error');
+    clearAuthMsg();
+    document.getElementById('authStep1').style.display = 'none';
+    document.getElementById('authStep2').style.display = 'block';
+    // Reset plan selection
+    selectedPlan = 'free';
+    document.querySelectorAll('.signup-plan').forEach(p => p.style.outline = 'none');
+    document.getElementById('signupBtn').style.display = 'none';
+}
+
+function backToStep1() {
+    document.getElementById('authStep1').style.display = 'block';
+    document.getElementById('authStep2').style.display = 'none';
+    switchAuthTab('signup');
+}
+
+function selectSignupPlan(el) {
+    // Clear all selections
+    document.querySelectorAll('.signup-plan').forEach(p => {
+        p.style.outline = 'none';
+        p.style.borderColor = '';
+    });
+    // Highlight selected
+    el.style.outline = '2px solid rgba(255,215,0,0.7)';
+    el.style.borderColor = 'rgba(255,215,0,0.5)';
+    selectedPlan = el.getAttribute('data-plan');
+    // Show create account button
+    const btn = document.getElementById('signupBtn');
+    btn.style.display = 'block';
+    btn.textContent = selectedPlan === 'free'
+        ? 'Create Free Account'
+        : `Create Account — ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Plan`;
 }
 
 async function handleLogin() {
@@ -867,23 +963,35 @@ async function handleSignup() {
     const name     = document.getElementById('signupName').value.trim();
     const email    = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
-    if (!email || !password) return showAuthMsg('Fill in all fields.', 'error');
-    if (password.length < 6) return showAuthMsg('Password must be at least 6 characters.', 'error');
 
     const btn = document.getElementById('signupBtn');
     btn.disabled = true; btn.textContent = 'Creating account...';
 
-    const { data, error } = await db.auth.signUp({ email, password, options: { data: { display_name: name } } });
-    btn.disabled = false; btn.textContent = 'Create Account';
+    const { data, error } = await db.auth.signUp({
+        email, password,
+        options: { data: { display_name: name } }
+    });
+    btn.disabled = false;
 
     if (error) {
-        showAuthMsg(error.message, 'error');
+        showAuthMsg2(error.message, 'error');
     } else {
-        // Create profile
+        // Save profile with chosen plan
         if (data.user) {
-            await db.from('profiles').upsert({ id: data.user.id, display_name: name || email.split('@')[0], plan: 'free' });
+            await db.from('profiles').upsert({
+                id: data.user.id,
+                display_name: name || email.split('@')[0],
+                plan: selectedPlan
+            });
         }
-        showAuthMsg('Account created! Check your email to confirm.', 'success');
+        showAuthMsg2('Account created! Check your email to confirm, then sign in.', 'success');
+        btn.style.display = 'none';
+        // Switch to login tab after short delay
+        setTimeout(() => {
+            backToStep1();
+            switchAuthTab('login');
+            document.getElementById('loginEmail').value = email;
+        }, 2500);
     }
 }
 
@@ -902,45 +1010,131 @@ async function handleSignOut() {
 
 function showAuthMsg(msg, type) {
     const el = document.getElementById('authMsg');
-    el.textContent = msg;
-    el.className = 'auth-msg ' + type;
-    el.style.display = 'block';
+    el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
+}
+function showAuthMsg2(msg, type) {
+    const el = document.getElementById('authMsg2');
+    el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
 }
 function clearAuthMsg() {
     document.getElementById('authMsg').style.display = 'none';
+    const el2 = document.getElementById('authMsg2');
+    if (el2) el2.style.display = 'none';
 }
 
 // ══════════════════════════════════════════════════
 // CURRENT PROGRAM PANEL
 // ══════════════════════════════════════════════════
+const PROGRAM_PAGES = {
+    '5/3/1 Program':      '531workout.html',
+    'Viking Berserker':   'viking.html',
+    'Knight Templar':     'templar.html',
+    'Strongman 5/3/1':    'strongman531.html',
+    'Westside Conjugate': 'westside.html',
+    'Old Man Strength':   'oldman_workout.html',
+    'StrongLifts 5x5':    'stronglifts.html',
+    'Cube Method':        'cube.html',
+    'Juggernaut Method':  'juggernaut.html',
+    'Arnold Split':       'arnoldsplit.html',
+    'Bro Split':          'brosplit.html'
+};
+
+function getSavedBuilds() {
+    var out = [];
+    try {
+        var idx = JSON.parse(localStorage.getItem('eatt_prog_index') || '[]');
+        idx.forEach(function(name) {
+            try {
+                var raw = localStorage.getItem('eatt_prog_' + name.replace(/\s+/g, '_').toLowerCase());
+                if (raw) out.push(JSON.parse(raw));
+            } catch(e) {}
+        });
+    } catch(e) {}
+    return out;
+}
+
 async function loadCurrentProgram() {
     const el = document.getElementById('currentProgramContent');
-    const { data } = await db.from('program_history')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .is('completed_at', null)
-        .order('started_at', { ascending: false })
-        .limit(3);
+    let html = '';
 
-    if (!data || data.length === 0) {
-        el.innerHTML = `
-            <div style="text-align:center;padding:20px 0;opacity:0.5">
-                <div style="font-size:2rem;margin-bottom:12px">🏋️</div>
-                <div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">No Active Program</div>
-                <div style="font-size:0.75rem;opacity:0.7">Start a program from the main page, then log it in <a href="account.html" style="color:#ffd700">My Account</a>.</div>
-            </div>`;
-        return;
+    // ── Section 1: localStorage saved builds ──
+    const saved = getSavedBuilds();
+    if (saved.length > 0) {
+        html += '<div class="cp-section-lbl">Your Built Programs</div>';
+        saved.forEach(function(s) {
+            const dayNum  = (s.cursor || 0) + 1;
+            const total   = (s.program || []).length;
+            const pct     = total ? Math.min(100, Math.round(((s.cursor || 0) / total) * 100)) : 0;
+            const page    = PROGRAM_PAGES[s.programName] || '#';
+            const safe    = (s.programName || '').replace(/'/g, '');
+            const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+            const barHTML = total ? '<div class="sb-bar-wrap"><div class="sb-bar-fill" style="width:' + pct + '%"></div></div>' : '';
+            html += '<div class="saved-build-card">'
+                  +   '<div style="flex:1;min-width:0">'
+                  +     '<div class="sb-name">' + (s.programName || '—') + '</div>'
+                  +     '<div class="sb-meta">'
+                  +       (total ? 'Day ' + dayNum + ' of ' + total + ' &nbsp;·&nbsp; ' + pct + '% done' : 'Config saved')
+                  +       (dateStr ? ' &nbsp;·&nbsp; ' + dateStr : '')
+                  +     '</div>'
+                  +     barHTML
+                  +   '</div>'
+                  +   '<div class="sb-actions">'
+                  +     '<a href="' + page + '" class="sb-resume">&#9654; Resume</a>'
+                  +     '<button class="sb-clear" onclick="clearSavedBuild(event,\'' + safe + '\')">&#10005;</button>'
+                  +   '</div>'
+                  + '</div>';
+        });
     }
 
-    el.innerHTML = data.map(p => `
-        <div class="current-program-card">
-            <div class="cp-name">${p.program_name}</div>
-            <div class="cp-meta">Started ${formatDate(p.started_at)}</div>
-            <span class="cp-badge">Active</span>
-            <br>
-            <button class="cp-complete-btn" onclick="markComplete('${p.id}')">Mark as Complete ✓</button>
-        </div>
-    `).join('') + `<div style="text-align:center;margin-top:14px"><a href="account.html" style="color:rgba(255,215,0,0.6);font-size:0.75rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none">View Full Log in My Account →</a></div>`;
+    // ── Section 2: Supabase active programs (logged-in users) ──
+    if (currentUser) {
+        const { data } = await db.from('program_history')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .is('completed_at', null)
+            .order('started_at', { ascending: false })
+            .limit(3);
+
+        if (data && data.length > 0) {
+            if (saved.length > 0) {
+                html += '<div class="cp-section-lbl" style="margin-top:18px">Tracked in Account</div>';
+            }
+            html += data.map(p =>
+                '<div class="current-program-card">'
+                + '<div class="cp-name">' + p.program_name + '</div>'
+                + '<div class="cp-meta">Started ' + formatDate(p.started_at) + ' &nbsp;·&nbsp; Week ' + (p.current_week || 1) + ', Day ' + (p.current_day || 1) + '</div>'
+                + '<span class="cp-badge">Active</span><br>'
+                + '<button class="cp-complete-btn" onclick="markComplete(\'' + p.id + '\')">Mark as Complete &#10003;</button>'
+                + '</div>'
+            ).join('');
+        }
+    }
+
+    // ── Empty state ──
+    if (!html) {
+        html = '<div style="text-align:center;padding:20px 0;opacity:0.5">'
+             + '<div style="font-size:2rem;margin-bottom:12px">&#127947;</div>'
+             + '<div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">No Active Program</div>'
+             + '<div style="font-size:0.75rem;opacity:0.7;line-height:1.6">Pick a program below, enter your numbers,<br>and hit Build — it\'ll appear here.</div>'
+             + '</div>';
+    } else {
+        html += '<div style="text-align:center;margin-top:14px">'
+              + '<a href="account.html" style="color:rgba(255,215,0,0.6);font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none">Full tracking in My Account &#8594;</a>'
+              + '</div>';
+    }
+
+    el.innerHTML = html;
+}
+
+function clearSavedBuild(e, name) {
+    e.preventDefault();
+    if (!confirm('Remove "' + name + '" from Current Program?')) return;
+    localStorage.removeItem('eatt_prog_' + name.replace(/\s+/g, '_').toLowerCase());
+    try {
+        var idx = JSON.parse(localStorage.getItem('eatt_prog_index') || '[]').filter(function(n) { return n !== name; });
+        localStorage.setItem('eatt_prog_index', JSON.stringify(idx));
+    } catch(err) {}
+    loadCurrentProgram();
 }
 
 async function markComplete(id) {
@@ -950,12 +1144,8 @@ async function markComplete(id) {
 }
 
 function renderCurrentProgramGuest() {
-    document.getElementById('currentProgramContent').innerHTML = `
-        <div style="text-align:center;padding:20px 0;opacity:0.5">
-            <div style="font-size:2rem;margin-bottom:12px">🏋️</div>
-            <div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Sign in to track your program</div>
-            <button onclick="switchTab('membership')" style="margin-top:10px;background:none;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 18px;color:rgba(255,255,255,0.6);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer">Sign In →</button>
-        </div>`;
+    // Show localStorage builds even for guests — no login needed
+    loadCurrentProgram();
 }
 
 // ══════════════════════════════════════════════════

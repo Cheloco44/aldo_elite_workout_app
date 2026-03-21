@@ -3,91 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Classic 5×5</title>
+<title>OLD MAN STRENGTH</title>
 <style>
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-    margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #0f1923, #1a2a3a, #0d1b2a);
+    margin: 0;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: #fff;
     min-height: 100vh;
 }
+
 body::before {
     content: "";
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: url('gorillavsbull.png') no-repeat center center;
-    background-size: contain; opacity: 0.07; pointer-events: none; z-index: 0;
+    background-size: contain;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
 }
+
+/* ===== HEADER ===== */
 .header {
-    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    padding: 25px 20px; text-align: center;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    padding: 25px 20px;
+    text-align: center;
     box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-    border-bottom: 4px solid rgba(255,255,255,0.2);
-    position: relative; z-index: 1;
+    border-bottom: 4px solid #fff;
+    position: relative;
+    z-index: 1;
 }
-.header-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; }
-.header img.logo { height: 70px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-.header-text { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
-.back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #fff; text-decoration: none; font-size: 1.4rem; opacity: 0.8; transition: opacity 0.2s; }
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header img.logo {
+    height: 75px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.header-text {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+.back-link {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.4rem;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
 .back-link:hover { opacity: 1; }
 
+/* ===== SETUP FORM ===== */
 .setup-panel {
-    max-width: 560px; margin: 30px auto; padding: 30px;
-    background: rgba(255,255,255,0.07); border-radius: 15px;
-    backdrop-filter: blur(6px); position: relative; z-index: 1;
-    border: 1px solid rgba(255,255,255,0.1);
+    max-width: 520px;
+    margin: 30px auto;
+    padding: 30px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 15px;
+    backdrop-filter: blur(6px);
+    position: relative;
+    z-index: 1;
 }
-.program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #64b5f6; }
-.program-summary p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 12px; }
-.program-summary ul { list-style: none; padding: 0; }
-.program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.88; }
-.program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #64b5f6; font-size: 1rem; }
-.summary-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 22px 0; }
 
-.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #64b5f6; font-size: 1.2rem; }
-.form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
-.form-row label { font-weight: 600; min-width: 170px; }
-.form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
-.jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #64b5f6; }
-.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.3; }
-.jump-btn:hover { border-color: rgba(100,181,246,0.5); background: rgba(100,181,246,0.1); }
-.jump-btn.jump-active { background: linear-gradient(135deg, #1a237e, #283593); border-color: #64b5f6; box-shadow: 0 0 12px rgba(100,181,246,0.3); }
-.jump-btn .jump-pct { font-size: 1.1rem; display: block; }
-.jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
-.check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
-.check-row input[type="checkbox"] { width: 20px; height: 20px; }
+.setup-panel h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #38ef7d;
+    font-size: 1.3rem;
+}
+
+.program-summary {
+    margin-bottom: 20px;
+}
+
+.program-summary h2 {
+    text-align: center;
+    margin-bottom: 14px;
+    color: #38ef7d;
+    font-size: 1.4rem;
+}
+
+.program-summary p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    opacity: 0.92;
+    margin-bottom: 12px;
+}
+
+.program-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.program-summary ul li {
+    position: relative;
+    padding-left: 22px;
+    margin: 8px 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.88;
+}
+
+.program-summary ul li::before {
+    content: "\25B8";
+    position: absolute;
+    left: 0;
+    color: #38ef7d;
+    font-size: 1rem;
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 22px 0;
+}
+
+.equip-mode-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.equip-mode-btn {
+    padding: 10px 18px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 25px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.equip-mode-btn:hover {
+    border-color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.14);
+}
+
+.equip-mode-btn.mode-active-mix {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    border-color: #38ef7d;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(56,239,125,0.35);
+}
+
+.equip-mode-btn.mode-active-db {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #a78bfa;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(102,126,234,0.4);
+}
+
+.equip-mode-btn.mode-active-band {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    border-color: #fde68a;
+    color: #222;
+    box-shadow: 0 0 14px rgba(247,151,30,0.4);
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 14px 0;
+    gap: 10px;
+}
+
+.form-row label {
+    font-weight: 600;
+    min-width: 180px;
+}
+
+.form-row input[type="number"],
+.form-row select {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    width: 110px;
+    text-align: center;
+    color: #222;
+}
 
 .btn {
-    display: block; width: 100%; padding: 14px; margin-top: 22px;
-    background: linear-gradient(135deg, #1a237e, #283593);
-    color: #fff; border: 2px solid rgba(100,181,246,0.4);
-    border-radius: 10px; font-size: 17px; font-weight: bold;
-    cursor: pointer; letter-spacing: 1px;
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 1px;
     transition: transform 0.2s, box-shadow 0.2s;
 }
-.btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(100,181,246,0.3); }
-.btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; }
 
-.controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
-.controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
-.controls label { font-weight: 700; margin-left: 10px; }
+.btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(17,153,142,0.45);
+}
 
-.table-wrap { width: 92%; max-width: 800px; margin: 20px auto; position: relative; z-index: 1; display: none; }
-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; }
-th { background: #1a237e; padding: 13px 14px; text-align: left; font-size: 0.95rem; letter-spacing: 0.5px; }
-td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.12); }
-tr:hover { background: rgba(255,255,255,0.06); }
-.lift-a { color: #64b5f6; font-weight: 700; }
-.lift-b { color: #81c784; font-weight: 700; }
+.btn-sm {
+    width: auto;
+    display: inline-block;
+    padding: 10px 22px;
+    font-size: 14px;
+    margin-top: 0;
+}
 
-.progress-note {
-    max-width: 800px; margin: 16px auto; padding: 16px 20px;
-    background: rgba(100,181,246,0.1); border-radius: 10px;
-    border-left: 3px solid #64b5f6; font-size: 0.92rem; line-height: 1.6;
-    position: relative; z-index: 1; display: none;
+/* ===== TABS ===== */
+.tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 22px 0 10px;
+    position: relative;
+    z-index: 1;
+    display: none;
+}
+
+.tab-btn {
+    padding: 12px 28px;
+    border: 2px solid transparent;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+}
+
+.tab-btn:hover {
+    transform: scale(1.04);
+}
+
+.tab-btn.active-db {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #a78bfa;
+    box-shadow: 0 0 18px rgba(102,126,234,0.5);
+}
+
+.tab-btn.active-band {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    border-color: #fde68a;
+    color: #222;
+    box-shadow: 0 0 18px rgba(247,151,30,0.5);
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+    text-align: center;
+    margin: 12px auto;
+    position: relative;
+    z-index: 1;
+    display: none;
+}
+
+.controls select {
+    padding: 10px 14px;
+    margin: 6px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #222;
+}
+
+.controls label {
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+/* ===== EXERCISE CARDS ===== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    max-width: 1100px;
+    margin: 10px auto 50px;
+    position: relative;
+    z-index: 1;
+}
+
+.ex-card {
+    border-radius: 14px;
+    padding: 18px;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.ex-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* DB card style */
+.ex-card.card-db {
+    background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
+    border: 1px solid rgba(167,139,250,0.3);
+}
+
+/* Band card style */
+.ex-card.card-band {
+    background: linear-gradient(135deg, rgba(247,151,30,0.2), rgba(255,210,0,0.2));
+    border: 1px solid rgba(253,230,138,0.3);
+}
+
+.ex-card h4 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.ex-card .detail {
+    font-size: 0.92rem;
+    margin: 4px 0;
+    opacity: 0.9;
+}
+
+.ex-card .detail strong { opacity: 1; }
+
+.ex-card .vid-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: #38ef7d;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.ex-card .vid-link:hover { color: #6ee7b7; text-decoration: underline; }
+
+.no-data {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    opacity: 0.6;
+    font-size: 1.1rem;
 }
 
 @media (max-width: 600px) {
@@ -95,6 +374,10 @@ tr:hover { background: rgba(255,255,255,0.06); }
     .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
     .form-row { flex-direction: column; align-items: flex-start; }
     .form-row input[type="number"], .form-row select { width: 100%; }
+    .card-grid { grid-template-columns: 1fr; }
+    .tab-btn { padding: 10px 20px; font-size: 14px; }
+    .equip-mode-group { flex-direction: column; }
+    .equip-mode-btn { width: 100%; }
 }
 
 .form-row input[type="number"]::placeholder {
@@ -105,301 +388,556 @@ tr:hover { background: rgba(255,255,255,0.06); }
     color: transparent;
 }
 
-/* END GOAL PROJECTION */
-.proj-wrap {
-    display: none;
-    margin: 20px 0 6px;
+/* ── Complete Day/Week banner ── */
+#completeBanner {
+    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
+    position: relative; z-index: 2;
 }
-.proj-label {
-    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
-    color: rgba(100,181,246,0.65); margin-bottom: 10px;
-    border-left: 3px solid #64b5f6; padding-left: 10px;
+#completeBannerInner {
+    background: rgba(56,239,125,0.08);
+    border: 1px solid rgba(56,239,125,0.25);
+    border-radius: 12px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
 }
-.proj-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+#completeBannerInner.done {
+    background: rgba(56,239,125,0.13);
+    border-color: rgba(56,239,125,0.4);
+    justify-content: center;
 }
-.proj-card {
-    background: rgba(100,181,246,0.07);
-    border: 1px solid rgba(100,181,246,0.18);
-    border-radius: 8px; padding: 9px 6px; text-align: center;
+.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
+.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
+.cb-btn {
+    background: linear-gradient(135deg, #11a54a, #38ef7d);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
 }
-.proj-lift { font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.45; margin-bottom: 3px; }
-.proj-end  { font-size: 1rem; font-weight: 800; color: #64b5f6; }
-.proj-end small { font-size: 0.55rem; font-weight: 400; opacity: 0.6; margin-left: 1px; }
-.proj-gain { font-size: 0.65rem; color: #81c784; margin-top: 2px; }
-@media (max-width: 600px) { .proj-grid { grid-template-columns: repeat(3, 1fr); } }
+.cb-btn:hover { transform: scale(1.03); }
+.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+
 </style>
+<script src="eatt-program-save.js"></script>
 </head>
 <body>
+
+<!-- HEADER -->
 <div class="header">
     <a href="index.html" class="back-link">&larr; Home</a>
     <div class="header-inner">
         <img src="gorillavsbull.png" alt="Logo" class="logo">
-        <div class="header-text">Classic 5×5</div>
+        <div class="header-text">OLD MAN STRENGTH</div>
     </div>
 </div>
 
+<!-- SETUP FORM -->
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
-        <h2>THE Classic 5×5 SYSTEM</h2>
-        <p>The <strong>no-nonsense beginner blueprint</strong> that builds real-world strength fast. Two workouts. Five lifts. Add weight every single session until you're moving serious iron.</p>
+        <h2>OLD MAN STRENGTH</h2>
+        <p>A flexible program designed for <strong>dumbbells, bands, or a mix of both</strong>. Pick your equipment each week and get after it &mdash; no barbell required.</p>
         <ul>
-            <li><strong>Workout A:</strong> Squat, Bench Press, Barbell Row</li>
-            <li><strong>Workout B:</strong> Squat, Overhead Press, Deadlift</li>
-            <li>Alternate A/B, <strong>3x per week</strong> with rest days between</li>
-            <li>Add <strong>5 lbs per session</strong> on all lifts, <strong>10 lbs</strong> on deadlift</li>
-            <li>Deload by 10% if you miss reps <strong>3 sessions in a row</strong></li>
-            <li><strong>12 weeks</strong> will take most lifters from beginner to intermediate territory</li>
+            <li><strong>7 exercises per session</strong>, taking roughly <strong>30&ndash;45 minutes</strong></li>
+            <li>Goal: <strong>sustain healthy muscle function</strong> and strengthen the everyday movement patterns &mdash; hinge, squat, and pressing</li>
+            <li>Choose your equipment mode below and switch it up week to week</li>
         </ul>
     </div>
     <hr class="summary-divider">
-    <h2 class="form-title">ENTER YOUR STARTING WEIGHTS</h2>
-    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="135" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="95" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Barbell Row (lbs)</label><input type="number" id="row" placeholder="95" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="65" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Deadlift (lbs)</label><input type="number" id="deadlift" placeholder="135" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Program Weeks</label>
-        <select id="numWeeks" onchange="updateProjection()">
+    <h2>ENTER YOUR INFO</h2>
+
+    <div class="form-row">
+        <label>Equipment Mode</label>
+    </div>
+    <div class="equip-mode-group" id="equipModeGroup">
+        <button type="button" class="equip-mode-btn mode-active-mix" data-mode="mix" onclick="selectEquipMode('mix')">Mix &amp; Match</button>
+        <button type="button" class="equip-mode-btn" data-mode="db" onclick="selectEquipMode('db')">Dumbbells Only</button>
+        <button type="button" class="equip-mode-btn" data-mode="band" onclick="selectEquipMode('band')">Bands Only</button>
+    </div>
+
+    <div class="form-row">
+        <label>Age</label>
+        <input type="number" id="age" placeholder="45" min="18" max="99">
+    </div>
+    <div class="form-row">
+        <label>Squat 1RM (lbs)</label>
+        <input type="number" id="squat1rm" placeholder="225" min="45">
+    </div>
+    <div class="form-row">
+        <label>Bench 1RM (lbs)</label>
+        <input type="number" id="bench1rm" placeholder="185" min="45">
+    </div>
+    <div class="form-row">
+        <label>OHP 1RM (lbs)</label>
+        <input type="number" id="ohp1rm" placeholder="115" min="45">
+    </div>
+    <div class="form-row">
+        <label>Program Weeks</label>
+        <select id="numWeeks">
             <option value="8">8 Weeks</option>
+            <option value="10">10 Weeks</option>
             <option value="12" selected>12 Weeks</option>
             <option value="16">16 Weeks</option>
         </select>
     </div>
-    <div class="jump-selector">
-        <label class="jump-label">&#9889; WEIGHT INCREMENT PER SESSION &mdash; How hungry are you?</label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.5" onclick="selectJump(this)"><span class="jump-pct">½x</span><span class="jump-tag">Slow (+2.5/+5 lbs)</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="1.0" onclick="selectJump(this)"><span class="jump-pct">1x</span><span class="jump-tag">Standard (+5/+10 lbs)</span></button>
-            <button type="button" class="jump-btn" data-pct="1.5" onclick="selectJump(this)"><span class="jump-pct">1.5x</span><span class="jump-tag">Aggressive (+7.5/+15)</span></button>
-            <button type="button" class="jump-btn" data-pct="2.0" onclick="selectJump(this)"><span class="jump-pct">2x</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
-        </div>
-    </div>
-    <!-- END GOAL PROJECTION -->
-    <div class="proj-wrap" id="projWrap">
-        <div class="proj-label">Realistic End-of-Program Goal</div>
-        <div class="proj-grid" id="projGrid"></div>
-        <div style="font-size:0.68rem;opacity:0.38;margin-top:8px;line-height:1.5;font-style:italic">Based on realistic progression — accounts for stalls and deloads. Actual results depend on consistency, sleep, and nutrition.</div>
-    </div>
+
     <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
 </div>
 
+<!-- TABS -->
+<div class="tab-bar" id="tabBar">
+    <button class="tab-btn" id="tabDB" onclick="switchTab('DB')">Dumbbell</button>
+    <button class="tab-btn" id="tabBand" onclick="switchTab('Band')">Bands</button>
+    <button class="btn btn-sm" onclick="resetSetup()" style="margin-left:16px">&larr; New Program</button>
+</div>
+
+<!-- CONTROLS -->
+
+<div id="completeBanner" style="margin:14px 16px 0;display:none"><div id="completeBannerInner" style="background:rgba(56,239,125,0.08);border:1px solid rgba(56,239,125,0.25);border-radius:12px;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="cb-label">Old Man Strength</div><div class="cb-title" id="cbTitle">—</div></div><button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button></div></div>
 <div class="controls" id="controls">
     <label>Week</label>
-    <select id="weekSel" onchange="renderTable()"></select>
-    <label>Session</label>
-    <select id="sessionSel" onchange="renderTable()">
-        <option value="0">Session 1</option>
-        <option value="1">Session 2</option>
-        <option value="2">Session 3</option>
+    <select id="weekSel" onchange="renderCards()"></select>
+
+    <label>Day</label>
+    <select id="daySel" onchange="renderCards()">
+        <option value="Lower Body">Lower Body</option>
+        <option value="Upper Body">Upper Body</option>
     </select>
-    <br><br>
-    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+
+    <button class="btn btn-sm" id="newProgramBtn" onclick="resetSetup()" style="margin-left:16px;display:none">&larr; New Program</button>
 </div>
 
-<div class="progress-note" id="progressNote"></div>
-
-<div class="table-wrap" id="tableWrap">
-    <table id="workoutTable">
-        <thead><tr><th>Lift</th><th>Sets × Reps</th><th>Weight</th><th>Notes</th></tr></thead>
-        <tbody></tbody>
-    </table>
-</div>
+<!-- EXERCISE CARDS -->
+<div class="card-grid" id="cardGrid"></div>
 
 <script>
-var programData = [];
-var programStarts = {};
+// ===== EXERCISE DATABASE =====
+// Each exercise: [name, type(DB|Band), ref(squat|bench|ohp)]
 
-// Stronglifts 5x5 increments: +5 lbs/session upper body, +5 lbs/session squat, +10 lbs/session deadlift
-var INCREMENT = { squat: 5, bench: 5, row: 5, ohp: 5, dead: 10 };
+var lowerExercises = [
+    ["Goblet Squat","DB","squat"],
+    ["DB Romanian Deadlift","DB","squat"],
+    ["Bulgarian Split Squat","DB","squat"],
+    ["DB Deadlift","DB","squat"],
+    ["Dumbbell Row","DB","bench"],
+    ["Incline Row","DB","bench"],
+    ["Dumbbell Pause Romanian Deadlift","DB","squat"],
+    ["Dumbbell Pullover","DB","bench"],
+    ["Incline Pause Row","DB","bench"],
+    ["Renegade Row","DB","bench"],
+    ["Towel\u2011Grip Dumbbell Row","DB","bench"],
+    ["Two Position Bent\u2011Over Row","DB","bench"],
+    ["V\u2011Taper Dumbbell Row Series","DB","bench"],
+    ["Farmer\u2019s Carry","DB","squat"],
+    ["Three\u2011Way Elevated Plank Row","DB","bench"],
+    ["Elevated Plank Row","DB","bench"],
+    ["Chest\u2011Supported Rear Delt Fly","DB","ohp"],
+    ["Band Squat","Band","squat"],
+    ["Fire Hydrants","Band","squat"],
+    ["Glute Bridge Pulses","Band","squat"],
+    ["Tabletop Glute Kickbacks","Band","squat"],
+    ["Glute Bridge With Alternating Leg Raise","Band","squat"],
+    ["Clamshell","Band","squat"],
+    ["Resistance Band Leg Lifts","Band","squat"],
+    ["Glute Kickbacks","Band","squat"],
+    ["Diagonal Band Walk","Band","squat"],
+    ["Pull Apart","Band","bench"],
+    ["Lateral Raise (band)","Band","ohp"],
+    ["Dumb Waiter","Band","ohp"],
+    ["Lat Pull Down","Band","bench"],
+    ["Leg Press (band)","Band","squat"],
+    ["Squat (band)","Band","squat"]
+];
 
-function round5(v) { return Math.max(45, Math.round(v / 5) * 5); }
+var upperExercises = [
+    ["Dumbbell Bench Press","DB","bench"],
+    ["Dumbbell Chest Fly","DB","bench"],
+    ["Dumbbell Incline Press","DB","bench"],
+    ["Half\u2011Bench Single Arm Press","DB","bench"],
+    ["Overload Incline Press Dropset","DB","bench"],
+    ["Deficit Shoulder Tap Pushup","DB","bench"],
+    ["Hollow Body Dumbbell Press","DB","bench"],
+    ["DB Floor Press","DB","bench"],
+    ["Bicep Curls","DB","ohp"],
+    ["Hammer Curls","DB","ohp"],
+    ["Incline Tricep Extensions","DB","bench"],
+    ["Strict Press","DB","ohp"],
+    ["Standing Shoulder Press","DB","ohp"],
+    ["Dumbbell Z\u2011Press","DB","ohp"],
+    ["High\u2011Incline Shoulder Press","DB","ohp"],
+    ["Front Raise","DB","ohp"],
+    ["Rear Delt Flys","DB","ohp"],
+    ["Leaning Single\u2011Arm Lateral Raise","DB","ohp"],
+    ["Single\u2011Arm Push Press","DB","ohp"],
+    ["Push Press","DB","ohp"],
+    ["Clean High Pull","DB","ohp"],
+    ["Overhead Carry","DB","ohp"],
+    ["Arnold Press","DB","ohp"],
+    ["Loop Band Push Up on Knees","Band","bench"],
+    ["Loop Band Pushups","Band","bench"],
+    ["Loop Band Bench Press","Band","bench"],
+    ["Loop Band Pec Fly","Band","bench"],
+    ["Loop Band Single Arm Fly","Band","bench"],
+    ["Loop Band Standing Incline Chest Press","Band","bench"],
+    ["Band Pec Fly","Band","bench"],
+    ["Band Chest Press","Band","bench"],
+    ["Band Triceps Kickback","Band","bench"],
+    ["Seated Resistance Band Biceps Curl","Band","ohp"],
+    ["Resistance Band Row","Band","bench"],
+    ["Lat Pull\u2011Down (band)","Band","bench"],
+    ["Band Pull\u2011Apart","Band","bench"]
+];
 
-function selectJump(btn) {
-    document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('jump-active'); });
-    btn.classList.add('jump-active');
-    updateProjection();
+// ===== VIDEO LINKS =====
+var videos = {
+    "Goblet Squat":"https://www.youtube.com/watch?v=XVmOMBHnOOE",
+    "DB Romanian Deadlift":"https://www.youtube.com/watch?v=FHNNdCAViG0",
+    "Bulgarian Split Squat":"https://www.youtube.com/watch?v=2C-uNgKwPLE",
+    "DB Deadlift":"https://www.youtube.com/watch?v=ytGaGIn3SjE",
+    "Tabletop Glute Kickbacks":"https://www.youtube.com/watch?v=XVmOMBHnOOE",
+    "Glute Bridge With Alternating Leg Raise":"https://www.youtube.com/watch?v=H3zX9xYoN2Q",
+    "Resistance Band Leg Lifts":"https://www.youtube.com/watch?v=ZB_YsfkGm14",
+    "Glute Kickbacks":"https://www.youtube.com/watch?v=Pi-coC0lGjk",
+    "Diagonal Band Walk":"https://www.youtube.com/watch?v=ouH6l8I7OrE",
+    "Elevated Plank Row":"https://www.youtube.com/watch?v=OAB34MnmgJs",
+    "Dumbbell Pause Romanian Deadlift":"https://www.youtube.com/watch?v=FHNNdCAViG0",
+    "Dumbbell Pullover":"https://www.youtube.com/watch?v=pRLIZFFoQ-M",
+    "Incline Pause Row":"https://www.youtube.com/watch?v=b_QO3PedVR8",
+    "Renegade Row":"https://www.youtube.com/watch?v=YUMXGLL2IKE",
+    "Farmer\u2019s Carry":"https://www.youtube.com/watch?v=Ozp9nI_w4xo",
+    "Chest\u2011Supported Rear Delt Fly":"https://www.youtube.com/watch?v=iCbVhDNpG-Y",
+    "Lateral Raise (band)":"https://www.youtube.com/watch?v=erhCK5sEhfY",
+    "Dumb Waiter":"https://www.youtube.com/watch?v=Oyf13H3A3w",
+    "Leg Press (band)":"https://www.youtube.com/watch?v=L-xj1n_odyk",
+    "Squat (band)":"https://www.youtube.com/watch?v=S5cTdwO1Trk",
+    "Dumbbell Bench Press":"https://www.youtube.com/watch?v=VmB1G1K7v94",
+    "Dumbbell Chest Fly":"https://www.youtube.com/watch?v=aBEHkzfe4yc",
+    "Dumbbell Incline Press":"https://www.youtube.com/watch?v=8iPEnn-lZTY",
+    "Half\u2011Bench Single Arm Press":"https://www.youtube.com/watch?v=Cs2uNF-jW5s",
+    "Overload Incline Press Dropset":"https://www.youtube.com/watch?v=5orOHJL2qS4",
+    "Deficit Shoulder Tap Pushup":"https://www.youtube.com/watch?v=n2jS_QxIcos",
+    "Hollow Body Dumbbell Press":"https://www.youtube.com/watch?v=OlqFwQyCVPs",
+    "DB Floor Press":"https://www.youtube.com/watch?v=UBmpZ7l5Nlk",
+    "Incline Tricep Extensions":"https://www.youtube.com/watch?v=WY66RDAoHmA",
+    "Strict Press":"https://www.youtube.com/watch?v=9J2dy7W58iU",
+    "Push Press":"https://www.youtube.com/watch?v=mgsP4ep_RiA",
+    "Dumbbell Z\u2011Press":"https://www.youtube.com/watch?v=MGTo_d_c3Qo",
+    "High\u2011Incline Shoulder Press":"https://www.youtube.com/watch?v=muN_njHODcs",
+    "Front Raise":"https://www.youtube.com/watch?v=h9xfpTrAvkE",
+    "Rear Delt Flys":"https://www.youtube.com/watch?v=LsT-bR_zxLo",
+    "Leaning Single\u2011Arm Lateral Raise":"https://www.youtube.com/watch?v=p8eMhRdeX4g",
+    "Single\u2011Arm Push Press":"https://www.youtube.com/watch?v=yaB3aLaXzQA",
+    "Clean High Pull":"https://www.youtube.com/watch?v=6V--L2_6mXY",
+    "Overhead Carry":"https://www.youtube.com/watch?v=_f17ljGZWq0",
+    "Loop Band Pec Fly":"https://www.youtube.com/watch?v=PqoL7FOD_Aw",
+    "Loop Band Standing Incline Chest Press":"https://www.youtube.com/watch?v=T0UJ0W-_yIE",
+    "Loop Band Push Up on Knees":"https://www.youtube.com/watch?v=RYV6D14cI0s",
+    "Loop Band Bench Press":"https://www.youtube.com/watch?v=GhAKlZjTnNM",
+    "Loop Band Single Arm Fly":"https://www.youtube.com/watch?v=R8xerfp16gw",
+    "Seated Resistance Band Biceps Curl":"https://www.youtube.com/watch?v=7EQSPIrN2-w",
+    "Resistance Band Row":"https://www.youtube.com/watch?v=W5CGo5vzbXI",
+    "Lat Pull\u2011Down (band)":"https://www.youtube.com/watch?v=Oz_C4Mu_ajc",
+    "Band Pull\u2011Apart":"https://www.youtube.com/watch?v=sly9qf0rdwc"
+};
+
+// ===== HELPERS =====
+function shuffle(a){ var s=[].concat(a); for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;} return s; }
+function sample(a,n){ return shuffle(a).slice(0,n); }
+function roundTo5(v){ return Math.max(5, Math.round(v/5)*5); }
+
+// ===== WEIGHT CALCULATION =====
+function calcWeight(exType, ref, week, totalWeeks, age, maxes){
+    var oneRM = maxes[ref];
+
+    // Age-based scaling
+    var af = 1.0;
+    if(age>=40) af = 0.85;
+    if(age>=50) af = 0.70;
+    if(age>=60) af = 0.55;
+    if(age>=70) af = 0.45;
+
+    var startPct, endPct;
+    if(exType === "DB"){
+        startPct = 0.12 * af;
+        endPct   = 0.28 * af;
+    } else {
+        // Bands: lighter absolute load
+        startPct = 0.06 * af;
+        endPct   = 0.16 * af;
+    }
+
+    var progress = totalWeeks > 1 ? (week-1)/(totalWeeks-1) : 0;
+    var pct = startPct + (endPct - startPct) * progress;
+    return roundTo5(oneRM * pct);
 }
 
-function updateProjection() {
-    var starts = {
-        squat: parseInt(document.getElementById("squat").value)    || 0,
-        bench: parseInt(document.getElementById("bench").value)    || 0,
-        row:   parseInt(document.getElementById("row").value)      || 0,
-        ohp:   parseInt(document.getElementById("ohp").value)      || 0,
-        dead:  parseInt(document.getElementById("deadlift").value) || 0
-    };
+// ===== PROGRAM DATA =====
+var programData = {}; // { week: { "Lower Body": [...], "Upper Body": [...] } }
+var currentTab = "DB";
+var equipMode = "mix"; // "mix", "db", "band"
+
+function selectEquipMode(mode){
+    equipMode = mode;
+    var btns = document.querySelectorAll(".equip-mode-btn");
+    for(var i=0; i<btns.length; i++){
+        btns[i].className = "equip-mode-btn";
+    }
+    var activeBtn = document.querySelector('.equip-mode-btn[data-mode="'+mode+'"]');
+    if(mode === "mix") activeBtn.classList.add("mode-active-mix");
+    else if(mode === "db") activeBtn.classList.add("mode-active-db");
+    else activeBtn.classList.add("mode-active-band");
+}
+
+function generateProgram(){
+    var age   = parseInt(document.getElementById("age").value) || 45;
     var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
-    var activeBtn = document.querySelector('.jump-btn.jump-active');
-    var jumpMult  = activeBtn ? parseFloat(activeBtn.getAttribute('data-pct')) : 1.0;
-
-    var hasAny = Object.values(starts).some(function(v) { return v > 0; });
-    var wrap = document.getElementById("projWrap");
-    if (!hasAny) { wrap.style.display = "none"; return; }
-    wrap.style.display = "block";
-
-    // How many times each lift actually appears across all sessions
-    var totalSessions = weeks * 3;
-    var aSessions = Math.ceil(totalSessions / 2);  // Squat/Bench/Row sessions
-    var bSessions = Math.floor(totalSessions / 2); // OHP/Deadlift sessions
-
-    var inc = {
-        squat: Math.max(5,  Math.round(INCREMENT.squat * jumpMult / 5) * 5),
-        bench: Math.max(5,  Math.round(INCREMENT.bench * jumpMult / 5) * 5),
-        row:   Math.max(5,  Math.round(INCREMENT.row   * jumpMult / 5) * 5),
-        ohp:   Math.max(5,  Math.round(INCREMENT.ohp   * jumpMult / 5) * 5),
-        dead:  Math.max(10, Math.round(INCREMENT.dead  * jumpMult / 5) * 5)
+    var maxes = {
+        squat: parseInt(document.getElementById("squat1rm").value) || 225,
+        bench: parseInt(document.getElementById("bench1rm").value) || 185,
+        ohp:   parseInt(document.getElementById("ohp1rm").value)   || 115
     };
 
-    // Realistic completion rate — beginners stall and deload.
-    // Most lifters cleanly progress ~55% of their sessions before hitting a wall.
-    // Squat stalls earliest (every session), upper lifts are more forgiving.
-    var realism = { squat: 0.50, bench: 0.55, row: 0.55, ohp: 0.60, dead: 0.60 };
+    // Split exercises by type
+    var lowerDB   = lowerExercises.filter(function(e){ return e[1]==="DB"; });
+    var lowerBand = lowerExercises.filter(function(e){ return e[1]==="Band"; });
+    var upperDB   = upperExercises.filter(function(e){ return e[1]==="DB"; });
+    var upperBand = upperExercises.filter(function(e){ return e[1]==="Band"; });
 
-    var lifts = [
-        { key:'squat', label:'Squat',    sessions: aSessions },
-        { key:'bench', label:'Bench',    sessions: aSessions },
-        { key:'row',   label:'Row',      sessions: aSessions },
-        { key:'ohp',   label:'OHP',      sessions: bSessions },
-        { key:'dead',  label:'Deadlift', sessions: bSessions }
-    ];
+    programData = {};
 
-    var grid = document.getElementById("projGrid");
-    grid.innerHTML = "";
+    for(var w=1; w<=weeks; w++){
+        programData[w] = { "Lower Body": [], "Upper Body": [] };
 
-    lifts.forEach(function(l) {
-        var start = starts[l.key];
-        var card  = document.createElement("div");
-        card.className = "proj-card";
-        if (!start) {
-            card.innerHTML = '<div class="proj-lift">' + l.label + '</div>' +
-                             '<div class="proj-end" style="opacity:0.25">—</div>';
+        // Pick exercises based on equipment mode
+        var lDB, lBN, uDB, uBN;
+        if(equipMode === "db"){
+            lDB = sample(lowerDB, Math.min(7, lowerDB.length));
+            lBN = [];
+            uDB = sample(upperDB, Math.min(7, upperDB.length));
+            uBN = [];
+        } else if(equipMode === "band"){
+            lDB = [];
+            lBN = sample(lowerBand, Math.min(7, lowerBand.length));
+            uDB = [];
+            uBN = sample(upperBand, Math.min(7, upperBand.length));
         } else {
-            var effectiveSessions = Math.round(l.sessions * realism[l.key]);
-            var end  = round5(start + inc[l.key] * effectiveSessions);
-            var gain = end - start;
-            card.innerHTML =
-                '<div class="proj-lift">' + l.label + '</div>' +
-                '<div class="proj-end">' + end + '<small>lbs</small></div>' +
-                '<div class="proj-gain">+' + gain + ' lbs</div>';
+            // Mix & Match: 7 DB + 7 Band
+            lDB = sample(lowerDB, Math.min(7, lowerDB.length));
+            lBN = sample(lowerBand, Math.min(7, lowerBand.length));
+            uDB = sample(upperDB, Math.min(7, upperDB.length));
+            uBN = sample(upperBand, Math.min(7, upperBand.length));
         }
-        grid.appendChild(card);
-    });
-}
 
-function generateProgram() {
-    programStarts = {
-        squat: parseInt(document.getElementById("squat").value)  || 135,
-        bench: parseInt(document.getElementById("bench").value)  || 95,
-        row:   parseInt(document.getElementById("row").value)    || 95,
-        ohp:   parseInt(document.getElementById("ohp").value)    || 65,
-        dead:  parseInt(document.getElementById("deadlift").value)|| 135
-    };
-    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+        // Build lower body
+        lDB.forEach(function(ex){
+            var sets = 3 + Math.floor(Math.random()*2); // 3-4
+            var reps = 10 + Math.floor(Math.random()*6); // 10-15
+            programData[w]["Lower Body"].push({
+                name: ex[0], type: "DB",
+                sets: sets, reps: reps,
+                weight: calcWeight("DB", ex[2], w, weeks, age, maxes)
+            });
+        });
+        lBN.forEach(function(ex){
+            var sets = 4 + Math.floor(Math.random()*2); // 4-5
+            var reps = 15 + Math.floor(Math.random()*6); // 15-20
+            programData[w]["Lower Body"].push({
+                name: ex[0], type: "Band",
+                sets: sets, reps: reps,
+                weight: calcWeight("Band", ex[2], w, weeks, age, maxes)
+            });
+        });
 
-    // Get multiplier from jump selector (used to scale increments — 0.5x, 1x, 1.5x, 2x)
-    var activeBtn = document.querySelector('.jump-btn.jump-active');
-    var jumpMult = activeBtn ? parseFloat(activeBtn.getAttribute('data-pct')) : 1.0;
-
-    // Scale actual lbs increments by multiplier
-    var inc = {
-        squat: Math.max(5,  Math.round(INCREMENT.squat * jumpMult / 5) * 5),
-        bench: Math.max(5,  Math.round(INCREMENT.bench * jumpMult / 5) * 5),
-        row:   Math.max(5,  Math.round(INCREMENT.row   * jumpMult / 5) * 5),
-        ohp:   Math.max(5,  Math.round(INCREMENT.ohp   * jumpMult / 5) * 5),
-        dead:  Math.max(10, Math.round(INCREMENT.dead  * jumpMult / 5) * 5)
-    };
-
-    // Build all sessions sequentially — true alternating A/B/A → B/A/B → ...
-    programData = [];
-    var w = Object.assign({}, programStarts); // running weights
-    var sessionIndex = 0; // global session counter for proper A/B alternation
-
-    for (var week = 1; week <= weeks; week++) {
-        var weekSessions = [];
-        for (var s = 0; s < 3; s++) {
-            var type = sessionIndex % 2 === 0 ? 'A' : 'B';
-            var exercises = [];
-
-            if (type === 'A') {
-                exercises = [
-                    { name:'Squat',       cls:'lift-a', sets:'5', reps:'5', weight: round5(w.squat) },
-                    { name:'Bench Press', cls:'lift-a', sets:'5', reps:'5', weight: round5(w.bench) },
-                    { name:'Barbell Row', cls:'lift-a', sets:'5', reps:'5', weight: round5(w.row)   }
-                ];
-                w.squat += inc.squat;
-                w.bench += inc.bench;
-                w.row   += inc.row;
-            } else {
-                exercises = [
-                    { name:'Squat',          cls:'lift-b', sets:'5', reps:'5', weight: round5(w.squat) },
-                    { name:'Overhead Press', cls:'lift-b', sets:'5', reps:'5', weight: round5(w.ohp)   },
-                    { name:'Deadlift',       cls:'lift-b', sets:'1', reps:'5', weight: round5(w.dead)  }
-                ];
-                w.squat += inc.squat;
-                w.ohp   += inc.ohp;
-                w.dead  += inc.dead;
-            }
-
-            weekSessions.push({ type: type, exercises: exercises });
-            sessionIndex++;
-        }
-        programData.push(weekSessions);
+        // Build upper body
+        uDB.forEach(function(ex){
+            var sets = 3 + Math.floor(Math.random()*2);
+            var reps = 10 + Math.floor(Math.random()*6);
+            programData[w]["Upper Body"].push({
+                name: ex[0], type: "DB",
+                sets: sets, reps: reps,
+                weight: calcWeight("DB", ex[2], w, weeks, age, maxes)
+            });
+        });
+        uBN.forEach(function(ex){
+            var sets = 4 + Math.floor(Math.random()*2);
+            var reps = 15 + Math.floor(Math.random()*6);
+            programData[w]["Upper Body"].push({
+                name: ex[0], type: "Band",
+                sets: sets, reps: reps,
+                weight: calcWeight("Band", ex[2], w, weeks, age, maxes)
+            });
+        });
     }
 
     // Populate week selector
     var ws = document.getElementById("weekSel");
     ws.innerHTML = "";
-    for (var i = 1; i <= weeks; i++) {
-        ws.innerHTML += '<option value="' + (i-1) + '">Week ' + i + '</option>';
+    for(var i=1; i<=weeks; i++){
+        ws.innerHTML += '<option value="'+i+'">Week '+i+'</option>';
     }
 
-    document.getElementById("setupPanel").style.display     = "none";
-    document.getElementById("controls").style.display       = "block";
-    document.getElementById("tableWrap").style.display      = "block";
-    document.getElementById("progressNote").style.display   = "block";
-    renderTable();
+    // Show workout view
+    
+    EATT.saveProgram("Old Man Strength", {"age": document.getElementById("age").value, "squat1rm": document.getElementById("squat1rm").value, "bench1rm": document.getElementById("bench1rm").value, "ohp1rm": document.getElementById("ohp1rm").value, "numWeeks": document.getElementById("numWeeks").value}, [], 0);
+    document.getElementById("setupPanel").style.display = "none";
+    document.getElementById("controls").style.display   = "block";
+
+    // Show tab bar only for mix & match mode
+    if(equipMode === "mix"){
+        document.getElementById("tabBar").style.display = "flex";
+        document.getElementById("newProgramBtn").style.display = "none";
+        currentTab = "DB";
+        updateTabHighlight();
+    } else {
+        document.getElementById("tabBar").style.display = "none";
+        document.getElementById("newProgramBtn").style.display = "inline-block";
+        currentTab = (equipMode === "db") ? "DB" : "Band";
+    }
+
+    renderCards();
 }
 
-function renderTable() {
-    var wi = parseInt(document.getElementById("weekSel").value)    || 0;
-    var si = parseInt(document.getElementById("sessionSel").value) || 0;
-    var session = programData[wi][si];
-    var tb = document.querySelector("#workoutTable tbody");
-    tb.innerHTML = "";
+// ===== TAB SWITCHING =====
+function switchTab(tab){
+    currentTab = tab;
+    updateTabHighlight();
+    renderCards();
+}
 
-    var tips = {
-        'Squat':          'Drive through your heels. Chest up, brace hard.',
-        'Bench Press':    'Retract shoulder blades. Touch chest, press explosively.',
-        'Barbell Row':    'Hinge to ~45°. Pull to lower chest, squeeze lats.',
-        'Overhead Press': 'Squeeze glutes. Press straight up, lock out overhead.',
-        'Deadlift':       '1 set of 5 — max focus. Brace, push the floor away.'
-    };
+function updateTabHighlight(){
+    var dbBtn   = document.getElementById("tabDB");
+    var bandBtn = document.getElementById("tabBand");
 
-    session.exercises.forEach(function(ex) {
-        var tr = document.createElement("tr");
-        tr.innerHTML = '<td class="' + ex.cls + '">' + ex.name + '</td>' +
-                       '<td>' + ex.sets + ' × ' + ex.reps + '</td>' +
-                       '<td>' + ex.weight + ' lbs</td>' +
-                       '<td style="opacity:0.65;font-size:0.85rem">' + (tips[ex.name] || '') + '</td>';
-        tb.appendChild(tr);
+    // Clear all active classes
+    dbBtn.className   = "tab-btn";
+    bandBtn.className = "tab-btn";
+
+    if(currentTab === "DB"){
+        dbBtn.classList.add("active-db");
+    } else {
+        bandBtn.classList.add("active-band");
+    }
+}
+
+// ===== RENDER EXERCISE CARDS =====
+function renderCards(){
+    if(document.getElementById("completeBanner")) showCompleteBtn();
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var day  = document.getElementById("daySel").value;
+    var grid = document.getElementById("cardGrid");
+    grid.innerHTML = "";
+
+    if(!programData[week] || !programData[week][day]){
+        grid.innerHTML = '<div class="no-data">No data for this selection.</div>';
+        return;
+    }
+
+    var exercises;
+    if(equipMode === "mix"){
+        // In mix mode, filter by current tab
+        exercises = programData[week][day].filter(function(ex){
+            return ex.type === currentTab;
+        });
+    } else {
+        // In single-equipment mode, show all exercises (they're already the right type)
+        exercises = programData[week][day];
+    }
+
+    var modeLabel = equipMode === "db" ? "Dumbbell" : equipMode === "band" ? "Band" : currentTab;
+
+    if(exercises.length === 0){
+        grid.innerHTML = '<div class="no-data">No '+modeLabel+' exercises for Week '+week+' \u2013 '+day+'</div>';
+        return;
+    }
+
+    exercises.forEach(function(ex){
+        var card = document.createElement("div");
+        card.className = "ex-card " + (ex.type==="DB" ? "card-db" : "card-band");
+
+        var vidUrl = videos[ex.name] || "";
+        var vidHTML = vidUrl
+            ? '<a class="vid-link" href="'+vidUrl+'" target="_blank" rel="noopener">Watch Video &rarr;</a>'
+            : '';
+
+        card.innerHTML =
+            '<h4>'+ex.name+'</h4>'+
+            '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.reps+'</p>'+
+            '<p class="detail"><strong>Weight:</strong> '+ex.weight+' lbs</p>'+
+            vidHTML;
+
+        grid.appendChild(card);
     });
-
-    var note = document.getElementById("progressNote");
-    note.innerHTML = '📅 <strong>Week ' + (wi+1) + ', Session ' + (si+1) + '</strong> &nbsp;|&nbsp; ' +
-        'Workout <strong>' + session.type + '</strong> &nbsp;|&nbsp; ' +
-        (session.type === 'A' ? 'Squat · Bench Press · Barbell Row' : 'Squat · Overhead Press · Deadlift') +
-        ' &nbsp;|&nbsp; <span style="opacity:0.7">Miss reps 3 sessions in a row on a lift? Deload that lift 10%.</span>';
 }
 
-function resetSetup() {
-    document.getElementById("setupPanel").style.display   = "block";
-    document.getElementById("controls").style.display     = "none";
-    document.getElementById("tableWrap").style.display    = "none";
-    document.getElementById("progressNote").style.display = "none";
+// ===== RESET =====
+function resetSetup(){
+    document.getElementById("setupPanel").style.display = "block";
+    document.getElementById("tabBar").style.display     = "none";
+    document.getElementById("controls").style.display   = "none";
+    document.getElementById("newProgramBtn").style.display = "none";
+    document.getElementById("cardGrid").innerHTML        = "";
 }
+
+var completedDays = {};
+
+function showCompleteBtn(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
+    var day  = dayEl ? dayEl.value : "1";
+    var key  = week + "_" + day;
+    var banner = document.getElementById("completeBanner");
+    var inner  = document.getElementById("completeBannerInner");
+    banner.style.display = "block";
+    if(completedDays[key]){
+        inner.style.justifyContent = "center";
+        inner.innerHTML = '<div class="cb-done-text">&#10003; Day logged</div>';
+    } else {
+        inner.style.justifyContent = "";
+        inner.innerHTML = '<div><div class="cb-label">Old Man Strength</div>'
+            + '<div class="cb-title">Week ' + week + ', Day ' + day + '</div></div>'
+            + '<button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button>';
+    }
+}
+
+function completeWeekDay(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
+    var day  = dayEl ? dayEl.value : "1";
+    var key  = week + "_" + day;
+    if(completedDays[key]) return;
+    completedDays[key] = true;
+    var payload = {
+        programName: "Old Man Strength",
+        week: week, day: parseInt(day)||1,
+        label: "Week " + week + ", Day " + day,
+        exercises: [{name:"Old Man Strength Training",sets:3,reps:8,weight:0}],
+        notes: null, completedAt: new Date().toISOString()
+    };
+    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
+    try{
+        var raw = localStorage.getItem("eatt_prog_old_man_strength");
+        if(raw){ var s=JSON.parse(raw); s.cursor=week; localStorage.setItem("eatt_prog_old_man_strength",JSON.stringify(s)); }
+    }catch(e){}
+    showCompleteBtn();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    EATT.checkResume("Old Man Strength", function(saved){
+        if(saved.config){
+        if(saved.config["age"]) document.getElementById("age").value = saved.config["age"];
+        if(saved.config["squat1rm"]) document.getElementById("squat1rm").value = saved.config["squat1rm"];
+        if(saved.config["bench1rm"]) document.getElementById("bench1rm").value = saved.config["bench1rm"];
+        if(saved.config["ohp1rm"]) document.getElementById("ohp1rm").value = saved.config["ohp1rm"];
+        if(saved.config["numWeeks"]) document.getElementById("numWeeks").value = saved.config["numWeeks"];
+        }
+        if(typeof generateProgram === "function") generateProgram();
+        if(saved.cursor){
+            var ws = document.getElementById("weekSel");
+            if(ws){ ws.value = saved.cursor; }
+            if(typeof renderCards === "function") renderCards();
+        }
+    });
+});
+
 </script>
 </body>
 </html>

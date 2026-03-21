@@ -271,7 +271,38 @@ body {
     display: flex; align-items: center; justify-content: center;
 }
 .qc-refresh:hover { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
+
+/* ── Complete Day/Week banner ── */
+#completeBanner {
+    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
+    position: relative; z-index: 2;
+}
+#completeBannerInner {
+    background: rgba(56,239,125,0.08);
+    border: 1px solid rgba(56,239,125,0.25);
+    border-radius: 12px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+}
+#completeBannerInner.done {
+    background: rgba(56,239,125,0.13);
+    border-color: rgba(56,239,125,0.4);
+    justify-content: center;
+}
+.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
+.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
+.cb-btn {
+    background: linear-gradient(135deg, #11a54a, #38ef7d);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+}
+.cb-btn:hover { transform: scale(1.03); }
+.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+
 </style>
+<script src="eatt-program-save.js"></script>
 </head>
 <body>
 
@@ -555,6 +586,11 @@ function buildProgram(){
     var ds = document.getElementById('daySel'); ds.innerHTML='';
     for(var i=1;i<=rk.days;i++) ds.innerHTML+='<option value="'+i+'">Day '+i+'</option>';
 
+        EATT.saveProgram("Viking Berserker", {
+        dl: document.getElementById("dl").value, sq: document.getElementById("sq").value,
+        op: document.getElementById("op").value, bn: document.getElementById("bn").value,
+        rank: currentRank, totalWeeks: totalWeeks
+    }, program, 0);
     document.getElementById('setupPanel').style.display='none';
     document.getElementById('workoutView').style.display='block';
     updateWorkoutRankBar(currentRank);
@@ -705,6 +741,65 @@ function showQuote(forceNew) {
 var style = document.createElement('style');
 style.textContent = '.type-ruck { color: #80cbc4; font-weight: 700; font-size: 0.78rem; letter-spacing: 1px; }';
 document.head.appendChild(style);
+
+var completedLinear = {};
+
+function showLinearBanner(){
+    if(!window.program || !program.length) return;
+    var banner = document.getElementById("completeBanner");
+    var inner  = document.getElementById("completeBannerInner");
+    if(!banner) return;
+    banner.style.display = "block";
+    var day = program[cursor];
+    var label = day ? ("Wave "+(day.wave||"")+" · Day "+(day.dayNum||cursor+1)+" — "+(day.lift||day.name||"")) : ("Day "+(cursor+1));
+    if(completedLinear[cursor]){
+        inner.style.justifyContent = "center";
+        inner.innerHTML = '<div class="cb-done-text">&#10003; Day logged</div>';
+    } else {
+        inner.style.justifyContent = "";
+        inner.innerHTML = '<div><div class="cb-label">Viking Berserker</div><div class="cb-title">' + label + '</div></div>'
+            + '<button class="cb-btn" onclick="completeLinearDay()">&#10003; Complete This Day</button>';
+    }
+}
+
+function completeLinearDay(){
+    if(!window.program || completedLinear[cursor]) return;
+    completedLinear[cursor] = true;
+    var day = program[cursor];
+    var exercises = (day && day.sets) ? day.sets.map(function(s){
+        return {name: s.exercise||s.name||(day.lift||"Exercise"), sets: s.sets||1, reps: parseInt(s.reps)||5, weight: s.weight||0};
+    }) : [{name:"Viking Berserker Training",sets:3,reps:5,weight:0}];
+    var label = day ? ("Wave "+(day.wave||"")+" · Day "+(day.dayNum||cursor+1)+" — "+(day.lift||day.name||"")) : ("Day "+(cursor+1));
+    var payload = {
+        programName: "Viking Berserker",
+        week: day ? (day.wave||1) : 1,
+        day:  day ? (day.dayNum||cursor+1) : cursor+1,
+        label: label,
+        exercises: exercises,
+        notes: null, completedAt: new Date().toISOString()
+    };
+    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
+    EATT.saveCursor("Viking Berserker", cursor);
+    showLinearBanner();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    EATT.checkResume("Viking Berserker", function(saved){
+        if(saved.config){
+            if(saved.config.dl) document.getElementById("dl").value = saved.config.dl;
+            if(saved.config.sq) document.getElementById("sq").value = saved.config.sq;
+            if(saved.config.op) document.getElementById("op").value = saved.config.op;
+            if(saved.config.bn) document.getElementById("bn").value = saved.config.bn;
+            if(saved.config.rank) currentRank = saved.config.rank;
+        }
+        program = saved.program;
+        cursor  = saved.cursor || 0;
+        document.getElementById("setupPanel").style.display   = "none";
+        document.getElementById("workoutView").style.display  = "block";
+        if(typeof render === "function") render();
+    });
+});
+
 </script>
 </body>
 </html>

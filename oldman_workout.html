@@ -387,7 +387,38 @@ body::before {
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+/* ── Complete Day/Week banner ── */
+#completeBanner {
+    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
+    position: relative; z-index: 2;
+}
+#completeBannerInner {
+    background: rgba(56,239,125,0.08);
+    border: 1px solid rgba(56,239,125,0.25);
+    border-radius: 12px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+}
+#completeBannerInner.done {
+    background: rgba(56,239,125,0.13);
+    border-color: rgba(56,239,125,0.4);
+    justify-content: center;
+}
+.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
+.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
+.cb-btn {
+    background: linear-gradient(135deg, #11a54a, #38ef7d);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
+    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+}
+.cb-btn:hover { transform: scale(1.03); }
+.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+
 </style>
+<script src="eatt-program-save.js"></script>
 </head>
 <body>
 
@@ -460,6 +491,8 @@ body::before {
 </div>
 
 <!-- CONTROLS -->
+
+<div id="completeBanner" style="margin:14px 16px 0;display:none"><div id="completeBannerInner" style="background:rgba(56,239,125,0.08);border:1px solid rgba(56,239,125,0.25);border-radius:12px;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="cb-label">Old Man Strength</div><div class="cb-title" id="cbTitle">—</div></div><button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button></div></div>
 <div class="controls" id="controls">
     <label>Week</label>
     <select id="weekSel" onchange="renderCards()"></select>
@@ -743,6 +776,8 @@ function generateProgram(){
     }
 
     // Show workout view
+    
+    EATT.saveProgram("Old Man Strength", {"age": document.getElementById("age").value, "squat1rm": document.getElementById("squat1rm").value, "bench1rm": document.getElementById("bench1rm").value, "ohp1rm": document.getElementById("ohp1rm").value, "numWeeks": document.getElementById("numWeeks").value}, [], 0);
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
 
@@ -785,6 +820,7 @@ function updateTabHighlight(){
 
 // ===== RENDER EXERCISE CARDS =====
 function renderCards(){
+    if(document.getElementById("completeBanner")) showCompleteBtn();
     var week = parseInt(document.getElementById("weekSel").value) || 1;
     var day  = document.getElementById("daySel").value;
     var grid = document.getElementById("cardGrid");
@@ -840,6 +876,68 @@ function resetSetup(){
     document.getElementById("newProgramBtn").style.display = "none";
     document.getElementById("cardGrid").innerHTML        = "";
 }
+
+var completedDays = {};
+
+function showCompleteBtn(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
+    var day  = dayEl ? dayEl.value : "1";
+    var key  = week + "_" + day;
+    var banner = document.getElementById("completeBanner");
+    var inner  = document.getElementById("completeBannerInner");
+    banner.style.display = "block";
+    if(completedDays[key]){
+        inner.style.justifyContent = "center";
+        inner.innerHTML = '<div class="cb-done-text">&#10003; Day logged</div>';
+    } else {
+        inner.style.justifyContent = "";
+        inner.innerHTML = '<div><div class="cb-label">Old Man Strength</div>'
+            + '<div class="cb-title">Week ' + week + ', Day ' + day + '</div></div>'
+            + '<button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button>';
+    }
+}
+
+function completeWeekDay(){
+    var week = parseInt(document.getElementById("weekSel").value) || 1;
+    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
+    var day  = dayEl ? dayEl.value : "1";
+    var key  = week + "_" + day;
+    if(completedDays[key]) return;
+    completedDays[key] = true;
+    var payload = {
+        programName: "Old Man Strength",
+        week: week, day: parseInt(day)||1,
+        label: "Week " + week + ", Day " + day,
+        exercises: [{name:"Old Man Strength Training",sets:3,reps:8,weight:0}],
+        notes: null, completedAt: new Date().toISOString()
+    };
+    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
+    try{
+        var raw = localStorage.getItem("eatt_prog_old_man_strength");
+        if(raw){ var s=JSON.parse(raw); s.cursor=week; localStorage.setItem("eatt_prog_old_man_strength",JSON.stringify(s)); }
+    }catch(e){}
+    showCompleteBtn();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    EATT.checkResume("Old Man Strength", function(saved){
+        if(saved.config){
+        if(saved.config["age"]) document.getElementById("age").value = saved.config["age"];
+        if(saved.config["squat1rm"]) document.getElementById("squat1rm").value = saved.config["squat1rm"];
+        if(saved.config["bench1rm"]) document.getElementById("bench1rm").value = saved.config["bench1rm"];
+        if(saved.config["ohp1rm"]) document.getElementById("ohp1rm").value = saved.config["ohp1rm"];
+        if(saved.config["numWeeks"]) document.getElementById("numWeeks").value = saved.config["numWeeks"];
+        }
+        if(typeof generateProgram === "function") generateProgram();
+        if(saved.cursor){
+            var ws = document.getElementById("weekSel");
+            if(ws){ ws.value = saved.cursor; }
+            if(typeof renderCards === "function") renderCards();
+        }
+    });
+});
+
 </script>
 </body>
 </html>
