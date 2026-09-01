@@ -120,47 +120,46 @@ body::before {
     color: transparent;
 }
 
-/* PROJECTION */
-.proj-wrap { display: none; margin: 20px 0 6px; }
-.proj-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(179,157,219,0.65); margin-bottom: 10px; border-left: 3px solid #b39ddb; padding-left: 10px; }
-.proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.proj-card { background: rgba(142,84,233,0.08); border: 1px solid rgba(179,157,219,0.2); border-radius: 10px; padding: 10px 14px; text-align: center; }
-.proj-lift { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 4px; }
-.proj-val  { font-size: 1.05rem; font-weight: 800; color: #b39ddb; }
-.proj-val small { font-size: 0.6rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
-.proj-gain { font-size: 0.65rem; color: #a5d6a7; margin-top: 3px; }
+.btn-shuffle { background: rgba(26,106,204,0.2); border: 1px solid rgba(56,239,157,0.3); color: rgba(56,239,157,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(26,106,204,0.35); }
 
-/* ── Complete Day/Week banner ── */
-#completeBanner {
-    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
-    position: relative; z-index: 2;
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.80); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
 }
-#completeBannerInner {
-    background: rgba(56,239,125,0.08);
-    border: 1px solid rgba(56,239,125,0.25);
-    border-radius: 12px; padding: 13px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 10px;
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 0; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center;
 }
-#completeBannerInner.done {
-    background: rgba(56,239,125,0.13);
-    border-color: rgba(56,239,125,0.4);
-    justify-content: center;
+.popup-header {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    padding: 28px 34px 20px;
 }
-.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
-.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
-.cb-btn {
-    background: linear-gradient(135deg, #11a54a, #38ef7d);
-    color: #000; border: none; border-radius: 8px;
-    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
-    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
-    white-space: nowrap;
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff;
 }
-.cb-btn:hover { transform: scale(1.03); }
-.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
-
+.popup-body {
+    font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8);
+    padding: 26px 30px; margin: 0;
+}
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.88rem; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; width: 100%;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
-<script src="eatt-program-save.js"></script>
 </head>
 <body>
 <div class="header">
@@ -185,36 +184,29 @@ body::before {
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR WORKING WEIGHTS</h2>
-    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="185" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Row (lbs)</label><input type="number" id="row" placeholder="185" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="115" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="225" min="45" oninput="updateProjection()"></div>
+    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Row (lbs)</label><input type="number" id="row" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="115" min="45"></div>
+    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="225" min="45"></div>
     <div class="form-row"><label>Program Weeks</label>
-        <select id="numWeeks" onchange="updateProjection()">
+        <select id="numWeeks">
             <option value="8">8 Weeks</option>
             <option value="12" selected>12 Weeks</option>
             <option value="16">16 Weeks</option>
         </select>
     </div>
     <div class="jump-selector">
-        <label class="jump-label">&#9889; WEEKLY WEIGHT INCREASE — Flat lbs added per week</label>
+        <label class="jump-label">&#9889; WEEKLY WEIGHT PROGRESSION &mdash; How hungry are you?</label>
         <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.025" onclick="selectJump(this)"><span class="jump-pct">Slow</span><span class="jump-tag">+2.5/+5 lbs/wk</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">Standard</span><span class="jump-tag">+5/+10 lbs/wk</span></button>
-            <button type="button" class="jump-btn" data-pct="0.075" onclick="selectJump(this)"><span class="jump-pct">Hard</span><span class="jump-tag">+7.5/+15 lbs/wk</span></button>
-            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">INSANE</span><span class="jump-tag">+10/+20 lbs/wk &#128293;</span></button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
+            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
+            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
+            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
-    <div class="proj-wrap" id="projWrap">
-        <div class="proj-label">Estimated Final-Week Working Weights (Top Sets)</div>
-        <div class="proj-grid" id="projGrid"></div>
-        <div style="font-size:0.67rem;opacity:0.35;margin-top:8px;line-height:1.5;font-style:italic">Flat lbs added weekly to your base lift weights. Shown at heaviest compound set.</div>
-    </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
-
-<div id="completeBanner" style="margin:14px 16px 0;display:none"><div id="completeBannerInner" style="background:rgba(56,239,125,0.08);border:1px solid rgba(56,239,125,0.25);border-radius:12px;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="cb-label">Bro Split</div><div class="cb-title" id="cbTitle">—</div></div><button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button></div></div>
 <div class="controls" id="controls">
     <label>Week</label>
     <select id="weekSel" onchange="renderDay()"></select>
@@ -228,12 +220,46 @@ body::before {
     </select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleBro()">&#x21bb; Shuffle Accessories</button>
 </div>
 
 <div class="day-banner" id="dayBanner"></div>
 <div class="card-grid" id="cardGrid"></div>
 
 <script>
+
+function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,n); }
+
+// Alternate exercise pools per day (2 swapped in on shuffle)
+var altPools = [
+    // Chest
+    [{name:"Dips",              ref:null,    pct:null,  sets:3, reps:"Max",   note:"Full dip — lean forward for chest"},
+     {name:"Pec Deck",          ref:"bench", pct:0.25,  sets:3, reps:"15",    note:"Peak contraction, slow negative"},
+     {name:"Low Cable Fly",     ref:"bench", pct:0.20,  sets:3, reps:"15",    note:"Pull up and across for upper chest"},
+     {name:"Smith Incline",     ref:"bench", pct:0.60,  sets:4, reps:"10–12", note:"Controlled path, stop at chin"}],
+    // Back
+    [{name:"T-Bar Row",         ref:"row",   pct:0.70,  sets:4, reps:"8–10",  note:"Chest pad — eliminate body English"},
+     {name:"Straight-Arm Pulldown", ref:"row", pct:0.30, sets:3, reps:"15",   note:"Full lat stretch at top"},
+     {name:"Chest-Supported Row",ref:"row",  pct:0.60,  sets:4, reps:"10–12", note:"No cheating — full isolation"},
+     {name:"Single-Arm Cable Row",ref:"row", pct:0.40,  sets:3, reps:"12",    note:"Rotate the torso slightly at top"}],
+    // Shoulders
+    [{name:"Cable Lateral Raise",ref:"ohp",  pct:0.18,  sets:4, reps:"15",    note:"Keep wrist below elbow"},
+     {name:"Upright Row",       ref:"row",   pct:0.45,  sets:3, reps:"12",    note:"Wide grip — elbows above hands"},
+     {name:"Seated DB Press",   ref:"ohp",   pct:0.40,  sets:4, reps:"10–12", note:"90° elbow at bottom, press up"},
+     {name:"Behind Neck Press", ref:"ohp",   pct:0.50,  sets:3, reps:"10",    note:"Warm up well — controlled motion"}],
+    // Arms
+    [{name:"Preacher Curl",     ref:"bench", pct:0.25,  sets:3, reps:"10–12", note:"Full extension at bottom"},
+     {name:"Rope Pushdown",     ref:"bench", pct:0.22,  sets:3, reps:"15",    note:"Spread the rope at the bottom"},
+     {name:"Concentration Curl",ref:"bench", pct:0.18,  sets:3, reps:"12",    note:"Elbow on inner thigh — no swinging"},
+     {name:"Dips (Triceps)",    ref:null,    pct:null,  sets:3, reps:"Max",   note:"Upright torso — tricep focus"}],
+    // Legs
+    [{name:"Hack Squat",        ref:"squat", pct:0.65,  sets:4, reps:"10–12", note:"Full depth — heels elevated"},
+     {name:"Seated Leg Curl",   ref:null,    pct:null,  sets:4, reps:"12–15", note:"Squeeze at peak, slow negative"},
+     {name:"Sissy Squat",       ref:null,    pct:null,  sets:3, reps:"15",    note:"Pure quad isolation"},
+     {name:"Donkey Calf Raise", ref:null,    pct:null,  sets:5, reps:"20",    note:"Full stretch — no bouncing"}]
+];
+
+var shuffledExercises = [null,null,null,null,null]; // one shuffled set per day
 var broSplit = [
     {
         name:"MONDAY — CHEST DAY",
@@ -300,58 +326,24 @@ var broSplit = [
 
 var weights = {};
 var programWeeks = 12;
-var weeklyJump = 0.05;
-
-// Flat weekly lbs: upper +5/wk, lower +10/wk at standard
-var flatInc = { bench:5, row:5, ohp:5, squat:10 };
-
-function round5(v){ return Math.max(10,Math.round(v/5)*5); }
-
-function getInc(ref){
-    if(!ref) return 0;
-    return Math.round(flatInc[ref] * weeklyJump / 0.05);
-}
+var weeklyJump = 0.10;
 
 function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
-    updateProjection();
 }
 
-function updateProjection(){
-    var raw = {
-        bench: parseInt(document.getElementById("bench").value) || 0,
-        row:   parseInt(document.getElementById("row").value)   || 0,
-        ohp:   parseInt(document.getElementById("ohp").value)   || 0,
-        squat: parseInt(document.getElementById("squat").value) || 0
-    };
-    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
-    var hasAny = Object.values(raw).some(function(v){ return v>0; });
-    var wrap = document.getElementById("projWrap");
-    if(!hasAny){ wrap.style.display="none"; return; }
-    wrap.style.display = "block";
+function round5(v){ return Math.max(10,Math.round(v/5)*5); }
 
-    var grid = document.getElementById("projGrid");
-    grid.innerHTML = "";
-    var labels = {bench:"Bench", row:"Row", ohp:"OHP", squat:"Squat"};
-    var topPcts = {bench:0.85, row:0.85, ohp:0.80, squat:0.85};
-    Object.keys(raw).forEach(function(k){
-        var card = document.createElement("div");
-        card.className = "proj-card";
-        if(!raw[k]){
-            card.innerHTML = '<div class="proj-lift">'+labels[k]+'</div><div class="proj-val" style="opacity:0.25">—</div>';
-        } else {
-            var endW = raw[k] + getInc(k) * (weeks - 1);
-            var topW = round5(endW * topPcts[k]);
-            var gain = topW - round5(raw[k] * topPcts[k]);
-            card.innerHTML =
-                '<div class="proj-lift">'+labels[k]+'</div>'+
-                '<div class="proj-val">'+topW+'<small>lbs</small></div>'+
-                '<div class="proj-gain">+'+gain+' lbs vs wk 1</div>';
-        }
-        grid.appendChild(card);
-    });
+
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
+}
+
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
 }
 
 function generateProgram(){
@@ -367,8 +359,6 @@ function generateProgram(){
     ws.innerHTML = "";
     for(var i=1;i<=programWeeks;i++) ws.innerHTML += '<option value="'+i+'">Week '+i+'</option>';
 
-    
-    EATT.saveProgram("Bro Split", {"bench": document.getElementById("bench").value, "row": document.getElementById("row").value, "ohp": document.getElementById("ohp").value, "squat": document.getElementById("squat").value, "numWeeks": document.getElementById("numWeeks").value}, [], 0);
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
     document.getElementById("cardGrid").style.display   = "grid";
@@ -376,21 +366,35 @@ function generateProgram(){
     renderDay();
 }
 
+function shuffleBro(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = broSplit[dayIdx];
+    // Keep first 2 exercises (main compound lifts), swap the rest
+    var core = day.exercises.slice(0, 2);
+    var alts = sample(altPools[dayIdx], 2);
+    var rest = sample(day.exercises.slice(2), day.exercises.length - 4);
+    shuffledExercises[dayIdx] = core.concat(rest).concat(alts);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderDay();
+}
+
 function renderDay(){
-    if(document.getElementById("completeBanner")) showCompleteBtn();
     var week = parseInt(document.getElementById("weekSel").value)||1;
     var dayIdx = parseInt(document.getElementById("daySel").value)||0;
     var day = broSplit[dayIdx];
     var grid = document.getElementById("cardGrid");
     grid.innerHTML = "";
+    var prog = Math.pow(1 + weeklyJump, week - 1);
 
-    day.exercises.forEach(function(ex){
+    var exList = shuffledExercises[dayIdx] ? shuffledExercises[dayIdx] : day.exercises;
+    exList.forEach(function(ex){
         var card = document.createElement("div");
         card.className = "ex-card";
         var wt = "";
         if(ex.ref && ex.pct) {
-            var liftW = weights[ex.ref] + getInc(ex.ref) * (week - 1);
-            wt = round5(liftW * ex.pct) + " lbs";
+            wt = round5(weights[ex.ref] * ex.pct * prog) + " lbs";
         } else {
             wt = "Bodyweight";
         }
@@ -411,68 +415,19 @@ function resetSetup(){
     document.getElementById("cardGrid").style.display   = "none";
     document.getElementById("dayBanner").style.display  = "none";
 }
-
-var completedDays = {};
-
-function showCompleteBtn(){
-    var week = parseInt(document.getElementById("weekSel").value) || 1;
-    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
-    var day  = dayEl ? dayEl.value : "1";
-    var key  = week + "_" + day;
-    var banner = document.getElementById("completeBanner");
-    var inner  = document.getElementById("completeBannerInner");
-    banner.style.display = "block";
-    if(completedDays[key]){
-        inner.style.justifyContent = "center";
-        inner.innerHTML = '<div class="cb-done-text">&#10003; Day logged</div>';
-    } else {
-        inner.style.justifyContent = "";
-        inner.innerHTML = '<div><div class="cb-label">Bro Split</div>'
-            + '<div class="cb-title">Week ' + week + ', Day ' + day + '</div></div>'
-            + '<button class="cb-btn" onclick="completeWeekDay()">&#10003; Complete This Day</button>';
-    }
-}
-
-function completeWeekDay(){
-    var week = parseInt(document.getElementById("weekSel").value) || 1;
-    var dayEl = document.getElementById("daySel") || document.getElementById("sessionSel");
-    var day  = dayEl ? dayEl.value : "1";
-    var key  = week + "_" + day;
-    if(completedDays[key]) return;
-    completedDays[key] = true;
-    var payload = {
-        programName: "Bro Split",
-        week: week, day: parseInt(day)||1,
-        label: "Week " + week + ", Day " + day,
-        exercises: [{name:"Bro Split Training",sets:3,reps:8,weight:0}],
-        notes: null, completedAt: new Date().toISOString()
-    };
-    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
-    try{
-        var raw = localStorage.getItem("eatt_prog_bro_split");
-        if(raw){ var s=JSON.parse(raw); s.cursor=week; localStorage.setItem("eatt_prog_bro_split",JSON.stringify(s)); }
-    }catch(e){}
-    showCompleteBtn();
-}
-
-document.addEventListener("DOMContentLoaded", function(){
-    EATT.checkResume("Bro Split", function(saved){
-        if(saved.config){
-        if(saved.config["bench"]) document.getElementById("bench").value = saved.config["bench"];
-        if(saved.config["row"]) document.getElementById("row").value = saved.config["row"];
-        if(saved.config["ohp"]) document.getElementById("ohp").value = saved.config["ohp"];
-        if(saved.config["squat"]) document.getElementById("squat").value = saved.config["squat"];
-        if(saved.config["numWeeks"]) document.getElementById("numWeeks").value = saved.config["numWeeks"];
-        }
-        if(typeof generateProgram === "function") generateProgram();
-        if(saved.cursor){
-            var ws = document.getElementById("weekSel");
-            if(ws){ ws.value = saved.cursor; }
-            if(typeof renderDay === "function") renderDay();
-        }
-    });
-});
-
 </script>
+
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">💪</div>
+      <div class="popup-title">Old School. Still Works.</div>
+    </div>
+    <div class="popup-body">The Bro Split gets talked down — by people who've never actually run it.<br><br>One muscle group. Full focus. <strong>Complete annihilation.</strong> Every set on that muscle before you move on. This is how the legends were built — and it still works the same way today.<br><br>Use the template as your foundation. Swap a movement if something doesn't fit your body. Add weight when it's easy. The only rule is <strong>you show up and you work.</strong></div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">LET'S GET JACKED</button>
+    </div>
+  </div>
+</div>
 </body>
-</html>
+</html>s

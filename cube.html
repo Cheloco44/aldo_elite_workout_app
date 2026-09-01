@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CUBE METHOD</title>
+<title>BRO SPLIT</title>
 <style>
 * { box-sizing: border-box; }
 body {
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #1a0f00, #2d1f00, #1a1500);
+    background: linear-gradient(135deg, #0a0a1a, #12123a, #0a0028);
     color: #fff;
     min-height: 100vh;
 }
@@ -20,94 +20,96 @@ body::before {
     background-size: contain; opacity: 0.07; pointer-events: none; z-index: 0;
 }
 .header {
-    background: linear-gradient(135deg, #f7971e, #ffd200);
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
     padding: 25px 20px; text-align: center;
-    box-shadow: 0 6px 20px rgba(247,151,30,0.4);
-    border-bottom: 4px solid rgba(255,255,255,0.2);
+    box-shadow: 0 6px 20px rgba(71,118,230,0.4);
+    border-bottom: 4px solid rgba(255,255,255,0.15);
     position: relative; z-index: 1;
 }
 .header-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; }
-.header img.logo { height: 70px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-.header-text { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; color: #1a1000; text-shadow: 0 2px 4px rgba(255,255,255,0.2); }
-.back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #1a1000; text-decoration: none; font-size: 1.4rem; opacity: 0.7; }
+.header img.logo { height: 70px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.header-text { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+.back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #fff; text-decoration: none; font-size: 1.4rem; opacity: 0.8; }
 .back-link:hover { opacity: 1; }
 
 .setup-panel {
-    max-width: 580px; margin: 30px auto; padding: 30px;
+    max-width: 560px; margin: 30px auto; padding: 30px;
     background: rgba(255,255,255,0.07); border-radius: 15px;
     backdrop-filter: blur(6px); position: relative; z-index: 1;
-    border: 1px solid rgba(255,210,0,0.2);
+    border: 1px solid rgba(142,84,233,0.2);
 }
-.program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #ffd200; }
+.program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #b39ddb; }
 .program-summary p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 12px; }
 .program-summary ul { list-style: none; padding: 0; }
 .program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.88; }
-.program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #ffd200; font-size: 1rem; }
-.summary-divider { border: none; border-top: 1px solid rgba(255,210,0,0.2); margin: 22px 0; }
-.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #ffd200; font-size: 1.2rem; }
+.program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #b39ddb; }
+.summary-divider { border: none; border-top: 1px solid rgba(142,84,233,0.2); margin: 22px 0; }
+.setup-panel h2.form-title { text-align: center; margin-bottom: 20px; color: #b39ddb; font-size: 1.2rem; }
 .form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
-.form-row label { font-weight: 600; min-width: 170px; }
+.form-row label { font-weight: 600; min-width: 160px; }
 .form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
+
+/* WEIGHT JUMP SELECTOR */
 .jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #ffd200; }
+.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #b39ddb; }
 .jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; border: 2px solid rgba(255,210,0,0.2); background: rgba(255,210,0,0.06); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.3; }
-.jump-btn:hover { border-color: rgba(255,210,0,0.5); background: rgba(255,210,0,0.12); }
-.jump-btn.jump-active { background: linear-gradient(135deg, #b8860b, #ffd200); border-color: #ffd200; color: #111; box-shadow: 0 0 12px rgba(255,210,0,0.3); }
+.jump-btn {
+    flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+    color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; text-align: center; line-height: 1.3;
+}
+.jump-btn:hover { border-color: rgba(179,157,219,0.5); background: rgba(179,157,219,0.1); }
+.jump-btn.jump-active { background: linear-gradient(135deg, #4776e6, #8e54e9); border-color: #b39ddb; box-shadow: 0 0 12px rgba(179,157,219,0.3); }
 .jump-btn .jump-pct { font-size: 1.1rem; display: block; }
 .jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
-.check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
-.check-row input[type="checkbox"] { width: 20px; height: 20px; }
 
 .btn {
     display: block; width: 100%; padding: 14px; margin-top: 22px;
-    background: linear-gradient(135deg, #b8860b, #ffd200);
-    color: #111; border: none; border-radius: 10px; font-size: 17px; font-weight: bold;
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    color: #fff; border: none; border-radius: 10px; font-size: 17px; font-weight: bold;
     cursor: pointer; letter-spacing: 1px; transition: transform 0.2s, box-shadow 0.2s;
 }
-.btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(255,210,0,0.4); }
-.btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; color: #111; }
+.btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(142,84,233,0.45); }
+.btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; }
 
 .controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
 .controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
 .controls label { font-weight: 700; margin-left: 10px; }
 
-.week-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 18px;
-    width: 92%;
-    max-width: 1050px;
-    margin: 20px auto 50px;
-    position: relative; z-index: 1;
-    display: none;
+.day-banner {
+    width: 92%; max-width: 1050px; margin: 16px auto 0;
+    padding: 14px 20px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(71,118,230,0.2), rgba(142,84,233,0.2));
+    border-left: 4px solid #b39ddb;
+    font-size: 1.1rem; font-weight: 800; letter-spacing: 1px;
+    position: relative; z-index: 1; display: none;
 }
-.week-grid.visible { display: grid; }
 
-.day-card { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,210,0,0.15); }
-.day-header { padding: 14px 18px; font-weight: 800; font-size: 1rem; letter-spacing: 1px; border-bottom: 2px solid; }
-.day-heavy { background: rgba(180,0,0,0.3); border-color: #ef4444; }
-.day-explosive { background: rgba(16,90,180,0.3); border-color: #60a5fa; }
-.day-reps { background: rgba(20,120,30,0.3); border-color: #4ade80; }
+.card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; padding: 14px;
+    max-width: 1050px; margin: 4px auto 50px;
+    position: relative; z-index: 1; display: none;
+}
 
-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-th { padding: 10px 10px; text-align: left; font-size: 0.82rem; opacity: 0.65; }
-td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; word-break: break-word; }
-th:nth-child(1), td:nth-child(1) { width: 22%; }
-th:nth-child(2), td:nth-child(2) { width: 30%; }
-th:nth-child(3), td:nth-child(3) { width: 24%; }
-th:nth-child(4), td:nth-child(4) { width: 24%; }
-tr:last-child td { border-bottom: none; }
-.t-heavy { color: #fca5a5; font-weight: 700; }
-.t-exp { color: #93c5fd; font-weight: 700; }
-.t-rep { color: #86efac; font-weight: 700; }
-.t-acc { color: #aaa; }
+.ex-card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 16px;
+    border: 1px solid rgba(142,84,233,0.18);
+    transition: transform 0.2s;
+}
+.ex-card:hover { transform: translateY(-3px); }
+.ex-card h4 { margin: 0 0 8px; font-size: 1rem; color: #b39ddb; }
+.ex-card .detail { font-size: 0.88rem; margin: 3px 0; opacity: 0.9; }
+.ex-card .rep-note { font-size: 0.8rem; opacity: 0.55; margin-top: 6px; font-style: italic; }
 
 @media (max-width:600px) {
     .header-text { font-size: 1.3rem; }
     .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
     .form-row { flex-direction: column; align-items: flex-start; }
     .form-row input, .form-row select { width: 100%; }
-    .week-grid { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
 }
 
 .form-row input[type="number"]::placeholder {
@@ -118,86 +120,83 @@ tr:last-child td { border-bottom: none; }
     color: transparent;
 }
 
-/* PROJECTION */
-.proj-wrap { display: none; margin: 20px 0 6px; }
-.proj-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,210,0,0.65); margin-bottom: 10px; border-left: 3px solid #ffd200; padding-left: 10px; }
-.proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.proj-card { background: rgba(255,210,0,0.07); border: 1px solid rgba(255,210,0,0.2); border-radius: 10px; padding: 10px 14px; text-align: center; }
-.proj-lift { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin-bottom: 4px; }
-.proj-val  { font-size: 1.05rem; font-weight: 800; color: #ffd200; }
-.proj-val small { font-size: 0.6rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
-.proj-sub  { font-size: 0.65rem; color: #86efac; margin-top: 3px; }
-.proj-sub2 { font-size: 0.63rem; color: #93c5fd; margin-top: 2px; }
+.btn-shuffle { background: rgba(26,106,204,0.2); border: 1px solid rgba(56,239,157,0.3); color: rgba(56,239,157,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(26,106,204,0.35); }
 
-/* ── Complete Day/Week banner ── */
-#completeBanner {
-    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
-    position: relative; z-index: 2;
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.80); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
 }
-#completeBannerInner {
-    background: rgba(56,239,125,0.08);
-    border: 1px solid rgba(56,239,125,0.25);
-    border-radius: 12px; padding: 13px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 10px;
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 0; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center;
 }
-#completeBannerInner.done {
-    background: rgba(56,239,125,0.13);
-    border-color: rgba(56,239,125,0.4);
-    justify-content: center;
+.popup-header {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    padding: 28px 34px 20px;
 }
-.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
-.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
-.cb-btn {
-    background: linear-gradient(135deg, #11a54a, #38ef7d);
-    color: #000; border: none; border-radius: 8px;
-    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
-    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
-    white-space: nowrap;
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff;
 }
-.cb-btn:hover { transform: scale(1.03); }
-.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
-
+.popup-body {
+    font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8);
+    padding: 26px 30px; margin: 0;
+}
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.88rem; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; width: 100%;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
-<script src="eatt-program-save.js"></script>
 </head>
 <body>
 <div class="header">
     <a href="index.html" class="back-link">&larr; Home</a>
     <div class="header-inner">
         <img src="gorillavsbull.png" alt="Logo" class="logo">
-        <div class="header-text">CUBE METHOD</div>
+        <div class="header-text">BRO SPLIT</div>
     </div>
 </div>
 
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
-        <h2>THE CUBE METHOD</h2>
-        <p>Created by Brandon Lilly, this is the <strong>rotation system for powerlifters who want to peak</strong>. Each week, you rotate which lift gets the heavy day, explosive day, and rep day. Train hard everywhere — never overtrain anything.</p>
+        <h2>THE BRO SPLIT</h2>
+        <p>One muscle group. One day. Maximum destruction. The OG bodybuilding split that built generation after generation of jacked athletes. Don't let anyone tell you it doesn't work.</p>
         <ul>
-            <li>Each week: <strong>one lift is heavy, one is explosive, one is for reps</strong></li>
-            <li><strong>Heavy day:</strong> 85–95% intensity — grind to a top set</li>
-            <li><strong>Explosive day:</strong> 50–65% — bar speed is king, no grinding</li>
-            <li><strong>Rep day:</strong> 65–75% — high reps, build volume and muscle</li>
-            <li>Runs in <strong>3-week rotations</strong> then resets heavier</li>
-            <li>Designed to peak for a competition — most run 10–16 weeks before a meet</li>
+            <li><strong>5 days on, 2 days off</strong> — Chest, Back, Shoulders, Arms, Legs</li>
+            <li>Each muscle trained once per week with <strong>full dedication and volume</strong></li>
+            <li>High sets, moderate-to-high reps — the pump IS the program</li>
+            <li>Progressive overload: add weight or reps each week</li>
+            <li>Best suited for <strong>intermediate lifters focused on aesthetics and size</strong></li>
         </ul>
     </div>
     <hr class="summary-divider">
-    <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="405" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="275" min="45" oninput="updateProjection()"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="500" min="45" oninput="updateProjection()"></div>
-    <div class="check-row"><input type="checkbox" id="useTM" checked onchange="updateProjection()"><label for="useTM">Use 90% Training Max</label></div>
-    <div class="form-row"><label>Program Length</label>
-        <select id="numWeeks" onchange="updateProjection()">
-            <option value="9">9 Weeks (3 cycles)</option>
-            <option value="12" selected>12 Weeks (4 cycles)</option>
-            <option value="15">15 Weeks (5 cycles)</option>
+    <h2 class="form-title">ENTER YOUR WORKING WEIGHTS</h2>
+    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Row (lbs)</label><input type="number" id="row" placeholder="185" min="45"></div>
+    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp" placeholder="115" min="45"></div>
+    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat" placeholder="225" min="45"></div>
+    <div class="form-row"><label>Program Weeks</label>
+        <select id="numWeeks">
+            <option value="8">8 Weeks</option>
+            <option value="12" selected>12 Weeks</option>
+            <option value="16">16 Weeks</option>
         </select>
     </div>
     <div class="jump-selector">
-        <label class="jump-label">&#9889; LOADING INCREASE PER 3-WEEK CYCLE &mdash; How hungry are you?</label>
+        <label class="jump-label">&#9889; WEEKLY WEIGHT PROGRESSION &mdash; How hungry are you?</label>
         <div class="jump-options">
             <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
             <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
@@ -205,248 +204,230 @@ tr:last-child td { border-bottom: none; }
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
-    <!-- PROJECTION -->
-    <div class="proj-wrap" id="projWrap">
-        <div class="proj-label">End-of-Program Estimates (Final Cycle)</div>
-        <div class="proj-grid" id="projGrid"></div>
-        <div style="font-size:0.67rem;opacity:0.35;margin-top:8px;line-height:1.5;font-style:italic">Heavy day target at peak cycle. Explosive = 50–65% of 1RM anchored to starting weight. Rep day shows top working weight.</div>
-    </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="controls" id="controls">
     <label>Week</label>
-    <select id="weekSel" onchange="renderWeek()"></select>
+    <select id="weekSel" onchange="renderDay()"></select>
+    <label>Day</label>
+    <select id="daySel" onchange="renderDay()">
+        <option value="0">Monday — Chest</option>
+        <option value="1">Tuesday — Back</option>
+        <option value="2">Wednesday — Shoulders</option>
+        <option value="3">Thursday — Arms</option>
+        <option value="4">Friday — Legs</option>
+    </select>
     <br><br>
-    <button class="btn btn-sm" onclick="resetSetup()" style="color:#111">&larr; New Program</button>
+    <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleBro()">&#x21bb; Shuffle Accessories</button>
 </div>
 
-<div id="completeBanner" style="display:none"><div id="completeBannerInner"><div><div class="cb-label">Cube Method — Week Tracker</div><div class="cb-title" id="cbTitle">Week loaded</div></div><button class="cb-btn" id="cbBtn" onclick="completeCubeWeek()">&#10003; Complete This Week</button></div></div><div class="week-grid" id="weekGrid"></div>
+<div class="day-banner" id="dayBanner"></div>
+<div class="card-grid" id="cardGrid"></div>
 
 <script>
-var baseTms    = {};
+
+function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,n); }
+
+// Alternate exercise pools per day (2 swapped in on shuffle)
+var altPools = [
+    // Chest
+    [{name:"Dips",              ref:null,    pct:null,  sets:3, reps:"Max",   note:"Full dip — lean forward for chest"},
+     {name:"Pec Deck",          ref:"bench", pct:0.25,  sets:3, reps:"15",    note:"Peak contraction, slow negative"},
+     {name:"Low Cable Fly",     ref:"bench", pct:0.20,  sets:3, reps:"15",    note:"Pull up and across for upper chest"},
+     {name:"Smith Incline",     ref:"bench", pct:0.60,  sets:4, reps:"10–12", note:"Controlled path, stop at chin"}],
+    // Back
+    [{name:"T-Bar Row",         ref:"row",   pct:0.70,  sets:4, reps:"8–10",  note:"Chest pad — eliminate body English"},
+     {name:"Straight-Arm Pulldown", ref:"row", pct:0.30, sets:3, reps:"15",   note:"Full lat stretch at top"},
+     {name:"Chest-Supported Row",ref:"row",  pct:0.60,  sets:4, reps:"10–12", note:"No cheating — full isolation"},
+     {name:"Single-Arm Cable Row",ref:"row", pct:0.40,  sets:3, reps:"12",    note:"Rotate the torso slightly at top"}],
+    // Shoulders
+    [{name:"Cable Lateral Raise",ref:"ohp",  pct:0.18,  sets:4, reps:"15",    note:"Keep wrist below elbow"},
+     {name:"Upright Row",       ref:"row",   pct:0.45,  sets:3, reps:"12",    note:"Wide grip — elbows above hands"},
+     {name:"Seated DB Press",   ref:"ohp",   pct:0.40,  sets:4, reps:"10–12", note:"90° elbow at bottom, press up"},
+     {name:"Behind Neck Press", ref:"ohp",   pct:0.50,  sets:3, reps:"10",    note:"Warm up well — controlled motion"}],
+    // Arms
+    [{name:"Preacher Curl",     ref:"bench", pct:0.25,  sets:3, reps:"10–12", note:"Full extension at bottom"},
+     {name:"Rope Pushdown",     ref:"bench", pct:0.22,  sets:3, reps:"15",    note:"Spread the rope at the bottom"},
+     {name:"Concentration Curl",ref:"bench", pct:0.18,  sets:3, reps:"12",    note:"Elbow on inner thigh — no swinging"},
+     {name:"Dips (Triceps)",    ref:null,    pct:null,  sets:3, reps:"Max",   note:"Upright torso — tricep focus"}],
+    // Legs
+    [{name:"Hack Squat",        ref:"squat", pct:0.65,  sets:4, reps:"10–12", note:"Full depth — heels elevated"},
+     {name:"Seated Leg Curl",   ref:null,    pct:null,  sets:4, reps:"12–15", note:"Squeeze at peak, slow negative"},
+     {name:"Sissy Squat",       ref:null,    pct:null,  sets:3, reps:"15",    note:"Pure quad isolation"},
+     {name:"Donkey Calf Raise", ref:null,    pct:null,  sets:5, reps:"20",    note:"Full stretch — no bouncing"}]
+];
+
+var shuffledExercises = [null,null,null,null,null]; // one shuffled set per day
+var broSplit = [
+    {
+        name:"MONDAY — CHEST DAY",
+        emoji:"💪",
+        exercises:[
+            {name:"Barbell Bench Press",     ref:"bench", pct:0.85, sets:4, reps:"6–8",  note:"Control the descent — pause at bottom"},
+            {name:"Incline Dumbbell Press",  ref:"bench", pct:0.55, sets:4, reps:"8–12", note:"30–45° incline, don't flare elbows"},
+            {name:"Flat Dumbbell Fly",       ref:"bench", pct:0.30, sets:3, reps:"12–15",note:"Slight bend in elbow, stretch the chest"},
+            {name:"Cable Crossover",         ref:"bench", pct:0.20, sets:3, reps:"15",   note:"Squeeze at the top"},
+            {name:"Decline Bench Press",     ref:"bench", pct:0.70, sets:3, reps:"10–12",note:"Lower pec emphasis"},
+            {name:"Push-Up Finisher",        ref:null,    pct:null,  sets:2, reps:"Max",  note:"Bodyweight — 2 sets to failure"},
+        ]
+    },
+    {
+        name:"TUESDAY — BACK DAY",
+        emoji:"🔥",
+        exercises:[
+            {name:"Weighted Pull-Up",        ref:null,   pct:null,  sets:4, reps:"6–8",  note:"Dead hang start, chin over bar"},
+            {name:"Bent-Over Barbell Row",   ref:"row",  pct:0.85,  sets:4, reps:"8–10", note:"Chest to bar — no cheating"},
+            {name:"Seated Cable Row",        ref:"row",  pct:0.65,  sets:4, reps:"10–12",note:"Pull elbows back, squeeze scapula"},
+            {name:"Lat Pulldown",            ref:"row",  pct:0.70,  sets:3, reps:"10–12",note:"Wide grip, pull to chest"},
+            {name:"Dumbbell Row",            ref:"row",  pct:0.50,  sets:3, reps:"12",   note:"Chest supported for more isolation"},
+            {name:"Hyperextension",          ref:null,   pct:null,  sets:3, reps:"15",   note:"Lower back & glute finisher"},
+        ]
+    },
+    {
+        name:"WEDNESDAY — SHOULDER DAY",
+        emoji:"🎯",
+        exercises:[
+            {name:"Barbell Overhead Press",  ref:"ohp",  pct:0.80,  sets:4, reps:"6–8",  note:"Strict — no leg drive"},
+            {name:"Dumbbell Lateral Raise",  ref:"ohp",  pct:0.20,  sets:4, reps:"12–15",note:"Slight lean forward, lead with elbows"},
+            {name:"Rear Delt Cable Fly",     ref:"ohp",  pct:0.15,  sets:4, reps:"15",   note:"Cross-body cable, squeeze at end"},
+            {name:"Arnold Press",            ref:"ohp",  pct:0.35,  sets:3, reps:"10–12",note:"Full rotation from neutral"},
+            {name:"Front Raise",             ref:"ohp",  pct:0.18,  sets:3, reps:"12",   note:"Alternate arms, keep it controlled"},
+            {name:"Shrugs",                  ref:"row",  pct:0.80,  sets:3, reps:"15–20",note:"Hold at top, don't roll"},
+        ]
+    },
+    {
+        name:"THURSDAY — ARMS DAY",
+        emoji:"💥",
+        exercises:[
+            {name:"Barbell Curl",            ref:"bench", pct:0.30,  sets:4, reps:"8–10",  note:"Strict form — no swinging"},
+            {name:"Close-Grip Bench Press",  ref:"bench", pct:0.65,  sets:4, reps:"8–10",  note:"Elbows in, triceps doing the work"},
+            {name:"Incline Dumbbell Curl",   ref:"bench", pct:0.20,  sets:3, reps:"10–12", note:"Full stretch at bottom"},
+            {name:"Skull Crusher",           ref:"bench", pct:0.28,  sets:3, reps:"10–12", note:"EZ bar or DB, lower to forehead"},
+            {name:"Hammer Curl",             ref:"bench", pct:0.22,  sets:3, reps:"12",    note:"Neutral grip — hit the brachialis"},
+            {name:"Overhead Tricep Ext",     ref:"bench", pct:0.22,  sets:3, reps:"12–15", note:"Cable or DB, full extension"},
+            {name:"Cable Curl + Pushdown",   ref:null,    pct:null,   sets:2, reps:"15/15", note:"Superset to finish — feel the pump"},
+        ]
+    },
+    {
+        name:"FRIDAY — LEG DAY",
+        emoji:"🦵",
+        exercises:[
+            {name:"Barbell Back Squat",      ref:"squat", pct:0.85,  sets:4, reps:"6–8",  note:"Depth below parallel, chest up"},
+            {name:"Romanian Deadlift",       ref:"squat", pct:0.55,  sets:4, reps:"10–12",note:"Hinge at the hip — feel the stretch"},
+            {name:"Leg Press",               ref:"squat", pct:0.70,  sets:4, reps:"10–15",note:"Don't lock out — keep tension"},
+            {name:"Walking Lunge",           ref:"squat", pct:0.30,  sets:3, reps:"12/leg",note:"Step out far enough, knee tracks toe"},
+            {name:"Leg Curl",                ref:null,    pct:null,   sets:4, reps:"12–15",note:"Controlled — don't jerk"},
+            {name:"Standing Calf Raise",     ref:null,    pct:null,   sets:5, reps:"15–20",note:"Full range — stretch at bottom"},
+        ]
+    }
+];
+
+var weights = {};
+var programWeeks = 12;
 var weeklyJump = 0.10;
 
 function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
-    updateProjection();
 }
 
-function updateProjection(){
-    var sq  = parseInt(document.getElementById("squat1rm").value) || 0;
-    var bp  = parseInt(document.getElementById("bench1rm").value) || 0;
-    var dl  = parseInt(document.getElementById("dead1rm").value)  || 0;
-    var useTM = document.getElementById("useTM").checked;
-    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+function round5(v){ return Math.max(10,Math.round(v/5)*5); }
 
-    var hasAny = sq>0 || bp>0 || dl>0;
-    var wrap = document.getElementById("projWrap");
-    if(!hasAny){ wrap.style.display="none"; return; }
-    wrap.style.display = "block";
 
-    var cycles = Math.floor(weeks / 3);  // number of full 3-week cycles
-
-    var lifts = [
-        {label:"Squat",    raw:sq,  key:"squat"},
-        {label:"Bench",    raw:bp,  key:"bench"},
-        {label:"Deadlift", raw:dl,  key:"dead"}
-    ];
-    var grid = document.getElementById("projGrid");
-    grid.innerHTML = "";
-    lifts.forEach(function(l){
-        var card = document.createElement("div");
-        card.className = "proj-card";
-        if(!l.raw){
-            card.innerHTML = '<div class="proj-lift">'+l.label+'</div><div class="proj-val" style="opacity:0.25">—</div>';
-        } else {
-            var tm = useTM ? Math.round(l.raw * 0.9) : l.raw;
-            // Heavy: TM scaled by jump per cycle, top set at 90–95%
-            var peakTM   = Math.round(tm * Math.pow(1 + weeklyJump, Math.max(0, cycles-1)));
-            var heavyTop = round5(peakTM * 0.92);
-            var heavyGain = heavyTop - l.raw;
-            // Explosive: always 60% of ORIGINAL 1RM (anchored, does not compound)
-            var expWt = round5(l.raw * 0.60);
-            // Rep: 70% of peak TM × 3 sets
-            var repWt = round5(peakTM * 0.70);
-            card.innerHTML =
-                '<div class="proj-lift">'+l.label+'</div>'+
-                '<div class="proj-val">'+heavyTop+'<small>lbs</small></div>'+
-                '<div class="proj-sub">Heavy top set &nbsp;·&nbsp; +'+(heavyGain>=0?"+":"")+heavyGain+' lbs</div>'+
-                '<div class="proj-sub2">Exp: '+expWt+' lbs &nbsp;·&nbsp; Rep: '+repWt+' lbs</div>';
-        }
-        grid.appendChild(card);
-    });
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
 }
 
-var rotations = [
-    {squat:"Heavy",     bench:"Explosive", dead:"Rep"},
-    {squat:"Explosive", bench:"Rep",       dead:"Heavy"},
-    {squat:"Rep",       bench:"Heavy",     dead:"Explosive"}
-];
-
-var heavyPcts = [0.85, 0.90, 0.95];
-var expPcts   = [0.50, 0.55, 0.60, 0.65];
-var repReps   = [8, 10, 12];
-
-var sqAccs = [["Box Squat","4×3","Speed focus"],["Leg Press","3×12","Quad volume"],["Leg Curl","3×12","Ham balance"],["Ab Wheel","3×12","Core"]];
-var bpAccs = [["Close Grip Bench","3×8","Tricep lockout"],["DB Row","4×10","Back strength"],["Face Pull","3×20","Shoulder health"],["Tricep Pushdown","3×15","Triceps"]];
-var dlAccs = [["Deficit Deadlift","3×3","Off-floor strength"],["GHR","3×12","Posterior chain"],["Barbell Row","4×8","Upper back"],["Reverse Hyper","3×15","Low back"]];
-
-function round5(v){ return Math.max(45, Math.round(v/5)*5); }
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
+}
 
 function generateProgram(){
-    var useTM = document.getElementById("useTM").checked;
-    var squat = parseInt(document.getElementById("squat1rm").value) || 405;
-    var bench = parseInt(document.getElementById("bench1rm").value) || 275;
-    var dead  = parseInt(document.getElementById("dead1rm").value)  || 500;
+    weights = {
+        bench: parseInt(document.getElementById("bench").value)||185,
+        row:   parseInt(document.getElementById("row").value)||185,
+        ohp:   parseInt(document.getElementById("ohp").value)||115,
+        squat: parseInt(document.getElementById("squat").value)||225
+    };
+    programWeeks = parseInt(document.getElementById("numWeeks").value)||12;
 
-    baseTms.squat = useTM ? Math.round(squat * 0.9) : squat;
-    baseTms.bench = useTM ? Math.round(bench * 0.9) : bench;
-    baseTms.dead  = useTM ? Math.round(dead  * 0.9) : dead;
-
-    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
     var ws = document.getElementById("weekSel");
     ws.innerHTML = "";
-    for(var i = 1; i <= weeks; i++){
-        ws.innerHTML += '<option value="' + i + '">Week ' + i + '</option>';
-    }
+    for(var i=1;i<=programWeeks;i++) ws.innerHTML += '<option value="'+i+'">Week '+i+'</option>';
 
-    
-    EATT.saveProgram("Cube Method", {
-        squat1rm: document.getElementById("squat1rm").value,
-        bench1rm: document.getElementById("bench1rm").value,
-        dead1rm:  document.getElementById("dead1rm").value,
-        numWeeks: document.getElementById("numWeeks").value,
-        useTM:    document.getElementById("useTM").checked,
-        weeklyJump: weeklyJump
-    }, [], 0);
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
-    document.getElementById("weekGrid").classList.add("visible");
-    renderWeek();
+    document.getElementById("cardGrid").style.display   = "grid";
+    document.getElementById("dayBanner").style.display  = "block";
+    renderDay();
 }
 
-function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
-    var cycle       = Math.floor((weekNum - 1) / 3);
-    var weekInCycle = (weekNum - 1) % 3;
-    var tm = Math.round(baseTmVal * Math.pow(1 + weeklyJump, cycle));
-    var html = "";
-
-    if(mode === "Heavy"){
-        // Heavy: week-in-cycle drives pct (85/90/95%), TM scales per cycle
-        var pct = heavyPcts[Math.min(weekInCycle, heavyPcts.length - 1)];
-        html += '<tr><td class="t-heavy">Warm-up</td><td>' + liftName + '</td><td>5 × 3</td><td>' + round5(tm * 0.70) + ' lbs</td></tr>';
-        html += '<tr><td class="t-heavy">Heavy Set</td><td>' + liftName + '</td><td>Work to 1</td><td>' + round5(tm * pct) + ' lbs (' + Math.round(pct * 100) + '%)</td></tr>';
-    } else if(mode === "Explosive"){
-        // Explosive: ALWAYS off original baseTm — speed work never compounds
-        var ePct = expPcts[Math.min(weekInCycle, expPcts.length - 1)]; // 50/55/60 within cycle
-        html += '<tr><td class="t-exp">Dynamic Effort</td><td>' + liftName + '</td><td>8 × 2 — MAX SPEED</td><td>' + round5(baseTmVal * ePct) + ' lbs (' + Math.round(ePct * 100) + '%)</td></tr>';
-    } else {
-        // Rep day: volume work at 65–75%, reps progress within cycle
-        var reps = repReps[weekInCycle % repReps.length];
-        var rPct = 0.65 + weekInCycle * 0.05; // 65/70/75% across the 3 weeks
-        html += '<tr><td class="t-rep">Rep Set</td><td>' + liftName + '</td><td>3 × ' + reps + '</td><td>' + round5(tm * rPct) + ' lbs (' + Math.round(rPct * 100) + '%)</td></tr>';
-    }
-
-    accs.forEach(function(a){
-        html += '<tr><td class="t-acc">Accessory</td><td>' + a[0] + '</td><td>' + a[1] + '</td><td style="opacity:0.55;font-size:0.83rem">' + a[2] + '</td></tr>';
-    });
-    return html;
+function shuffleBro(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = broSplit[dayIdx];
+    // Keep first 2 exercises (main compound lifts), swap the rest
+    var core = day.exercises.slice(0, 2);
+    var alts = sample(altPools[dayIdx], 2);
+    var rest = sample(day.exercises.slice(2), day.exercises.length - 4);
+    shuffledExercises[dayIdx] = core.concat(rest).concat(alts);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderDay();
 }
 
-var completedWeeks = {};
-
-function renderWeek(){
-    var week = parseInt(document.getElementById("weekSel").value) || 1;
-    var rot  = rotations[(week - 1) % 3];
-    var grid = document.getElementById("weekGrid");
+function renderDay(){
+    var week = parseInt(document.getElementById("weekSel").value)||1;
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = broSplit[dayIdx];
+    var grid = document.getElementById("cardGrid");
     grid.innerHTML = "";
+    var prog = Math.pow(1 + weeklyJump, week - 1);
 
-    var lifts = [
-        {name:"Squat",    key:"squat", mode:rot.squat, accs:sqAccs},
-        {name:"Bench",    key:"bench", mode:rot.bench, accs:bpAccs},
-        {name:"Deadlift", key:"dead",  mode:rot.dead,  accs:dlAccs}
-    ];
-
-    showCompleteBanner();
-    lifts.forEach(function(l){
-        var card      = document.createElement("div");
-        card.className = "day-card";
-        var headerCls = l.mode === "Heavy" ? "day-heavy" : l.mode === "Explosive" ? "day-explosive" : "day-reps";
-        var badge     = l.mode === "Heavy" ? "🔥 Top set day" : l.mode === "Explosive" ? "⚡ Speed day" : "💪 Volume day";
+    var exList = shuffledExercises[dayIdx] ? shuffledExercises[dayIdx] : day.exercises;
+    exList.forEach(function(ex){
+        var card = document.createElement("div");
+        card.className = "ex-card";
+        var wt = "";
+        if(ex.ref && ex.pct) {
+            wt = round5(weights[ex.ref] * ex.pct * prog) + " lbs";
+        } else {
+            wt = "Bodyweight";
+        }
         card.innerHTML =
-            '<div class="day-header ' + headerCls + '">' + l.name + ' — ' + l.mode.toUpperCase() + ' DAY<br>' +
-            '<span style="font-size:0.8rem;font-weight:400;opacity:0.85">' + badge + '</span></div>' +
-            '<table><thead><tr><th>Type</th><th>Exercise</th><th>Sets / Reps</th><th>Weight</th></tr></thead><tbody>' +
-            buildDayHTML(l.name, baseTms[l.key], l.mode, week, l.accs) +
-            '</tbody></table>';
+            '<h4>'+ex.name+'</h4>'+
+            '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.reps+'</p>'+
+            '<p class="detail"><strong>Weight:</strong> '+wt+'</p>'+
+            '<p class="rep-note">'+ex.note+'</p>';
         grid.appendChild(card);
     });
-}
 
-function showCompleteBanner(){
-    var week = parseInt(document.getElementById("weekSel").value) || 1;
-    var totalWeeks = parseInt(document.getElementById("numWeeks").value) || 12;
-    var banner = document.getElementById("completeBanner");
-    var inner  = document.getElementById("completeBannerInner");
-    var btn    = document.getElementById("cbBtn");
-    var title  = document.getElementById("cbTitle");
-    banner.style.display = "block";
-    if(completedWeeks[week]){
-        inner.className = "done";
-        inner.innerHTML = '<div class="cb-done-text">&#10003; Week ' + week + ' logged</div>';
-    } else {
-        inner.className = "";
-        inner.innerHTML = '<div><div class="cb-label">Cube Method &mdash; Week Tracker</div>'
-            + '<div class="cb-title">Week ' + week + ' of ' + totalWeeks + '</div></div>'
-            + '<button class="cb-btn" onclick="completeCubeWeek()">&#10003; Complete This Week</button>';
-    }
-}
-
-function completeCubeWeek(){
-    var week = parseInt(document.getElementById("weekSel").value) || 1;
-    if(completedWeeks[week]) return;
-    completedWeeks[week] = true;
-    var payload = {
-        programName: "Cube Method",
-        week: week, day: 1,
-        label: "Week " + week,
-        exercises: [{name:"Squat (Cube)",sets:3,reps:5,weight:baseTms.squat||0},
-                    {name:"Bench (Cube)",sets:3,reps:5,weight:baseTms.bench||0},
-                    {name:"Deadlift (Cube)",sets:3,reps:5,weight:baseTms.dead||0}],
-        notes: null, completedAt: new Date().toISOString()
-    };
-    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
-    // Advance saved week
-    try {
-        var raw = localStorage.getItem("eatt_prog_cube_method");
-        if(raw){ var s=JSON.parse(raw); s.cursor=week; localStorage.setItem("eatt_prog_cube_method",JSON.stringify(s)); }
-    } catch(e){}
-    showCompleteBanner();
+    document.getElementById("dayBanner").innerHTML = day.emoji + " " + day.name + " &nbsp;|&nbsp; <span style='opacity:0.6;font-weight:400;font-size:0.9rem'>Week "+week+" of "+programWeeks+"</span>";
 }
 
 function resetSetup(){
     document.getElementById("setupPanel").style.display = "block";
     document.getElementById("controls").style.display   = "none";
-    document.getElementById("weekGrid").classList.remove("visible");
+    document.getElementById("cardGrid").style.display   = "none";
+    document.getElementById("dayBanner").style.display  = "none";
 }
-
-document.addEventListener("DOMContentLoaded", function(){
-    EATT.checkResume("Cube Method", function(saved){
-        if(saved.config){
-            if(saved.config.squat1rm) document.getElementById("squat1rm").value = saved.config.squat1rm;
-            if(saved.config.bench1rm) document.getElementById("bench1rm").value = saved.config.bench1rm;
-            if(saved.config.dead1rm)  document.getElementById("dead1rm").value  = saved.config.dead1rm;
-            if(saved.config.numWeeks) document.getElementById("numWeeks").value = saved.config.numWeeks;
-            if(saved.config.useTM !== undefined) document.getElementById("useTM").checked = saved.config.useTM;
-            if(saved.config.weeklyJump !== undefined){ weeklyJump = saved.config.weeklyJump; document.querySelectorAll(".jump-btn").forEach(function(b){ b.classList.toggle("jump-active", parseFloat(b.getAttribute("data-pct")) === weeklyJump); }); }
-        }
-        generateProgram();
-        if(saved.cursor){ document.getElementById("weekSel").value = saved.cursor; renderWeek(); }
-    });
-});
 </script>
+
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">💪</div>
+      <div class="popup-title">Old School. Still Works.</div>
+    </div>
+    <div class="popup-body">The Bro Split gets talked down — by people who've never actually run it.<br><br>One muscle group. Full focus. <strong>Complete annihilation.</strong> Every set on that muscle before you move on. This is how the legends were built — and it still works the same way today.<br><br>Use the template as your foundation. Swap a movement if something doesn't fit your body. Add weight when it's easy. The only rule is <strong>you show up and you work.</strong></div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">LET'S GET JACKED</button>
+    </div>
+  </div>
+</div>
 </body>
-</html>
+</html>s

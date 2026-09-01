@@ -103,67 +103,46 @@ tr:hover { background: rgba(255,255,255,0.06); }
     color: transparent;
 }
 
-/* AMRAP PREVIEW */
-.amrap-preview {
-    margin: 20px 0 6px;
-    display: none;
-}
-.amrap-preview-label {
-    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
-    color: rgba(239,154,154,0.65); margin-bottom: 10px;
-    border-left: 3px solid #ef9a9a; padding-left: 10px;
-}
-.amrap-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-}
-.amrap-wave-col { display: flex; flex-direction: column; gap: 6px; }
-.amrap-wave-header {
-    font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
-    color: rgba(239,154,154,0.55); text-align: center; padding: 4px 0;
-    border-bottom: 1px solid rgba(239,154,154,0.15);
-}
-.amrap-cell {
-    background: rgba(185,43,39,0.1); border: 1px solid rgba(239,154,154,0.15);
-    border-radius: 8px; padding: 8px 6px; text-align: center;
-}
-.amrap-lift-name { font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.45; margin-bottom: 3px; }
-.amrap-wt { font-size: 0.95rem; font-weight: 800; color: #ffd700; }
-.amrap-wt small { font-size: 0.55rem; font-weight: 400; opacity: 0.6; margin-left: 1px; }
-.amrap-reps { font-size: 0.68rem; color: #ef9a9a; margin-top: 2px; }
+.btn-shuffle { background: rgba(26,106,204,0.2); border: 1px solid rgba(56,239,157,0.3); color: rgba(56,239,157,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(26,106,204,0.35); }
 
-/* ── Complete Day/Week banner ── */
-#completeBanner {
-    max-width: 700px; margin: 14px auto 0; padding: 0 16px;
-    position: relative; z-index: 2;
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.80); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
 }
-#completeBannerInner {
-    background: rgba(56,239,125,0.08);
-    border: 1px solid rgba(56,239,125,0.25);
-    border-radius: 12px; padding: 13px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 10px;
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 0; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center;
 }
-#completeBannerInner.done {
-    background: rgba(56,239,125,0.13);
-    border-color: rgba(56,239,125,0.4);
-    justify-content: center;
+.popup-header {
+    background: linear-gradient(135deg, #b92b27, #1565c0);
+    padding: 28px 34px 20px;
 }
-.cb-label { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(56,239,125,0.6); margin-bottom: 3px; }
-.cb-title { font-size: 0.88rem; font-weight: 700; color: #38ef7d; }
-.cb-btn {
-    background: linear-gradient(135deg, #11a54a, #38ef7d);
-    color: #000; border: none; border-radius: 8px;
-    padding: 10px 20px; font-size: 0.82rem; font-weight: 900;
-    letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
-    white-space: nowrap;
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff;
 }
-.cb-btn:hover { transform: scale(1.03); }
-.cb-done-text { color: #38ef7d; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
-
+.popup-body {
+    font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8);
+    padding: 26px 30px; margin: 0;
+}
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start {
+    background: linear-gradient(135deg, #b92b27, #1565c0);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.88rem; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; width: 100%;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
-<script src="eatt-program-save.js"></script>
 </head>
 <body>
 <div class="header">
@@ -189,12 +168,12 @@ tr:hover { background: rgba(255,255,255,0.06); }
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR TRAINING MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45" oninput="updateAmrapPreview()"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45" oninput="updateAmrapPreview()"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45" oninput="updateAmrapPreview()"></div>
-    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45" oninput="updateAmrapPreview()"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="dead1rm" placeholder="405" min="45"></div>
+    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45"></div>
     <div class="check-row">
-        <input type="checkbox" id="useTM" checked onchange="updateAmrapPreview()">
+        <input type="checkbox" id="useTM" checked>
         <label for="useTM">Use 90% Training Max</label>
     </div>
     <div class="jump-selector">
@@ -206,18 +185,11 @@ tr:hover { background: rgba(255,255,255,0.06); }
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
-    <!-- AMRAP PREVIEW -->
-    <div class="amrap-preview" id="amrapPreview">
-        <div class="amrap-preview-label">Realization Week — AMRAP Top Set Preview</div>
-        <div class="amrap-grid" id="amrapGrid"></div>
-    </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="wave-banner" id="waveBanner"></div>
 
-
-<div id="completeBanner" style="margin:14px 16px 0;display:none"><div id="completeBannerInner" style="background:rgba(56,239,125,0.08);border:1px solid rgba(56,239,125,0.25);border-radius:12px;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div class="cb-label">Juggernaut Method</div><div class="cb-title" id="cbTitle">—</div></div><button class="cb-btn" onclick="completeJuggDay()">&#10003; Complete This Day</button></div></div>
 <div class="controls" id="controls">
     <label>Wave</label>
     <select id="waveSel" onchange="renderTable()">
@@ -242,6 +214,7 @@ tr:hover { background: rgba(255,255,255,0.06); }
     </select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleJugg()">&#x21bb; Shuffle Accessories</button>
 </div>
 
 <div class="table-wrap" id="tableWrap">
@@ -261,12 +234,28 @@ var waves = [
 
 var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 
-var accessories = {
-    0: [["Front Squat","3 × 5–8"],["Leg Press","3 × 10–15"],["RDL","3 × 8–12"],["Leg Curl","3 × 10–15"]],
-    1: [["Incline Bench","3 × 8–12"],["DB Fly","3 × 10–15"],["Tricep Pushdown","3 × 10–15"],["DB Curl","3 × 10–15"]],
-    2: [["Barbell Row","3 × 8–12"],["Rack Pull","3 × 5–8"],["Back Extension","3 × 10–15"],["Lat Pulldown","3 × 10–15"]],
-    3: [["DB Lateral Raise","3 × 12–15"],["Face Pull","3 × 15–20"],["Z Press","3 × 8–10"],["Skull Crusher","3 × 10–15"]]
+var accPool = {
+    0: [["Front Squat","3 × 5–8"],["Leg Press","3 × 10–15"],["RDL","3 × 8–12"],["Leg Curl","3 × 10–15"],
+        ["Walking Lunge","3 × 10/leg"],["Box Squat","4 × 3"],["GHR","3 × 12"],["Step-Up","3 × 10/leg"]],
+    1: [["Incline Bench","3 × 8–12"],["DB Fly","3 × 10–15"],["Tricep Pushdown","3 × 10–15"],["DB Curl","3 × 10–15"],
+        ["Close Grip Bench","3 × 8"],["Cable Fly","3 × 15"],["Skull Crusher","3 × 10"],["Hammer Curl","3 × 12"]],
+    2: [["Barbell Row","3 × 8–12"],["Rack Pull","3 × 5–8"],["Back Extension","3 × 10–15"],["Lat Pulldown","3 × 10–15"],
+        ["Deficit Deadlift","3 × 3"],["DB Row","3 × 12"],["Face Pull","3 × 20"],["Reverse Hyper","3 × 15"]],
+    3: [["DB Lateral Raise","3 × 12–15"],["Face Pull","3 × 15–20"],["Z Press","3 × 8–10"],["Skull Crusher","3 × 10–15"],
+        ["Arnold Press","3 × 10"],["Rear Delt Fly","3 × 15"],["Upright Row","3 × 12"],["Cable Lateral","3 × 15"]]
 };
+
+function sample(arr, n){
+    var a = arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
+    return a.slice(0,n);
+}
+
+var currentAccs = {}; // keyed by di
+
+function getAccs(di){
+    if(!currentAccs[di]) currentAccs[di] = sample(accPool[di], 4);
+    return currentAccs[di];
+}
 
 var liftNames = ["Squat","Bench","Deadlift","OHP"];
 var tms = {};
@@ -277,55 +266,18 @@ function selectJump(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
     weeklyJump = parseFloat(btn.getAttribute('data-pct'));
-    updateAmrapPreview();
 }
 
 function round5(v){ return Math.max(45, Math.round(v/5)*5); }
 
-function updateAmrapPreview(){
-    var inputs = {
-        Squat:    parseInt(document.getElementById("squat1rm").value) || 0,
-        Bench:    parseInt(document.getElementById("bench1rm").value) || 0,
-        Deadlift: parseInt(document.getElementById("dead1rm").value)  || 0,
-        OHP:      parseInt(document.getElementById("ohp1rm").value)   || 0
-    };
-    var useTM = document.getElementById("useTM").checked;
-    var hasAny = Object.values(inputs).some(function(v){ return v > 0; });
-    var preview = document.getElementById("amrapPreview");
-    var grid    = document.getElementById("amrapGrid");
 
-    if(!hasAny){ preview.style.display = "none"; return; }
-    preview.style.display = "block";
-    grid.innerHTML = "";
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
+}
 
-    waves.forEach(function(wave, wi){
-        var col = document.createElement("div");
-        col.className = "amrap-wave-col";
-        var hdr = document.createElement("div");
-        hdr.className = "amrap-wave-header";
-        hdr.textContent = "Wave " + (wi+1) + " · " + wave.name;
-        col.appendChild(hdr);
-
-        liftNames.forEach(function(lift){
-            var raw = inputs[lift];
-            var cell = document.createElement("div");
-            cell.className = "amrap-cell";
-            if(!raw){
-                cell.innerHTML = '<div class="amrap-lift-name">'+lift+'</div><div class="amrap-wt" style="opacity:0.25">—</div>';
-            } else {
-                var tm      = useTM ? Math.round(raw * 0.9) : raw;
-                var scaledTM = Math.round(tm * Math.pow(1 + weeklyJump, wi));
-                var topWt   = round5(scaledTM * wave.real[0]);
-                var estReps = Math.max(1, Math.round((raw - topWt) / (topWt * 0.0333)));
-                cell.innerHTML =
-                    '<div class="amrap-lift-name">'+lift+'</div>' +
-                    '<div class="amrap-wt">'+topWt+'<small>lbs</small></div>' +
-                    '<div class="amrap-reps">~'+estReps+' reps</div>';
-            }
-            col.appendChild(cell);
-        });
-        grid.appendChild(col);
-    });
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
 }
 
 function generateProgram(){
@@ -339,8 +291,6 @@ function generateProgram(){
     for(var k in raw) baseTms[k] = useTM ? Math.round(raw[k]*0.9) : raw[k];
     tms = Object.assign({}, baseTms);
 
-    
-    EATT.saveProgram("Juggernaut Method", {"squat1rm":document.getElementById("squat1rm").value,"bench1rm":document.getElementById("bench1rm").value,"dead1rm":document.getElementById("dead1rm").value,"ohp1rm":document.getElementById("ohp1rm").value,"useTM":document.getElementById("useTM").checked}, [], 0);
     document.getElementById("setupPanel").style.display = "none";
     document.getElementById("controls").style.display   = "block";
     document.getElementById("tableWrap").style.display  = "block";
@@ -349,7 +299,6 @@ function generateProgram(){
 }
 
 function renderTable(){
-    if(document.getElementById("completeBanner")) showJuggBtn();
     var wi = parseInt(document.getElementById("waveSel").value)||0;
     var wki = parseInt(document.getElementById("weekSel").value)||0;
     var di = parseInt(document.getElementById("daySel").value)||0;
@@ -378,12 +327,8 @@ function renderTable(){
             tb.appendChild(tr);
         });
         var rl = wave.real;
-        var topWt = round5(tm * rl[0]);
-        var useTM = document.getElementById("useTM").checked;
-        var true1rm = useTM ? Math.round(baseTms[lift] / 0.9) : baseTms[lift];
-        var estReps = Math.max(1, Math.round((true1rm - topWt) / (topWt * 0.0333)));
         var tr2 = document.createElement("tr");
-        tr2.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>'+rl[1]+'<br><span style="font-size:0.75rem;opacity:0.55;font-weight:400">est. ~'+estReps+' reps</span></td><td>'+topWt+' lbs ('+Math.round(rl[0]*100)+'%)</td>';
+        tr2.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>'+rl[1]+'</td><td>'+round5(tm*rl[0])+' lbs ('+Math.round(rl[0]*100)+'%)</td>';
         tb.appendChild(tr2);
     } else {
         // Deload
@@ -394,7 +339,7 @@ function renderTable(){
     }
 
     // Accessories
-    accessories[di].forEach(function(acc){
+    getAccs(di).forEach(function(acc){
         var tr = document.createElement("tr");
         tr.innerHTML = '<td class="type-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td>Moderate</td>';
         tb.appendChild(tr);
@@ -406,59 +351,34 @@ function renderTable(){
     banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>';
 }
 
+function shuffleJugg(){
+    var di = parseInt(document.getElementById("daySel").value)||0;
+    currentAccs[di] = sample(accPool[di], 4);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderTable();
+}
+
 function resetSetup(){
     document.getElementById("setupPanel").style.display = "block";
     document.getElementById("controls").style.display   = "none";
     document.getElementById("tableWrap").style.display  = "none";
     document.getElementById("waveBanner").style.display = "none";
 }
-
-var completedDaysJugg = {};
-function showJuggBtn(){
-    var wave = document.getElementById("waveSel").value;
-    var week = document.getElementById("weekSel").value;
-    var day  = document.getElementById("daySel").value;
-    var key  = wave+"_"+week+"_"+day;
-    var banner = document.getElementById("completeBanner");
-    var inner  = document.getElementById("completeBannerInner");
-    banner.style.display = "block";
-    if(completedDaysJugg[key]){
-        inner.style.justifyContent = "center";
-        inner.innerHTML = '<div class="cb-done-text">&#10003; Day logged</div>';
-    } else {
-        inner.style.justifyContent = "";
-        inner.innerHTML = '<div><div class="cb-label">Juggernaut Method</div><div class="cb-title">Wave '+wave+', Week '+week+', Day '+day+'</div></div>'
-            + '<button class="cb-btn" onclick="completeJuggDay()">&#10003; Complete This Day</button>';
-    }
-}
-function completeJuggDay(){
-    var wave = document.getElementById("waveSel").value;
-    var week = document.getElementById("weekSel").value;
-    var day  = document.getElementById("daySel").value;
-    var key  = wave+"_"+week+"_"+day;
-    if(completedDaysJugg[key]) return;
-    completedDaysJugg[key] = true;
-    var payload = {programName:"Juggernaut Method",week:parseInt(week)||1,day:parseInt(day)||1,
-        label:"Wave "+wave+", Week "+week+", Day "+day,
-        exercises:[{name:"Juggernaut Training",sets:3,reps:8,weight:0}],
-        notes:null,completedAt:new Date().toISOString()};
-    localStorage.setItem("eatt_pending_session", JSON.stringify(payload));
-    try{ var raw=localStorage.getItem("eatt_prog_juggernaut_method"); if(raw){var s=JSON.parse(raw);s.cursor=parseInt(week)||1;localStorage.setItem("eatt_prog_juggernaut_method",JSON.stringify(s));} }catch(e){}
-    showJuggBtn();
-}
-document.addEventListener("DOMContentLoaded", function(){
-    EATT.checkResume("Juggernaut Method", function(saved){
-        if(saved.config){
-            if(saved.config.squat1rm) document.getElementById("squat1rm").value = saved.config.squat1rm;
-            if(saved.config.bench1rm) document.getElementById("bench1rm").value = saved.config.bench1rm;
-            if(saved.config.dead1rm)  document.getElementById("dead1rm").value  = saved.config.dead1rm;
-            if(saved.config.ohp1rm)   document.getElementById("ohp1rm").value   = saved.config.ohp1rm;
-            if(saved.config.useTM !== undefined) document.getElementById("useTM").checked = saved.config.useTM;
-        }
-        generateProgram();
-        if(saved.cursor){ var ws=document.getElementById("weekSel"); if(ws){ws.value=saved.cursor;} renderTable(); }
-    });
-});
 </script>
+
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">🏋️</div>
+      <div class="popup-title">Waves Build Monsters.</div>
+    </div>
+    <div class="popup-body">The Juggernaut method runs in waves for a reason — volume builds the base, intensity cashes the check. <strong>Each wave has a job. Don't skip them.</strong><br><br>Your numbers are a starting point. If the weight moves fast, push harder on your AMRAP. If you're grinding, stay conservative — the next wave will be heavier anyway.<br><br>Swap accessories freely. Add weight when it's flying. The program handles the strategy — <strong>your job is to execute.</strong></div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">UNLEASH THE JUGGERNAUT</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
