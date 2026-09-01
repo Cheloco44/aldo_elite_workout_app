@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELITE ALDO TRAINING TEMPLATES</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="eatt-program-save.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -67,7 +66,6 @@ nav {
     background: none;
     border: none;
     color: rgba(255,255,255,0.55);
-    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 0.78rem;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -75,396 +73,190 @@ nav {
     border-radius: 8px;
     cursor: pointer;
     transition: color 0.2s, background 0.2s;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
 }
 .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
 
-.nav-btn-membership {
-    color: #f0d080;
-    border: 1px solid rgba(240,208,128,0.35);
-}
-.nav-btn-membership:hover { background: rgba(240,208,128,0.1); color: #ffd700; }
 
-/* User chip in nav — shown when logged in */
-.nav-user-chip {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,215,0,0.1);
-    border: 1px solid rgba(255,215,0,0.25);
-    border-radius: 20px;
-    padding: 5px 12px 5px 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #ffd700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-decoration: none;
-}
-.nav-user-chip:hover { background: rgba(255,215,0,0.18); }
-.nav-user-avatar {
-    width: 24px; height: 24px;
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-weight: 900; color: #fff;
-}
-.nav-plan-pill {
-    font-size: 0.55rem; font-weight: 800; letter-spacing: 1px;
-    padding: 2px 6px; border-radius: 8px; text-transform: uppercase;
-}
-.pill-free    { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
-.pill-basic   { background: rgba(255,150,0,0.2); color: #ffb347; }
-.pill-basic-plus { background: rgba(255,81,47,0.2); color: #ff8c42; }
-.pill-coach   { background: rgba(120,180,255,0.2); color: #7eb8ff; }
 
-/* ===== OVERLAY ===== */
-#overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    background: rgba(5, 4, 20, 0.94);
-    backdrop-filter: blur(14px);
-    overflow-y: auto;
-    transition: opacity 0.4s ease;
-}
-#overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
 
-.overlay-scroll {
-    min-height: 100%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 60px 16px 40px;
-}
 
-.overlay-box {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 40px 36px;
-    width: 100%;
-    max-width: 440px;
-    text-align: center;
-    position: relative;
-}
 
-.overlay-close {
-    position: fixed;
-    top: 14px; right: 16px;
-    background: rgba(10,8,30,0.9);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
-    width: 38px; height: 38px;
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.8);
-    font-size: 1.2rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s, background 0.2s;
-    z-index: 600;
-}
-.overlay-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
 
-.overlay-logo {
-    width: 70px; height: 70px;
-    border-radius: 14px; object-fit: cover;
-    margin-bottom: 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
 
-.overlay-title {
-    font-size: 1.5rem; font-weight: 700;
-    letter-spacing: 3px; margin-bottom: 4px;
-}
 
-.overlay-sub {
-    font-size: 0.78rem; letter-spacing: 2px;
-    opacity: 0.4; text-transform: uppercase; margin-bottom: 30px;
-}
-
-.overlay-tabs {
-    display: flex;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 28px;
-}
-.overlay-tab {
-    flex: 1; background: none; border: none;
-    color: rgba(255,255,255,0.4);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
-    padding: 10px 6px; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    transition: color 0.2s, border-color 0.2s;
-}
-.overlay-tab.active { color: #fff; border-bottom-color: #fff; }
-
-.overlay-panel { display: none; }
-.overlay-panel.active { display: block; }
-
-/* Auth fields */
-.login-field {
-    width: 100%;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 13px 16px;
-    color: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-.login-field:focus { border-color: rgba(255,255,255,0.4); }
-.login-field::placeholder { color: rgba(255,255,255,0.25); }
-
-.login-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    border: none; border-radius: 10px; padding: 14px; color: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-    cursor: pointer; margin-top: 4px;
-    transition: opacity 0.2s, transform 0.15s;
-}
-.login-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-.login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-.login-divider {
-    margin: 20px 0; font-size: 0.72rem;
-    letter-spacing: 2px; opacity: 0.3; text-transform: uppercase;
-}
-
-.guest-btn {
-    width: 100%; background: none;
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 13px;
-    color: rgba(255,255,255,0.6);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase;
-    cursor: pointer; transition: border-color 0.2s, color 0.2s;
-}
 .guest-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
 
-/* Auth tabs (login/signup) */
-.auth-subtabs {
-    display: flex; gap: 0;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px; padding: 3px; margin-bottom: 22px;
-}
-.auth-subtab {
-    flex: 1; padding: 8px; text-align: center;
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-    border-radius: 6px; cursor: pointer; transition: all 0.2s;
-    color: rgba(255,255,255,0.4); border: none; background: none;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-.auth-subtab.active { background: rgba(255,255,255,0.12); color: #fff; }
 
-.auth-msg {
-    font-size: 0.78rem; text-align: center; margin-top: 10px;
-    padding: 8px 12px; border-radius: 8px; display: none;
+.plans {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
 }
-.auth-msg.error { background: rgba(255,50,50,0.1); color: #ff8a8a; border: 1px solid rgba(255,50,50,0.2); }
-.auth-msg.success { background: rgba(56,239,125,0.1); color: #38ef7d; border: 1px solid rgba(56,239,125,0.2); }
-
-/* Forgot password link */
-.forgot-link {
-    background: none; border: none; color: rgba(255,255,255,0.3);
-    font-size: 0.72rem; letter-spacing: 1px; cursor: pointer;
-    text-decoration: underline; margin-top: 8px; display: block; width: 100%; text-align: center;
-    font-family: 'Segoe UI', Arial, sans-serif; transition: color 0.2s;
-}
-.forgot-link:hover { color: rgba(255,255,255,0.6); }
-
-/* Logged-in state inside overlay */
-.logged-in-state { display: none; text-align: center; padding: 10px 0; }
-.logged-in-avatar {
-    width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 14px;
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.6rem; font-weight: 900;
-}
-.logged-in-name { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
-.logged-in-email { font-size: 0.75rem; opacity: 0.4; margin-bottom: 20px; }
-.logged-in-plan {
-    display: inline-block; font-size: 0.65rem; font-weight: 800; letter-spacing: 2px;
-    text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px;
-}
-.lp-free    { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
-.lp-basic   { background: rgba(255,150,0,0.2); color: #ffb347; border: 1px solid rgba(255,150,0,0.3); }
-.lp-basic-plus { background: rgba(255,81,47,0.2); color: #ff8c42; border: 1px solid rgba(255,81,47,0.3); }
-.lp-coach   { background: rgba(120,180,255,0.2); color: #7eb8ff; border: 1px solid rgba(120,180,255,0.3); }
-
-.overlay-action-row { display: flex; gap: 10px; margin-bottom: 10px; }
-.overlay-action-btn {
-    flex: 1; padding: 11px 8px; border-radius: 10px; border: none;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-    cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: opacity 0.2s, transform 0.15s;
-}
-.overlay-action-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-.btn-account { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
-.btn-signout { background: rgba(255,50,50,0.1); color: #ff8a8a; border: 1px solid rgba(255,50,50,0.2); }
-
-/* Membership / plans */
-.membership-heading {
-    font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase;
-    opacity: 0.45; margin-bottom: 20px;
-}
-
-.plans { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
 .plan {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 18px 20px; text-align: left; position: relative;
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: left;
+    position: relative;
 }
-.plan-popular { border-color: rgba(240,208,128,0.4); background: rgba(240,208,128,0.05); }
+
+.plan-popular {
+    border-color: rgba(240,208,128,0.4);
+    background: rgba(240,208,128,0.05);
+}
+
 .plan-badge {
-    position: absolute; top: -10px; right: 16px;
+    position: absolute;
+    top: -10px; right: 16px;
     background: linear-gradient(135deg, #f7971e, #ffd200);
-    color: #1a1a1a; font-size: 0.6rem; font-weight: 800;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    padding: 3px 10px; border-radius: 20px;
+    color: #1a1a1a;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
 }
-.plan-name { font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; text-transform: uppercase; }
+
+.plan-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
 .plan-popular .plan-name { color: #f0d080; }
-.plan-price { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
-.plan-price span { font-size: 0.75rem; opacity: 0.5; font-weight: 400; }
-.plan-desc { font-size: 0.78rem; opacity: 0.5; line-height: 1.4; }
-.plan-features { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
-.feature { font-size: 0.75rem; opacity: 0.75; text-align: left; }
-.feature.muted { opacity: 0.28; }
-.plan-coach { border-color: rgba(120,180,255,0.35); background: rgba(120,180,255,0.05); }
-.plan-coach .plan-name { color: #7eb8ff; }
+
+
+
+
+.plan-desc {
+    font-size: 0.78rem;
+    opacity: 0.5;
+    line-height: 1.4;
+}
 
 .coming-soon-label {
-    font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; opacity: 0.35;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.35;
 }
 
-/* Current program panel */
-.current-program-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px; padding: 18px; text-align: left; margin-bottom: 12px;
+.plan-features {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
-.cp-name { font-size: 1rem; font-weight: 700; color: #ffd700; margin-bottom: 4px; }
-.cp-meta { font-size: 0.75rem; opacity: 0.5; margin-bottom: 10px; }
-.cp-badge {
-    display: inline-block; font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px;
-    text-transform: uppercase; padding: 3px 10px; border-radius: 10px;
-    background: rgba(56,239,125,0.15); color: #38ef7d; border: 1px solid rgba(56,239,125,0.25);
-}
-.cp-complete-btn {
-    margin-top: 10px; padding: 8px 16px; background: none;
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
-    color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
-    cursor: pointer; font-family: 'Segoe UI', Arial, sans-serif; transition: all 0.2s;
-}
-.cp-complete-btn:hover { border-color: rgba(56,239,125,0.4); color: #38ef7d; }
+.feature { font-size: 0.75rem; opacity: 0.75; text-align: left; }
+.feature.muted { opacity: 0.28; }
 
-/* Saved build cards (localStorage) */
-.cp-section-lbl {
-    font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
-    color: rgba(255,215,0,0.4); margin: 0 0 10px;
+.plan-coach {
+    border-color: rgba(120, 180, 255, 0.35);
+    background: rgba(120, 180, 255, 0.05);
 }
-.saved-build-card {
-    background: linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,81,47,0.04));
-    border: 1px solid rgba(255,215,0,0.2);
-    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 10px; text-align: left;
-}
-.sb-name { font-size: 0.95rem; font-weight: 800; color: #ffd700; margin-bottom: 3px; }
-.sb-meta { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
-.sb-bar-wrap { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-top: 8px; width: 100%; }
-.sb-bar-fill { height: 100%; background: linear-gradient(90deg, #ff512f, #ffd700); border-radius: 2px; }
-.sb-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-.sb-resume {
-    padding: 8px 16px; background: linear-gradient(135deg, #b8860b, #ffd700);
-    color: #111; border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 900;
-    letter-spacing: 1px; cursor: pointer; text-decoration: none; display: inline-block;
-    transition: transform 0.2s;
-}
-.sb-resume:hover { transform: scale(1.03); }
-.sb-clear {
-    padding: 7px 11px; background: transparent;
-    border: 1px solid rgba(255,50,50,0.2); color: rgba(255,107,107,0.5);
-    border-radius: 8px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
-}
-.sb-clear:hover { background: rgba(255,50,50,0.1); color: #ff6b6b; border-color: rgba(255,50,50,0.4); }
-
-/* Archive entries */
-.archive-entry {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; text-align: left;
-    transition: border-color 0.2s;
-}
-.archive-entry:hover { border-color: rgba(255,215,0,0.2); }
-.ae-title { font-size: 0.9rem; font-weight: 700; color: #ffd700; margin-bottom: 3px; }
-.ae-meta { font-size: 0.72rem; opacity: 0.45; margin-bottom: 8px; }
-.ae-exercises { display: flex; flex-wrap: wrap; gap: 5px; }
-.ae-ex-chip {
-    font-size: 0.65rem; padding: 2px 8px; border-radius: 8px;
-    background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.6);
-}
+.plan-coach .plan-name { color: #7eb8ff; }
 
 .coming-soon-panel { padding: 30px 0; opacity: 0.5; }
 .coming-soon-panel .icon { font-size: 2.5rem; margin-bottom: 14px; }
 .coming-soon-panel .label {
-    font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
 }
 
 /* ===== MAIN CONTENT ===== */
 .landing {
-    text-align: center; position: relative; z-index: 1; width: 100%; max-width: 1100px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1100px;
 }
 
 .logo {
-    width: 140px; height: 140px; border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6); margin-bottom: 25px; object-fit: cover;
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    margin-bottom: 25px;
+    object-fit: cover;
 }
 
-h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); letter-spacing: 2px; }
-.subtitle { font-size: 1.1rem; opacity: 0.65; margin-bottom: 40px; }
+h1 {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.65;
+    margin-bottom: 40px;
+}
 
 .section-label {
-    width: 100%; text-align: left; font-size: 0.8rem; font-weight: 700;
-    letter-spacing: 3px; opacity: 0.5; text-transform: uppercase; margin: 30px 0 14px 6px;
+    width: 100%;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin: 30px 0 14px 6px;
 }
 
-.cards { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.cards {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
 
 .card {
-    width: 260px; padding: 44px 20px 24px; border-radius: 20px; cursor: pointer;
-    text-decoration: none; color: #fff; transition: transform 0.3s, box-shadow 0.3s;
-    display: block; position: relative; overflow: hidden;
+    width: 260px;
+    padding: 44px 20px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: block;
+    position: relative;
+    overflow: hidden;
 }
-.card::after {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,255,255,0.0); transition: background 0.3s; border-radius: 20px;
-}
+
 .card:hover { transform: translateY(-8px) scale(1.03); }
-.card:hover::after { background: rgba(255,255,255,0.06); }
-.card-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.card-img { width: 85%; max-height: 100px; object-fit: contain; margin: 8px auto 12px; display: block; }
+
+.card-img {
+    width: 85%;
+    max-height: 100px;
+    object-fit: contain;
+    margin: 8px auto 12px;
+    display: block;
+    mix-blend-mode: multiply;
+    filter: contrast(1.05);
+}
 .card h2 { font-size: 1.2rem; margin-bottom: 8px; letter-spacing: 1px; }
 .card p { font-size: 0.88rem; opacity: 0.85; line-height: 1.5; }
+
 .card-badge {
-    position: absolute; top: 12px; right: 12px;
-    font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px;
-    padding: 3px 9px; border-radius: 20px;
-    background: rgba(255,255,255,0.2); text-transform: uppercase;
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.2);
+    text-transform: uppercase;
 }
 
 .card-531    { background: linear-gradient(135deg, #ff512f, #dd2476); box-shadow: 0 8px 25px rgba(255,81,47,0.3); }
@@ -497,23 +289,6 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
 .card-nutrition:hover { box-shadow: 0 15px 40px rgba(62,207,142,0.38); border-color: rgba(62,207,142,0.55); }
 .card-nutrition p { color: rgba(200,240,220,0.9); }
 
-/* Toast */
-.toast {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px);
-    background: rgba(15,12,40,0.98); border: 1px solid rgba(255,215,0,0.3);
-    border-radius: 10px; padding: 11px 22px;
-    font-size: 0.85rem; font-weight: 600; color: #ffd700;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
-    pointer-events: none;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.error { border-color: rgba(255,50,50,0.3); color: #ff8a8a; }
-.toast.success { border-color: rgba(56,239,125,0.3); color: #38ef7d; }
-
-/* Loader */
-.mini-loader { text-align: center; padding: 24px 0; opacity: 0.4; font-size: 0.82rem; letter-spacing: 2px; }
-
 @media (max-width: 640px) {
     h1 { font-size: 1.8rem; }
     .card { width: 100%; max-width: 340px; padding: 26px 20px; }
@@ -522,11 +297,158 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
     .nav-brand { font-size: 0.85rem; letter-spacing: 2px; }
     .nav-btn { padding: 7px 10px; font-size: 0.7rem; }
     .overlay-box { padding: 36px 20px; margin: 0 16px; }
-    .overlay-action-row { flex-direction: column; }
 }
+
+/* ===== WORK IN PROGRESS CARDS ===== */
+.card-wip {
+    pointer-events: none;
+    filter: grayscale(1) brightness(0.45);
+    opacity: 0.5;
+    position: relative;
+}
+.card-wip .card-badge {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+}
+.wip-label {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.62rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+/* EMAIL GATE */
+#emailGate {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.88); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+}
+#emailGate.active { display: flex; }
+.gate-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 44px 36px; max-width: 420px; width: 90%;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.7); text-align: center;
+}
+.gate-logo { height: 70px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+.gate-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
+.gate-sub { font-size: 0.82rem; opacity: 0.5; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 28px; }
+.gate-label { font-size: 0.78rem; opacity: 0.55; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.gate-input {
+    width: 100%; padding: 13px 16px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+    color: #fff; font-size: 0.95rem; margin-bottom: 6px; text-align: center;
+    outline: none; transition: border-color 0.2s;
+}
+.gate-input:focus { border-color: rgba(255,255,255,0.35); }
+.gate-input::placeholder { color: rgba(255,255,255,0.22); }
+.gate-error { font-size: 0.75rem; color: #ff6b6b; margin-bottom: 14px; display: none; }
+.gate-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff; font-size: 0.88rem; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; margin-top: 4px;
+}
+.gate-btn:hover { opacity: 0.88; transform: translateY(-2px); }
+.gate-note { font-size: 0.7rem; opacity: 0.3; margin-top: 16px; }
+
+/* ===== DASHBOARD PANEL ===== */
+#dashboard {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.82); backdrop-filter: blur(6px);
+    align-items: flex-start; justify-content: center; padding: 40px 16px;
+    overflow-y: auto;
+}
+#dashboard.active { display: flex; }
+.dash-box {
+    background: linear-gradient(145deg, #12192e, #0c1220);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px; width: 100%; max-width: 640px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.7); overflow: hidden;
+}
+.dash-header {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    padding: 20px 28px; display: flex; align-items: center; justify-content: space-between;
+}
+.dash-header h2 { font-size: 1rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; }
+.dash-close {
+    background: rgba(255,255,255,0.15); border: none; color: #fff;
+    width: 32px; height: 32px; border-radius: 8px; font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+.dash-close:hover { background: rgba(255,255,255,0.28); }
+.dash-tabs {
+    display: flex; border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 24px;
+}
+.dash-tab {
+    padding: 14px 18px; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s; background: none; border-top: none;
+    border-left: none; border-right: none;
+}
+.dash-tab.active { color: #ff8c42; border-bottom-color: #ff8c42; }
+.dash-panel { display: none; padding: 24px; }
+.dash-panel.active { display: block; }
+.dash-loading { text-align: center; opacity: 0.4; padding: 40px; font-size: 0.85rem; letter-spacing: 1px; }
+.dash-empty { text-align: center; padding: 48px 24px; }
+.dash-empty-icon { font-size: 2.8rem; margin-bottom: 14px; }
+.dash-empty-msg { font-size: 0.88rem; opacity: 0.45; line-height: 1.6; }
+
+/* Program cards */
+.prog-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.prog-card:last-child { margin-bottom: 0; }
+.prog-info { flex: 1; }
+.prog-name { font-size: 0.95rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
+.prog-meta { font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.5px; line-height: 1.6; }
+.prog-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+}
+.prog-badge.active { background: rgba(56,239,157,0.15); color: #38ef9d; border: 1px solid rgba(56,239,157,0.3); }
+.prog-badge.done { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+
+/* Log cards */
+.log-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 10px;
+}
+.log-card:last-child { margin-bottom: 0; }
+.log-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.log-program { font-size: 0.85rem; font-weight: 700; }
+.log-date { font-size: 0.72rem; opacity: 0.4; }
+.log-session { font-size: 0.78rem; opacity: 0.6; margin-bottom: 6px; }
+.log-exercises { font-size: 0.72rem; opacity: 0.38; line-height: 1.6; }
 </style>
 </head>
 <body>
+
+<!-- EMAIL GATE -->
+<div id="emailGate">
+  <div class="gate-box">
+    <img src="gorillavsbull.png" alt="Elite Aldo" class="gate-logo">
+    <div class="gate-title">ELITE ALDO</div>
+    <div class="gate-sub">Training Templates</div>
+    <div class="gate-label">Enter your email to continue</div>
+    <input id="gateEmail" class="gate-input" type="email" placeholder="you@example.com" autocomplete="email">
+    <div id="gateError" class="gate-error">Please enter a valid email address.</div>
+    <button class="gate-btn" onclick="submitEmail()">Enter</button>
+    <div class="gate-note">No spam. No subscriptions. Just your workouts.</div>
+  </div>
+</div>
+
 
 <!-- ===== NAV ===== -->
 <nav>
@@ -534,161 +456,12 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
     <div class="nav-links">
         <button class="nav-btn" onclick="showOverlayTab('current')">Current Program</button>
         <button class="nav-btn" onclick="showOverlayTab('archives')">Archives</button>
-        <button class="nav-btn nav-btn-membership" onclick="showOverlayTab('membership')">Membership</button>
-
-        <!-- Shown when logged OUT -->
-        <button class="nav-btn" id="navSignInBtn" onclick="showOverlayTab('membership')" style="display:none">Sign In</button>
-
-        <!-- Shown when logged IN -->
-        <a href="account.html" class="nav-user-chip" id="navUserChip" style="display:none">
-            <div class="nav-user-avatar" id="navAvatar">?</div>
-            <span id="navUserName">User</span>
-            <span class="nav-plan-pill" id="navPlanPill"></span>
-        </a>
     </div>
+    <button class="nav-btn" onclick="openDashboard()">My Programs</button>
 </nav>
 
-<!-- ===== OVERLAY ===== -->
-<div id="overlay" class="hidden">
-<div class="overlay-scroll">
-    <div class="overlay-box">
-        <button class="overlay-close" onclick="closeOverlay()">×</button>
-        <img src="gorillavsbull.png" alt="Logo" class="overlay-logo">
-        <div class="overlay-title">ELITE ALDO</div>
-        <div class="overlay-sub">Member Access</div>
 
-        <div class="overlay-tabs">
-            <button class="overlay-tab active" id="tab-current" onclick="switchTab('current')">Current Program</button>
-            <button class="overlay-tab" id="tab-archives" onclick="switchTab('archives')">Archives</button>
-            <button class="overlay-tab" id="tab-membership" onclick="switchTab('membership')">Membership</button>
-        </div>
-
-        <!-- CURRENT PROGRAM -->
-        <div class="overlay-panel active" id="panel-current">
-            <div id="currentProgramContent">
-                <div class="mini-loader">Loading...</div>
-            </div>
-        </div>
-
-        <!-- ARCHIVES -->
-        <div class="overlay-panel" id="panel-archives">
-            <div id="archivesContent">
-                <div class="mini-loader">Loading...</div>
-            </div>
-        </div>
-
-        <!-- MEMBERSHIP + LOGIN -->
-        <div class="overlay-panel" id="panel-membership">
-
-            <!-- LOGGED OUT STATE -->
-            <div id="authForms">
-
-                <!-- STEP 1: LOGIN / SIGNUP -->
-                <div id="authStep1">
-                    <div class="auth-subtabs">
-                        <button class="auth-subtab active" id="subtab-login" onclick="switchAuthTab('login')">Sign In</button>
-                        <button class="auth-subtab" id="subtab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
-                    </div>
-
-                    <!-- LOGIN FORM -->
-                    <div id="authLogin">
-                        <input class="login-field" type="email" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPassword').focus();}">
-                        <input class="login-field" type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin();}">
-                        <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
-                        <button class="forgot-link" onclick="handleForgotPassword()">Forgot password?</button>
-                        <div class="login-divider">or</div>
-                        <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
-                    </div>
-
-                    <!-- SIGNUP FORM — details only, plan comes next -->
-                    <div id="authSignup" style="display:none">
-                        <input class="login-field" type="text" id="signupName" placeholder="Your name">
-                        <input class="login-field" type="email" id="signupEmail" placeholder="Email address">
-                        <input class="login-field" type="password" id="signupPassword" placeholder="Password (min 6 chars)">
-                        <button class="login-btn" id="signupNextBtn" onclick="goToPlanPicker()">Next — Choose a Plan →</button>
-                        <div class="login-divider">or</div>
-                        <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
-                    </div>
-
-                    <div class="auth-msg" id="authMsg"></div>
-                </div>
-
-                <!-- STEP 2: PLAN PICKER -->
-                <div id="authStep2" style="display:none">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-                        <button onclick="backToStep1()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">←</button>
-                        <div style="font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;opacity:0.5">Step 2 — Choose Your Plan</div>
-                    </div>
-                    <div class="plans">
-                        <div class="plan signup-plan" data-plan="free" onclick="selectSignupPlan(this)" style="cursor:pointer">
-                            <div class="plan-name">Free</div>
-                            <div class="plan-price">$0 <span>/ month</span></div>
-                            <div class="plan-desc">Try it out — no commitment.</div>
-                            <div class="plan-features">
-                                <div class="feature">✓ Access 2 programs</div>
-                                <div class="feature">✓ 10 workout logs</div>
-                                <div class="feature muted">✗ AI Nutrition</div>
-                                <div class="feature muted">✗ Unlimited tracking</div>
-                            </div>
-                        </div>
-                        <div class="plan signup-plan" data-plan="basic" onclick="selectSignupPlan(this)" style="cursor:pointer">
-                            <div class="plan-name">Basic</div>
-                            <div class="plan-price">$4.99 <span>/ month</span></div>
-                            <div class="plan-desc">Full access to all workout templates.</div>
-                            <div class="plan-features">
-                                <div class="feature">✓ All program templates</div>
-                                <div class="feature">✓ Unlimited logs</div>
-                                <div class="feature muted">✗ AI Nutrition</div>
-                                <div class="feature muted">✗ Coach tools</div>
-                            </div>
-                        </div>
-                        <div class="plan plan-popular signup-plan" data-plan="basic+" onclick="selectSignupPlan(this)" style="cursor:pointer">
-                            <div class="plan-badge">Most Popular</div>
-                            <div class="plan-name">Basic+</div>
-                            <div class="plan-price">$7.99 <span>/ month</span></div>
-                            <div class="plan-desc">Everything in Basic, plus AI nutrition.</div>
-                            <div class="plan-features">
-                                <div class="feature">✓ All program templates</div>
-                                <div class="feature">✓ AI Nutrition coach</div>
-                                <div class="feature">✓ Unlimited tracking</div>
-                                <div class="feature muted">✗ Coach tools</div>
-                            </div>
-                        </div>
-                        <div class="plan plan-coach signup-plan" data-plan="coach" onclick="selectSignupPlan(this)" style="cursor:pointer">
-                            <div class="plan-name">Coach</div>
-                            <div class="plan-price">$9.99 <span>/ month</span></div>
-                            <div class="plan-desc">Full platform for coaches &amp; athletes.</div>
-                            <div class="plan-features">
-                                <div class="feature">✓ Everything in Basic+</div>
-                                <div class="feature">✓ Coach Import Tool</div>
-                                <div class="feature">✓ Client tracking</div>
-                                <div class="feature">✓ Shareable programs</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="auth-msg" id="authMsg2"></div>
-                    <button class="login-btn" id="signupBtn" onclick="handleSignup()" style="display:none;margin-top:4px">Create Account</button>
-                    <div style="text-align:center;margin-top:12px;font-size:0.68rem;opacity:0.3;letter-spacing:1px">Paid plans launch soon — your selection is saved</div>
-                </div>
-
-            </div>
-
-            <!-- LOGGED IN STATE -->
-            <div class="logged-in-state" id="loggedInState">
-                <div class="logged-in-avatar" id="liAvatar">?</div>
-                <div class="logged-in-name" id="liName">Athlete</div>
-                <div class="logged-in-email" id="liEmail"></div>
-                <div class="logged-in-plan" id="liPlan">Free</div>
-                <div class="overlay-action-row">
-                    <a href="account.html" class="overlay-action-btn btn-account">👤 My Account</a>
-                    <button class="overlay-action-btn btn-signout" onclick="handleSignOut()">Sign Out</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-</div>
+<!-- ===== MAIN
 
 <!-- ===== MAIN ===== -->
 <div class="landing">
@@ -698,46 +471,46 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
 
     <div class="section-label">⚡ Core Programs</div>
     <div class="cards">
-        <a href="531workout.html" class="card card-531">
-            <div class="card-badge">Intermediate</div>
-            <img src="531.png" alt="5/3/1 Program" class="card-img">
-            <h2>5/3/1 PROGRAM</h2>
-            <p>Wendler's proven strength program. Build your cycle based on your maxes.</p>
-        </a>
-        <a href="oldman_workout.html" class="card card-oms">
-            <div class="card-badge">Beginner Friendly</div>
+        <a class="card card-wip card-oms">
+            <div class="card-badge">Coming Soon</div>
             <img src="oldman.png" alt="Old Man Strength" class="card-img">
             <h2>OLD BUT SPRY</h2>
             <p>Age-adapted DB &amp; Band workouts. Smart progression based on your numbers.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
         <a href="stronglifts.html" class="card card-sl">
             <div class="card-badge">Beginner Friendly</div>
             <img src="5x5.png" alt="Stronglifts 5x5" class="card-img">
-            <h2>Classic 5×5</h2>
+            <h2>THE CLASSIC 5×5</h2>
             <p>Two alternating workouts. Add weight every session. Simple, brutal, effective.</p>
         </a>
     </div>
 
     <div class="section-label">🏋️ Powerlifting</div>
     <div class="cards">
+        <a href="531workout.html" class="card card-531">
+            <div class="card-badge">Intermediate</div>
+            <img src="531.png" alt="5/3/1 Program" class="card-img">
+            <h2>5/3/1 PROGRAM</h2>
+            <p>Wendler's proven strength program. Build your cycle based on your maxes.</p>
+        </a>
         <a href="juggernaut.html" class="card card-jug">
             <div class="card-badge">Intermediate</div>
             <img src="jugg.png" alt="Juggernaut Method" class="card-img">
             <h2>JUGGERNAUT METHOD</h2>
             <p>Wave-based auto-regulation built for powerlifters who also want size.</p>
         </a>
-        <a href="westside.html" class="card card-west">
-            <div class="card-badge">Advanced</div>
+        <a class="card card-wip card-west">
+            <div class="card-badge">Coming Soon</div>
             <img src="conjugate.png" alt="Westside Conjugate" class="card-img">
             <h2>CONJUGATE</h2>
             <p>Max Effort &amp; Dynamic Effort. The Louie Simmons system for elite strength.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">🪨 Strongman</div>
     <div class="cards">
         <a href="strongman531.html" class="card card-sm531">
-            <div class="card-badge">Strength + Events</div>
+            <div class="card-badge">Intermediate</div>
             <img src="531strongman.png" alt="5/3/1 Strongman" class="card-img">
             <h2>5/3/1 FOR STRONGMAN</h2>
             <p>Wendler's framework adapted with event-specific training. Compete &amp; conquer.</p>
@@ -748,22 +521,22 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
             <h2>CUBE METHOD</h2>
             <p>Rotate heavy, explosive, and rep days around the big three. Peak for the platform.</p>
         </a>
-        <a href="strongmanevents.html" class="card card-events">
-            <div class="card-badge">Custom Events</div>
+        <a class="card card-wip card-events">
+            <div class="card-badge">Coming Soon</div>
             <img src="eventbuilder.png" alt="Strongman Event Builder" class="card-img">
             <h2>STRONGMAN EVENT BUILDER</h2>
             <p>Pick your events, set your timeline &amp; weights. Your comp prep, your way.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">💎 Bodybuilding</div>
     <div class="cards">
-        <a href="arnoldsplit.html" class="card card-arnold">
-            <div class="card-badge">Hypertrophy</div>
+        <a class="card card-wip card-arnold">
+            <div class="card-badge">Coming Soon</div>
             <img src="arnold.png" alt="Arnold Split" class="card-img">
             <h2>ARNOLD SPLIT</h2>
             <p>6-day chest/back, shoulders/arms, legs rotation straight from the Oak's playbook.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
         <a href="brosplit.html" class="card card-bro">
             <div class="card-badge">Classic</div>
             <img src="brosplit.png" alt="Bro Split" class="card-img">
@@ -774,19 +547,18 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
 
     <div class="section-label">⚔️ Medieval Warrior Library / Pilot Programs</div>
     <div class="cards">
-        <a href="medieval.html" class="card card-medieval">
-            <div class="card-badge" style="background:rgba(201,168,76,0.25);color:#f0d080">Warrior Themed</div>
+        <a class="card card-wip card-medieval">
+            <div class="card-badge">Coming Soon</div>
             <img src="medieval.png" alt="Medieval Warrior Library" class="card-img">
-            <br><br>
             <h2>MEDIEVAL WARRIOR LIBRARY</h2>
             <p>Viking Berserker, Knight Templar &amp; more. Train like a warrior. Choose your path.</p>
-        </a>
-        <a href="deckofcards.html" class="card card-west">
-            <div class="card-badge" style="background:rgba(80,200,255,0.2);color:#7ce8ff">Pilot</div>
-            <img src="cards.png" alt="Deck of Cards" class="card-img" style="max-height:140px;">
+        <div class="wip-label">🚧 Work in Progress</div></a>
+        <a class="card card-wip card-west">
+            <div class="card-badge">Coming Soon</div>
+            <div class="card-img" style="font-size:3.5rem;text-align:center;padding:12px 0;display:block;">🃏</div>
             <h2>DECK OF CARDS</h2>
             <p>5, 15, or 30 minutes. Any equipment. Flip a card — get a full press, hinge &amp; squat workout on the spot.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">🛠️ Coach Tools</div>
@@ -796,435 +568,194 @@ h1 { font-size: 2.4rem; margin-bottom: 8px; text-shadow: 2px 2px 10px rgba(0,0,0
             <img src="nutrition.png" alt="Nutrition Planner" class="card-img">
             <p>Enter your stats and training type. Get a personalized meal plan with macros calculated to your exact calorie target.</p>
         </a>
-        <a href="coachimport.html" class="card card-coach">
-            <div class="card-badge">AI Powered</div>
+        <a class="card card-wip card-coach">
+            <div class="card-badge">Coming Soon</div>
             <img src="coach.png" alt="Coach Import Tool" class="card-img">
             <p>Drop in your Word or Excel program. AI converts it instantly — share with any client.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// ══════════════════════════════════════════════════
-// SUPABASE CONFIG — Replace with your values
-// ══════════════════════════════════════════════════
-const SUPABASE_URL = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
+// ── Supabase init ─────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
 
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ── Email gate ────────────────────────────────────────────────────────────────
+if (!sessionStorage.getItem('aldo_email')) {
+    document.getElementById('emailGate').classList.add('active');
+}
 
-let currentUser = null;
-let userProfile = null;
-
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await db.auth.getSession();
-    if (session) {
-        currentUser = session.user;
-        await onSignedIn();
-    } else {
-        onSignedOut();
+function submitEmail() {
+    var val = document.getElementById('gateEmail').value.trim();
+    if (!val || !val.includes('@')) {
+        document.getElementById('gateError').style.display = 'block';
+        return;
     }
+    sessionStorage.setItem('aldo_email', val);
+    document.getElementById('emailGate').classList.remove('active');
+}
 
-    db.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            currentUser = session.user;
-            await onSignedIn();
-        } else if (event === 'SIGNED_OUT') {
-            currentUser = null;
-            onSignedOut();
-        }
-    });
-
-    // Show overlay on first visit
-    if (!sessionStorage.getItem('aldo_visited')) {
-        document.getElementById('overlay').classList.remove('hidden');
-        switchTab('membership');
-    }
+document.getElementById('gateEmail').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') submitEmail();
 });
 
-async function onSignedIn() {
-    // Load profile
-    const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-    userProfile = data || { plan: 'free' };
-
-    const name = userProfile?.display_name || currentUser.email.split('@')[0];
-    const plan = userProfile?.plan || 'free';
-    const initial = name.charAt(0).toUpperCase();
-
-    // Update nav
-    document.getElementById('navUserChip').style.display = 'flex';
-    document.getElementById('navSignInBtn').style.display = 'none';
-    document.getElementById('navAvatar').textContent = initial;
-    document.getElementById('navUserName').textContent = name;
-    const pill = document.getElementById('navPlanPill');
-    pill.textContent = plan.toUpperCase();
-    pill.className = 'nav-plan-pill pill-' + plan.replace('+','-plus').replace(' ','-');
-
-    // Update membership overlay — logged in state
-    document.getElementById('authForms').style.display = 'none';
-    document.getElementById('loggedInState').style.display = 'block';
-    document.getElementById('liAvatar').textContent = initial;
-    document.getElementById('liName').textContent = name;
-    document.getElementById('liEmail').textContent = currentUser.email;
-    const liPlan = document.getElementById('liPlan');
-    liPlan.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
-    liPlan.className = 'logged-in-plan lp-' + plan.replace('+','-plus').replace(' ','-');
-
-    // Load overlay panels
-    await loadCurrentProgram();
-    await loadArchives();
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function openDashboard() {
+    document.getElementById('dashboard').classList.add('active');
+    loadCurrentPrograms();
+    loadArchives();
 }
 
-function onSignedOut() {
-    document.getElementById('navUserChip').style.display = 'none';
-    document.getElementById('loggedInState').style.display = 'none';
-    document.getElementById('authForms').style.display = 'block';
-    renderCurrentProgramGuest();
-    renderArchivesGuest();
+function closeDashboard() {
+    document.getElementById('dashboard').classList.remove('active');
 }
 
-// ══════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════
-let selectedPlan = 'free';
-
-function switchAuthTab(tab) {
-    document.getElementById('authLogin').style.display  = tab === 'login'  ? 'block' : 'none';
-    document.getElementById('authSignup').style.display = tab === 'signup' ? 'block' : 'none';
-    document.getElementById('subtab-login').classList.toggle('active',  tab === 'login');
-    document.getElementById('subtab-signup').classList.toggle('active', tab === 'signup');
-    // Always show step 1 when switching tabs
-    document.getElementById('authStep1').style.display = 'block';
-    document.getElementById('authStep2').style.display = 'none';
-    clearAuthMsg();
+function switchDash(tab) {
+    document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.dash-tab[onclick="switchDash('${tab}')"]`).classList.add('active');
+    document.getElementById('dash-' + tab).classList.add('active');
 }
 
-function goToPlanPicker() {
-    const name     = document.getElementById('signupName').value.trim();
-    const email    = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    if (!email || !password) return showAuthMsg('Please fill in all fields.', 'error');
-    if (password.length < 6) return showAuthMsg('Password must be at least 6 characters.', 'error');
-    clearAuthMsg();
-    document.getElementById('authStep1').style.display = 'none';
-    document.getElementById('authStep2').style.display = 'block';
-    // Reset plan selection
-    selectedPlan = 'free';
-    document.querySelectorAll('.signup-plan').forEach(p => p.style.outline = 'none');
-    document.getElementById('signupBtn').style.display = 'none';
-}
+// ── Current Programs — from program_sessions (incomplete) ────────────────────
+async function loadCurrentPrograms() {
+    const loadEl = document.getElementById('loading-current');
+    const listEl = document.getElementById('list-current');
+    loadEl.style.display = 'block';
+    listEl.innerHTML = '';
 
-function backToStep1() {
-    document.getElementById('authStep1').style.display = 'block';
-    document.getElementById('authStep2').style.display = 'none';
-    switchAuthTab('signup');
-}
-
-function selectSignupPlan(el) {
-    // Clear all selections
-    document.querySelectorAll('.signup-plan').forEach(p => {
-        p.style.outline = 'none';
-        p.style.borderColor = '';
-    });
-    // Highlight selected
-    el.style.outline = '2px solid rgba(255,215,0,0.7)';
-    el.style.borderColor = 'rgba(255,215,0,0.5)';
-    selectedPlan = el.getAttribute('data-plan');
-    // Show create account button
-    const btn = document.getElementById('signupBtn');
-    btn.style.display = 'block';
-    btn.textContent = selectedPlan === 'free'
-        ? 'Create Free Account'
-        : `Create Account — ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Plan`;
-}
-
-async function handleLogin() {
-    const email    = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if (!email || !password) return showAuthMsg('Enter your email and password.', 'error');
-
-    const btn = document.getElementById('loginBtn');
-    btn.disabled = true; btn.textContent = 'Signing in...';
-
-    const { error } = await db.auth.signInWithPassword({ email, password });
-    btn.disabled = false; btn.textContent = 'Sign In';
-
-    if (error) showAuthMsg(error.message, 'error');
-    else { closeOverlay(); showToast('Welcome back! 💪', 'success'); }
-}
-
-async function handleSignup() {
-    const name     = document.getElementById('signupName').value.trim();
-    const email    = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
-
-    const btn = document.getElementById('signupBtn');
-    btn.disabled = true; btn.textContent = 'Creating account...';
-
-    const { data, error } = await db.auth.signUp({
-        email, password,
-        options: { data: { display_name: name } }
-    });
-    btn.disabled = false;
-
-    if (error) {
-        showAuthMsg2(error.message, 'error');
-    } else {
-        // Save profile with chosen plan
-        if (data.user) {
-            await db.from('profiles').upsert({
-                id: data.user.id,
-                display_name: name || email.split('@')[0],
-                plan: selectedPlan
-            });
-        }
-        showAuthMsg2('Account created! Check your email to confirm, then sign in.', 'success');
-        btn.style.display = 'none';
-        // Switch to login tab after short delay
-        setTimeout(() => {
-            backToStep1();
-            switchAuthTab('login');
-            document.getElementById('loginEmail').value = email;
-        }, 2500);
-    }
-}
-
-async function handleForgotPassword() {
-    const email = document.getElementById('loginEmail').value.trim();
-    if (!email) return showAuthMsg('Enter your email address first.', 'error');
-    const { error } = await db.auth.resetPasswordForEmail(email);
-    if (error) showAuthMsg(error.message, 'error');
-    else showAuthMsg('Password reset email sent!', 'success');
-}
-
-async function handleSignOut() {
-    await db.auth.signOut();
-    showToast('Signed out.', 'success');
-}
-
-function showAuthMsg(msg, type) {
-    const el = document.getElementById('authMsg');
-    el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
-}
-function showAuthMsg2(msg, type) {
-    const el = document.getElementById('authMsg2');
-    el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
-}
-function clearAuthMsg() {
-    document.getElementById('authMsg').style.display = 'none';
-    const el2 = document.getElementById('authMsg2');
-    if (el2) el2.style.display = 'none';
-}
-
-// ══════════════════════════════════════════════════
-// CURRENT PROGRAM PANEL
-// ══════════════════════════════════════════════════
-const PROGRAM_PAGES = {
-    '5/3/1 Program':      '531workout.html',
-    'Viking Berserker':   'viking.html',
-    'Knight Templar':     'templar.html',
-    'Strongman 5/3/1':    'strongman531.html',
-    'Westside Conjugate': 'westside.html',
-    'Old Man Strength':   'oldman_workout.html',
-    'StrongLifts 5x5':    'stronglifts.html',
-    'Cube Method':        'cube.html',
-    'Juggernaut Method':  'juggernaut.html',
-    'Arnold Split':       'arnoldsplit.html',
-    'Bro Split':          'brosplit.html'
-};
-
-function getSavedBuilds() {
-    var out = [];
-    try {
-        var idx = JSON.parse(localStorage.getItem('eatt_prog_index') || '[]');
-        idx.forEach(function(name) {
-            try {
-                var raw = localStorage.getItem('eatt_prog_' + name.replace(/\s+/g, '_').toLowerCase());
-                if (raw) out.push(JSON.parse(raw));
-            } catch(e) {}
-        });
-    } catch(e) {}
-    return out;
-}
-
-async function loadCurrentProgram() {
-    const el = document.getElementById('currentProgramContent');
-    let html = '';
-
-    // ── Section 1: localStorage saved builds ──
-    const saved = getSavedBuilds();
-    if (saved.length > 0) {
-        html += '<div class="cp-section-lbl">Your Built Programs</div>';
-        saved.forEach(function(s) {
-            const dayNum  = (s.cursor || 0) + 1;
-            const total   = (s.program || []).length;
-            const pct     = total ? Math.min(100, Math.round(((s.cursor || 0) / total) * 100)) : 0;
-            const page    = PROGRAM_PAGES[s.programName] || '#';
-            const safe    = (s.programName || '').replace(/'/g, '');
-            const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
-            const barHTML = total ? '<div class="sb-bar-wrap"><div class="sb-bar-fill" style="width:' + pct + '%"></div></div>' : '';
-            html += '<div class="saved-build-card">'
-                  +   '<div style="flex:1;min-width:0">'
-                  +     '<div class="sb-name">' + (s.programName || '—') + '</div>'
-                  +     '<div class="sb-meta">'
-                  +       (total ? 'Day ' + dayNum + ' of ' + total + ' &nbsp;·&nbsp; ' + pct + '% done' : 'Config saved')
-                  +       (dateStr ? ' &nbsp;·&nbsp; ' + dateStr : '')
-                  +     '</div>'
-                  +     barHTML
-                  +   '</div>'
-                  +   '<div class="sb-actions">'
-                  +     '<a href="' + page + '" class="sb-resume">&#9654; Resume</a>'
-                  +     '<button class="sb-clear" onclick="clearSavedBuild(event,\'' + safe + '\')">&#10005;</button>'
-                  +   '</div>'
-                  + '</div>';
-        });
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+        loadEl.textContent = 'Sign in to see your programs.';
+        return;
     }
 
-    // ── Section 2: Supabase active programs (logged-in users) ──
-    if (currentUser) {
-        const { data } = await db.from('program_history')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .is('completed_at', null)
-            .order('started_at', { ascending: false })
-            .limit(3);
+    const { data, error } = await supa
+        .from('program_sessions')
+        .select('id, session_label, week, day, created_at, completed_at, exercises')
+        .eq('user_id', user.id)
+        .is('completed_at', null)          // not completed = active
+        .order('created_at', { ascending: false });
 
-        if (data && data.length > 0) {
-            if (saved.length > 0) {
-                html += '<div class="cp-section-lbl" style="margin-top:18px">Tracked in Account</div>';
-            }
-            html += data.map(p =>
-                '<div class="current-program-card">'
-                + '<div class="cp-name">' + p.program_name + '</div>'
-                + '<div class="cp-meta">Started ' + formatDate(p.started_at) + ' &nbsp;·&nbsp; Week ' + (p.current_week || 1) + ', Day ' + (p.current_day || 1) + '</div>'
-                + '<span class="cp-badge">Active</span><br>'
-                + '<button class="cp-complete-btn" onclick="markComplete(\'' + p.id + '\')">Mark as Complete &#10003;</button>'
-                + '</div>'
-            ).join('');
-        }
-    }
+    loadEl.style.display = 'none';
 
-    // ── Empty state ──
-    if (!html) {
-        html = '<div style="text-align:center;padding:20px 0;opacity:0.5">'
-             + '<div style="font-size:2rem;margin-bottom:12px">&#127947;</div>'
-             + '<div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">No Active Program</div>'
-             + '<div style="font-size:0.75rem;opacity:0.7;line-height:1.6">Pick a program below, enter your numbers,<br>and hit Build — it\'ll appear here.</div>'
-             + '</div>';
-    } else {
-        html += '<div style="text-align:center;margin-top:14px">'
-              + '<a href="account.html" style="color:rgba(255,215,0,0.6);font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none">Full tracking in My Account &#8594;</a>'
-              + '</div>';
-    }
-
-    el.innerHTML = html;
-}
-
-function clearSavedBuild(e, name) {
-    e.preventDefault();
-    if (!confirm('Remove "' + name + '" from Current Program?')) return;
-    localStorage.removeItem('eatt_prog_' + name.replace(/\s+/g, '_').toLowerCase());
-    try {
-        var idx = JSON.parse(localStorage.getItem('eatt_prog_index') || '[]').filter(function(n) { return n !== name; });
-        localStorage.setItem('eatt_prog_index', JSON.stringify(idx));
-    } catch(err) {}
-    loadCurrentProgram();
-}
-
-async function markComplete(id) {
-    await db.from('program_history').update({ completed_at: new Date().toISOString().split('T')[0] }).eq('id', id);
-    showToast('Program marked complete! 🏆', 'success');
-    await loadCurrentProgram();
-}
-
-function renderCurrentProgramGuest() {
-    // Show localStorage builds even for guests — no login needed
-    loadCurrentProgram();
-}
-
-// ══════════════════════════════════════════════════
-// ARCHIVES PANEL
-// ══════════════════════════════════════════════════
-async function loadArchives() {
-    const el = document.getElementById('archivesContent');
-    const { data } = await db.from('workout_logs')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('date', { ascending: false })
-        .limit(5);
-
-    if (!data || data.length === 0) {
-        el.innerHTML = `
-            <div style="text-align:center;padding:20px 0;opacity:0.5">
-                <div style="font-size:2rem;margin-bottom:12px">🗄️</div>
-                <div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">No sessions logged yet</div>
-                <div style="font-size:0.75rem;opacity:0.7">Log your first workout in <a href="account.html" style="color:#ffd700">My Account</a>.</div>
+    if (error || !data || data.length === 0) {
+        listEl.innerHTML = `
+            <div class="dash-empty">
+                <div class="dash-empty-icon">📋</div>
+                <div class="dash-empty-msg">No active programs yet.<br>Build one from the programs below.</div>
             </div>`;
         return;
     }
 
-    el.innerHTML = data.map(w => `
-        <div class="archive-entry">
-            <div class="ae-title">${w.session_name || 'Training Session'}</div>
-            <div class="ae-meta">${formatDate(w.date)}${w.program_name ? ' · ' + w.program_name : ''} · ${(w.exercises || []).length} exercises</div>
-            <div class="ae-exercises">
-                ${(w.exercises || []).slice(0,4).map(ex => `<span class="ae-ex-chip">${ex.name}</span>`).join('')}
-                ${(w.exercises || []).length > 4 ? `<span class="ae-ex-chip">+${(w.exercises||[]).length - 4} more</span>` : ''}
+    // Group by session_label (program name)
+    const grouped = {};
+    data.forEach(s => {
+        const key = s.session_label || 'Unknown Program';
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(s);
+    });
+
+    Object.entries(grouped).forEach(([name, sessions]) => {
+        const latest = sessions[0];
+        const started = new Date(latest.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const sessionCount = sessions.length;
+        const card = document.createElement('div');
+        card.className = 'prog-card';
+        card.innerHTML = `
+            <div class="prog-info">
+                <div class="prog-name">${name}</div>
+                <div class="prog-meta">
+                    Started ${started}<br>
+                    ${sessionCount} session${sessionCount !== 1 ? 's' : ''} logged
+                    ${latest.week ? ' · Week ' + latest.week : ''}
+                    ${latest.day  ? ' · Day '  + latest.day  : ''}
+                </div>
             </div>
-        </div>
-    `).join('') + `<div style="text-align:center;margin-top:14px"><a href="account.html" style="color:rgba(255,215,0,0.6);font-size:0.75rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none">View All Sessions in My Account →</a></div>`;
+            <div class="prog-badge active">Active</div>`;
+        listEl.appendChild(card);
+    });
 }
 
-function renderArchivesGuest() {
-    document.getElementById('archivesContent').innerHTML = `
-        <div style="text-align:center;padding:20px 0;opacity:0.5">
-            <div style="font-size:2rem;margin-bottom:12px">🗄️</div>
-            <div style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Sign in to view your archives</div>
-            <button onclick="switchTab('membership')" style="margin-top:10px;background:none;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 18px;color:rgba(255,255,255,0.6);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer">Sign In →</button>
-        </div>`;
-}
+// ── Archives — from workout_logs (completed days) ────────────────────────────
+async function loadArchives() {
+    const loadEl = document.getElementById('loading-archives');
+    const listEl = document.getElementById('list-archives');
+    loadEl.style.display = 'block';
+    listEl.innerHTML = '';
 
-// ══════════════════════════════════════════════════
-// OVERLAY / TAB HELPERS
-// ══════════════════════════════════════════════════
-function closeOverlay() {
-    document.getElementById('overlay').classList.add('hidden');
-    sessionStorage.setItem('aldo_visited', '1');
-}
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+        loadEl.textContent = 'Sign in to see your history.';
+        return;
+    }
 
-function showOverlayTab(tab) {
-    document.getElementById('overlay').classList.remove('hidden');
-    switchTab(tab);
-}
+    const { data, error } = await supa
+        .from('workout_logs')
+        .select('id, date, program_name, session_name, exercises, notes')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
+        .limit(30);
 
-function switchTab(tab) {
-    document.querySelectorAll('.overlay-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('panel-' + tab).classList.add('active');
-}
+    loadEl.style.display = 'none';
 
-// ══════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════
-function formatDate(d) {
-    if (!d) return '—';
-    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+    if (error || !data || data.length === 0) {
+        listEl.innerHTML = `
+            <div class="dash-empty">
+                <div class="dash-empty-icon">🗄️</div>
+                <div class="dash-empty-msg">No workouts logged yet.<br>Complete a session to see your history here.</div>
+            </div>`;
+        return;
+    }
 
-function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    data.forEach(log => {
+        const d = new Date(log.date);
+        const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const exList = Array.isArray(log.exercises)
+            ? log.exercises.slice(0, 4).map(e => e.name || e).filter(Boolean).join(' · ')
+            : '';
+        const card = document.createElement('div');
+        card.className = 'log-card';
+        card.innerHTML = `
+            <div class="log-top">
+                <div class="log-program">${log.program_name || 'Workout'}</div>
+                <div class="log-date">${dateStr}</div>
+            </div>
+            ${log.session_name ? `<div class="log-session">${log.session_name}</div>` : ''}
+            ${exList ? `<div class="log-exercises">${exList}${log.exercises.length > 4 ? ' +' + (log.exercises.length - 4) + ' more' : ''}</div>` : ''}
+            ${log.notes ? `<div class="log-exercises" style="margin-top:4px;font-style:italic">${log.notes}</div>` : ''}`;
+        listEl.appendChild(card);
+    });
 }
 </script>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard">
+  <div class="dash-box">
+    <div class="dash-header">
+      <h2>🏋️ My Dashboard</h2>
+      <button class="dash-close" onclick="closeDashboard()">×</button>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchDash('current')">Current Programs</button>
+      <button class="dash-tab" onclick="switchDash('archives')">Archives</button>
+    </div>
+
+    <!-- CURRENT PROGRAMS -->
+    <div class="dash-panel active" id="dash-current">
+      <div class="dash-loading" id="loading-current">Loading...</div>
+      <div id="list-current"></div>
+    </div>
+
+    <!-- ARCHIVES -->
+    <div class="dash-panel" id="dash-archives">
+      <div class="dash-loading" id="loading-archives">Loading...</div>
+      <div id="list-archives"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
