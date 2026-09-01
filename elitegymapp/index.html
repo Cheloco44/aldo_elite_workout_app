@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELITE ALDO TRAINING TEMPLATES</title>
 <style>
@@ -65,7 +66,6 @@ nav {
     background: none;
     border: none;
     color: rgba(255,255,255,0.55);
-    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 0.78rem;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -76,183 +76,16 @@ nav {
 }
 .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
 
-.nav-btn-membership {
-    color: #f0d080;
-    border: 1px solid rgba(240,208,128,0.35);
-}
-.nav-btn-membership:hover { background: rgba(240,208,128,0.1); color: #ffd700; }
 
-/* ===== OVERLAY ===== */
-#overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    background: rgba(5, 4, 20, 0.94);
-    backdrop-filter: blur(14px);
-    overflow-y: auto;
-    transition: opacity 0.4s ease;
-}
-#overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
 
-.overlay-scroll {
-    min-height: 100%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 60px 16px 40px;
-}
 
-.overlay-box {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 40px 36px;
-    width: 100%;
-    max-width: 440px;
-    text-align: center;
-    position: relative;
-}
 
-.overlay-close {
-    position: fixed;
-    top: 14px; right: 16px;
-    background: rgba(10,8,30,0.9);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.8);
-    font-size: 1.2rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s, background 0.2s;
-    z-index: 600;
-}
-.overlay-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
 
-.overlay-logo {
-    width: 70px;
-    height: 70px;
-    border-radius: 14px;
-    object-fit: cover;
-    margin-bottom: 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
 
-.overlay-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    margin-bottom: 4px;
-}
 
-.overlay-sub {
-    font-size: 0.78rem;
-    letter-spacing: 2px;
-    opacity: 0.4;
-    text-transform: uppercase;
-    margin-bottom: 30px;
-}
 
-.overlay-tabs {
-    display: flex;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 28px;
-}
-.overlay-tab {
-    flex: 1;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.4);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 10px 6px;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: color 0.2s, border-color 0.2s;
-}
-.overlay-tab.active {
-    color: #fff;
-    border-bottom-color: #fff;
-}
-
-.overlay-panel { display: none; }
-.overlay-panel.active { display: block; }
-
-.login-field {
-    width: 100%;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 13px 16px;
-    color: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-.login-field:focus { border-color: rgba(255,255,255,0.4); }
-.login-field::placeholder { color: rgba(255,255,255,0.25); }
-
-.login-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    color: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: opacity 0.2s, transform 0.15s;
-}
-.login-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-
-.login-divider {
-    margin: 20px 0;
-    font-size: 0.72rem;
-    letter-spacing: 2px;
-    opacity: 0.3;
-    text-transform: uppercase;
-}
-
-.guest-btn {
-    width: 100%;
-    background: none;
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 13px;
-    color: rgba(255,255,255,0.6);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 0.78rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-}
 .guest-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
 
-.membership-heading {
-    font-size: 0.72rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    opacity: 0.45;
-    margin-bottom: 20px;
-}
 
 .plans {
     display: flex;
@@ -297,16 +130,8 @@ nav {
 }
 .plan-popular .plan-name { color: #f0d080; }
 
-.plan-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-.plan-price span {
-    font-size: 0.75rem;
-    opacity: 0.5;
-    font-weight: 400;
-}
+
+
 
 .plan-desc {
     font-size: 0.78rem;
@@ -408,19 +233,8 @@ h1 {
     overflow: hidden;
 }
 
-.card::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,255,255,0.0);
-    transition: background 0.3s;
-    border-radius: 20px;
-}
-
 .card:hover { transform: translateY(-8px) scale(1.03); }
-.card:hover::after { background: rgba(255,255,255,0.06); }
 
-.card-icon { font-size: 2.5rem; margin-bottom: 12px; }
 .card-img {
     width: 85%;
     max-height: 100px;
@@ -484,9 +298,157 @@ h1 {
     .nav-btn { padding: 7px 10px; font-size: 0.7rem; }
     .overlay-box { padding: 36px 20px; margin: 0 16px; }
 }
+
+/* ===== WORK IN PROGRESS CARDS ===== */
+.card-wip {
+    pointer-events: none;
+    filter: grayscale(1) brightness(0.45);
+    opacity: 0.5;
+    position: relative;
+}
+.card-wip .card-badge {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+}
+.wip-label {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.62rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+/* EMAIL GATE */
+#emailGate {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.88); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+}
+#emailGate.active { display: flex; }
+.gate-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 44px 36px; max-width: 420px; width: 90%;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.7); text-align: center;
+}
+.gate-logo { height: 70px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+.gate-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
+.gate-sub { font-size: 0.82rem; opacity: 0.5; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 28px; }
+.gate-label { font-size: 0.78rem; opacity: 0.55; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.gate-input {
+    width: 100%; padding: 13px 16px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+    color: #fff; font-size: 0.95rem; margin-bottom: 6px; text-align: center;
+    outline: none; transition: border-color 0.2s;
+}
+.gate-input:focus { border-color: rgba(255,255,255,0.35); }
+.gate-input::placeholder { color: rgba(255,255,255,0.22); }
+.gate-error { font-size: 0.75rem; color: #ff6b6b; margin-bottom: 14px; display: none; }
+.gate-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff; font-size: 0.88rem; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; margin-top: 4px;
+}
+.gate-btn:hover { opacity: 0.88; transform: translateY(-2px); }
+.gate-note { font-size: 0.7rem; opacity: 0.3; margin-top: 16px; }
+
+/* ===== DASHBOARD PANEL ===== */
+#dashboard {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.82); backdrop-filter: blur(6px);
+    align-items: flex-start; justify-content: center; padding: 40px 16px;
+    overflow-y: auto;
+}
+#dashboard.active { display: flex; }
+.dash-box {
+    background: linear-gradient(145deg, #12192e, #0c1220);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px; width: 100%; max-width: 640px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.7); overflow: hidden;
+}
+.dash-header {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    padding: 20px 28px; display: flex; align-items: center; justify-content: space-between;
+}
+.dash-header h2 { font-size: 1rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; }
+.dash-close {
+    background: rgba(255,255,255,0.15); border: none; color: #fff;
+    width: 32px; height: 32px; border-radius: 8px; font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+.dash-close:hover { background: rgba(255,255,255,0.28); }
+.dash-tabs {
+    display: flex; border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 24px;
+}
+.dash-tab {
+    padding: 14px 18px; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s; background: none; border-top: none;
+    border-left: none; border-right: none;
+}
+.dash-tab.active { color: #ff8c42; border-bottom-color: #ff8c42; }
+.dash-panel { display: none; padding: 24px; }
+.dash-panel.active { display: block; }
+.dash-loading { text-align: center; opacity: 0.4; padding: 40px; font-size: 0.85rem; letter-spacing: 1px; }
+.dash-empty { text-align: center; padding: 48px 24px; }
+.dash-empty-icon { font-size: 2.8rem; margin-bottom: 14px; }
+.dash-empty-msg { font-size: 0.88rem; opacity: 0.45; line-height: 1.6; }
+
+/* Program cards */
+.prog-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.prog-card:last-child { margin-bottom: 0; }
+.prog-info { flex: 1; }
+.prog-name { font-size: 0.95rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
+.prog-meta { font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.5px; line-height: 1.6; }
+.prog-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+}
+.prog-badge.active { background: rgba(56,239,157,0.15); color: #38ef9d; border: 1px solid rgba(56,239,157,0.3); }
+.prog-badge.done { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+
+/* Log cards */
+.log-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 10px;
+}
+.log-card:last-child { margin-bottom: 0; }
+.log-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.log-program { font-size: 0.85rem; font-weight: 700; }
+.log-date { font-size: 0.72rem; opacity: 0.4; }
+.log-session { font-size: 0.78rem; opacity: 0.6; margin-bottom: 6px; }
+.log-exercises { font-size: 0.72rem; opacity: 0.38; line-height: 1.6; }
 </style>
 </head>
 <body>
+
+<!-- EMAIL GATE -->
+<div id="emailGate">
+  <div class="gate-box">
+    <img src="gorillavsbull.png" alt="Elite Aldo" class="gate-logo">
+    <div class="gate-title">ELITE ALDO</div>
+    <div class="gate-sub">Training Templates</div>
+    <div class="gate-label">Enter your email to continue</div>
+    <input id="gateEmail" class="gate-input" type="email" placeholder="you@example.com" autocomplete="email">
+    <div id="gateError" class="gate-error">Please enter a valid email address.</div>
+    <button class="gate-btn" onclick="submitEmail()">Enter</button>
+    <div class="gate-note">No spam. No subscriptions. Just your workouts.</div>
+  </div>
+</div>
+
 
 <!-- ===== NAV ===== -->
 <nav>
@@ -494,100 +456,12 @@ h1 {
     <div class="nav-links">
         <button class="nav-btn" onclick="showOverlayTab('current')">Current Program</button>
         <button class="nav-btn" onclick="showOverlayTab('archives')">Archives</button>
-        <button class="nav-btn nav-btn-membership" onclick="showOverlayTab('membership')">Membership</button>
     </div>
+    <button class="nav-btn" onclick="openDashboard()">My Programs</button>
 </nav>
 
-<!-- ===== OVERLAY ===== -->
-<div id="overlay" class="hidden">
-<div class="overlay-scroll">
-    <div class="overlay-box">
-        <button class="overlay-close" onclick="closeOverlay()">×</button>
-        <img src="gorillavsbull.png" alt="Logo" class="overlay-logo">
-        <div class="overlay-title">ELITE ALDO</div>
-        <div class="overlay-sub">Member Access</div>
 
-        <div class="overlay-tabs">
-            <button class="overlay-tab active" id="tab-current" onclick="switchTab('current')">Current Program</button>
-            <button class="overlay-tab" id="tab-archives" onclick="switchTab('archives')">Archives</button>
-            <button class="overlay-tab" id="tab-membership" onclick="switchTab('membership')">Membership</button>
-        </div>
-
-        <!-- CURRENT PROGRAM -->
-        <div class="overlay-panel active" id="panel-current">
-            <div class="coming-soon-panel">
-                <div class="icon">🏋️</div>
-                <div class="label">Current Program</div>
-                <div class="coming-soon-label">Coming Soon — Track your active program &amp; progress</div>
-            </div>
-        </div>
-
-        <!-- ARCHIVES -->
-        <div class="overlay-panel" id="panel-archives">
-            <div class="coming-soon-panel">
-                <div class="icon">🗄️</div>
-                <div class="label">Workout Archives</div>
-                <div class="coming-soon-label">Coming Soon — Login to save your history</div>
-            </div>
-        </div>
-
-        <!-- MEMBERSHIP + LOGIN -->
-        <div class="overlay-panel" id="panel-membership">
-            <div class="membership-heading">Sign In or Choose Your Plan</div>
-
-            <!-- Login form -->
-            <input class="login-field" type="email" placeholder="Email address">
-            <input class="login-field" type="password" placeholder="Password">
-            <button class="login-btn" onclick="closeOverlay()">Sign In</button>
-            <div class="login-divider">or continue as guest</div>
-            <button class="guest-btn" onclick="closeOverlay()">Continue as Guest</button>
-
-            <div style="margin: 24px 0 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;">
-                <div class="membership-heading">Choose Your Plan</div>
-            </div>
-
-            <div class="plans">
-                <div class="plan">
-                    <div class="plan-name">Basic</div>
-                    <div class="plan-price">$4.99 <span>/ month</span></div>
-                    <div class="plan-desc">Full access to all workout templates. No account required.</div>
-                    <div class="plan-features">
-                        <div class="feature">✓ All program templates</div>
-                        <div class="feature muted">✗ AI Nutrition</div>
-                        <div class="feature muted">✗ Data tracking</div>
-                        <div class="feature muted">✗ Coach tools</div>
-                    </div>
-                </div>
-                <div class="plan plan-popular">
-                    <div class="plan-badge">Most Popular</div>
-                    <div class="plan-name">Basic+</div>
-                    <div class="plan-price">$7.99 <span>/ month</span></div>
-                    <div class="plan-desc">Everything in Basic, plus AI-powered nutrition guidance tailored to your goals.</div>
-                    <div class="plan-features">
-                        <div class="feature">✓ All program templates</div>
-                        <div class="feature">✓ AI Nutrition coach</div>
-                        <div class="feature muted">✗ Data tracking</div>
-                        <div class="feature muted">✗ Coach tools</div>
-                    </div>
-                </div>
-                <div class="plan plan-coach">
-                    <div class="plan-name">Coach</div>
-                    <div class="plan-price">$9.99 <span>/ month</span></div>
-                    <div class="plan-desc">Dynamic platform for coaches and serious athletes.</div>
-                    <div class="plan-features">
-                        <div class="feature">✓ All program templates</div>
-                        <div class="feature">✓ AI Nutrition coach</div>
-                        <div class="feature">✓ Client data input &amp; tracking</div>
-                        <div class="feature">✓ Coach dashboard</div>
-                    </div>
-                </div>
-            </div>
-            <div class="coming-soon-label">🚧 Subscriptions Coming Soon</div>
-        </div>
-
-    </div>
-</div>
-</div>
+<!-- ===== MAIN
 
 <!-- ===== MAIN ===== -->
 <div class="landing">
@@ -597,46 +471,46 @@ h1 {
 
     <div class="section-label">⚡ Core Programs</div>
     <div class="cards">
-        <a href="531workout.html" class="card card-531">
-            <div class="card-badge">Intermediate</div>
-            <img src="531.png" alt="5/3/1 Program" class="card-img">
-            <h2>5/3/1 PROGRAM</h2>
-            <p>Wendler's proven strength program. Build your cycle based on your maxes.</p>
-        </a>
-        <a href="oldman_workout.html" class="card card-oms">
-            <div class="card-badge">Beginner Friendly</div>
+        <a class="card card-wip card-oms">
+            <div class="card-badge">Coming Soon</div>
             <img src="oldman.png" alt="Old Man Strength" class="card-img">
             <h2>OLD BUT SPRY</h2>
             <p>Age-adapted DB &amp; Band workouts. Smart progression based on your numbers.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
         <a href="stronglifts.html" class="card card-sl">
             <div class="card-badge">Beginner Friendly</div>
             <img src="5x5.png" alt="Stronglifts 5x5" class="card-img">
-            <h2>STRONGLIFTS 5×5</h2>
+            <h2>THE CLASSIC 5×5</h2>
             <p>Two alternating workouts. Add weight every session. Simple, brutal, effective.</p>
         </a>
     </div>
 
     <div class="section-label">🏋️ Powerlifting</div>
     <div class="cards">
+        <a href="531workout.html" class="card card-531">
+            <div class="card-badge">Intermediate</div>
+            <img src="531.png" alt="5/3/1 Program" class="card-img">
+            <h2>5/3/1 PROGRAM</h2>
+            <p>Wendler's proven strength program. Build your cycle based on your maxes.</p>
+        </a>
         <a href="juggernaut.html" class="card card-jug">
             <div class="card-badge">Intermediate</div>
             <img src="jugg.png" alt="Juggernaut Method" class="card-img">
             <h2>JUGGERNAUT METHOD</h2>
             <p>Wave-based auto-regulation built for powerlifters who also want size.</p>
         </a>
-        <a href="westside.html" class="card card-west">
-            <div class="card-badge">Advanced</div>
+        <a class="card card-wip card-west">
+            <div class="card-badge">Coming Soon</div>
             <img src="conjugate.png" alt="Westside Conjugate" class="card-img">
             <h2>CONJUGATE</h2>
             <p>Max Effort &amp; Dynamic Effort. The Louie Simmons system for elite strength.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">🪨 Strongman</div>
     <div class="cards">
         <a href="strongman531.html" class="card card-sm531">
-            <div class="card-badge">Strength + Events</div>
+            <div class="card-badge">Intermediate</div>
             <img src="531strongman.png" alt="5/3/1 Strongman" class="card-img">
             <h2>5/3/1 FOR STRONGMAN</h2>
             <p>Wendler's framework adapted with event-specific training. Compete &amp; conquer.</p>
@@ -647,22 +521,22 @@ h1 {
             <h2>CUBE METHOD</h2>
             <p>Rotate heavy, explosive, and rep days around the big three. Peak for the platform.</p>
         </a>
-        <a href="strongmanevents.html" class="card card-events">
-            <div class="card-badge">Custom Events</div>
+        <a class="card card-wip card-events">
+            <div class="card-badge">Coming Soon</div>
             <img src="eventbuilder.png" alt="Strongman Event Builder" class="card-img">
             <h2>STRONGMAN EVENT BUILDER</h2>
             <p>Pick your events, set your timeline &amp; weights. Your comp prep, your way.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">💎 Bodybuilding</div>
     <div class="cards">
-        <a href="arnoldsplit.html" class="card card-arnold">
-            <div class="card-badge">Hypertrophy</div>
+        <a class="card card-wip card-arnold">
+            <div class="card-badge">Coming Soon</div>
             <img src="arnold.png" alt="Arnold Split" class="card-img">
             <h2>ARNOLD SPLIT</h2>
             <p>6-day chest/back, shoulders/arms, legs rotation straight from the Oak's playbook.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
         <a href="brosplit.html" class="card card-bro">
             <div class="card-badge">Classic</div>
             <img src="brosplit.png" alt="Bro Split" class="card-img">
@@ -673,18 +547,18 @@ h1 {
 
     <div class="section-label">⚔️ Medieval Warrior Library / Pilot Programs</div>
     <div class="cards">
-        <a href="medieval.html" class="card card-medieval">
-            <div class="card-badge" style="background:rgba(201,168,76,0.25);color:#f0d080">Warrior Themed</div>
+        <a class="card card-wip card-medieval">
+            <div class="card-badge">Coming Soon</div>
             <img src="medieval.png" alt="Medieval Warrior Library" class="card-img">
             <h2>MEDIEVAL WARRIOR LIBRARY</h2>
             <p>Viking Berserker, Knight Templar &amp; more. Train like a warrior. Choose your path.</p>
-        </a>
-        <a href="deckofcards.html" class="card card-west">
-            <div class="card-badge" style="background:rgba(80,200,255,0.2);color:#7ce8ff">Pilot</div>
+        <div class="wip-label">🚧 Work in Progress</div></a>
+        <a class="card card-wip card-west">
+            <div class="card-badge">Coming Soon</div>
             <div class="card-img" style="font-size:3.5rem;text-align:center;padding:12px 0;display:block;">🃏</div>
             <h2>DECK OF CARDS</h2>
             <p>5, 15, or 30 minutes. Any equipment. Flip a card — get a full press, hinge &amp; squat workout on the spot.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 
     <div class="section-label">🛠️ Coach Tools</div>
@@ -694,38 +568,194 @@ h1 {
             <img src="nutrition.png" alt="Nutrition Planner" class="card-img">
             <p>Enter your stats and training type. Get a personalized meal plan with macros calculated to your exact calorie target.</p>
         </a>
-        <a href="coachimport.html" class="card card-coach">
-            <div class="card-badge">AI Powered</div>
+        <a class="card card-wip card-coach">
+            <div class="card-badge">Coming Soon</div>
             <img src="coach.png" alt="Coach Import Tool" class="card-img">
             <p>Drop in your Word or Excel program. AI converts it instantly — share with any client.</p>
-        </a>
+        <div class="wip-label">🚧 Work in Progress</div></a>
     </div>
 </div>
 
 <script>
-    function closeOverlay() {
-        document.getElementById('overlay').classList.add('hidden');
-        // Mark as seen so it never auto-shows again this session
-        sessionStorage.setItem('aldo_visited', '1');
+// ── Supabase init ─────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+// ── Email gate ────────────────────────────────────────────────────────────────
+if (!sessionStorage.getItem('aldo_email')) {
+    document.getElementById('emailGate').classList.add('active');
+}
+
+function submitEmail() {
+    var val = document.getElementById('gateEmail').value.trim();
+    if (!val || !val.includes('@')) {
+        document.getElementById('gateError').style.display = 'block';
+        return;
+    }
+    sessionStorage.setItem('aldo_email', val);
+    document.getElementById('emailGate').classList.remove('active');
+}
+
+document.getElementById('gateEmail').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') submitEmail();
+});
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function openDashboard() {
+    document.getElementById('dashboard').classList.add('active');
+    loadCurrentPrograms();
+    loadArchives();
+}
+
+function closeDashboard() {
+    document.getElementById('dashboard').classList.remove('active');
+}
+
+function switchDash(tab) {
+    document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.dash-tab[onclick="switchDash('${tab}')"]`).classList.add('active');
+    document.getElementById('dash-' + tab).classList.add('active');
+}
+
+// ── Current Programs — from program_sessions (incomplete) ────────────────────
+async function loadCurrentPrograms() {
+    const loadEl = document.getElementById('loading-current');
+    const listEl = document.getElementById('list-current');
+    loadEl.style.display = 'block';
+    listEl.innerHTML = '';
+
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+        loadEl.textContent = 'Sign in to see your programs.';
+        return;
     }
 
-    function showOverlayTab(tab) {
-        document.getElementById('overlay').classList.remove('hidden');
-        switchTab(tab);
+    const { data, error } = await supa
+        .from('program_sessions')
+        .select('id, session_label, week, day, created_at, completed_at, exercises')
+        .eq('user_id', user.id)
+        .is('completed_at', null)          // not completed = active
+        .order('created_at', { ascending: false });
+
+    loadEl.style.display = 'none';
+
+    if (error || !data || data.length === 0) {
+        listEl.innerHTML = `
+            <div class="dash-empty">
+                <div class="dash-empty-icon">📋</div>
+                <div class="dash-empty-msg">No active programs yet.<br>Build one from the programs below.</div>
+            </div>`;
+        return;
     }
 
-    function switchTab(tab) {
-        document.querySelectorAll('.overlay-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.overlay-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        document.getElementById('panel-' + tab).classList.add('active');
+    // Group by session_label (program name)
+    const grouped = {};
+    data.forEach(s => {
+        const key = s.session_label || 'Unknown Program';
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(s);
+    });
+
+    Object.entries(grouped).forEach(([name, sessions]) => {
+        const latest = sessions[0];
+        const started = new Date(latest.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const sessionCount = sessions.length;
+        const card = document.createElement('div');
+        card.className = 'prog-card';
+        card.innerHTML = `
+            <div class="prog-info">
+                <div class="prog-name">${name}</div>
+                <div class="prog-meta">
+                    Started ${started}<br>
+                    ${sessionCount} session${sessionCount !== 1 ? 's' : ''} logged
+                    ${latest.week ? ' · Week ' + latest.week : ''}
+                    ${latest.day  ? ' · Day '  + latest.day  : ''}
+                </div>
+            </div>
+            <div class="prog-badge active">Active</div>`;
+        listEl.appendChild(card);
+    });
+}
+
+// ── Archives — from workout_logs (completed days) ────────────────────────────
+async function loadArchives() {
+    const loadEl = document.getElementById('loading-archives');
+    const listEl = document.getElementById('list-archives');
+    loadEl.style.display = 'block';
+    listEl.innerHTML = '';
+
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+        loadEl.textContent = 'Sign in to see your history.';
+        return;
     }
 
-    // Show login overlay only on first visit per session
-    if (!sessionStorage.getItem('aldo_visited')) {
-        document.getElementById('overlay').classList.remove('hidden');
-        switchTab('membership');
+    const { data, error } = await supa
+        .from('workout_logs')
+        .select('id, date, program_name, session_name, exercises, notes')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
+        .limit(30);
+
+    loadEl.style.display = 'none';
+
+    if (error || !data || data.length === 0) {
+        listEl.innerHTML = `
+            <div class="dash-empty">
+                <div class="dash-empty-icon">🗄️</div>
+                <div class="dash-empty-msg">No workouts logged yet.<br>Complete a session to see your history here.</div>
+            </div>`;
+        return;
     }
+
+    data.forEach(log => {
+        const d = new Date(log.date);
+        const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const exList = Array.isArray(log.exercises)
+            ? log.exercises.slice(0, 4).map(e => e.name || e).filter(Boolean).join(' · ')
+            : '';
+        const card = document.createElement('div');
+        card.className = 'log-card';
+        card.innerHTML = `
+            <div class="log-top">
+                <div class="log-program">${log.program_name || 'Workout'}</div>
+                <div class="log-date">${dateStr}</div>
+            </div>
+            ${log.session_name ? `<div class="log-session">${log.session_name}</div>` : ''}
+            ${exList ? `<div class="log-exercises">${exList}${log.exercises.length > 4 ? ' +' + (log.exercises.length - 4) + ' more' : ''}</div>` : ''}
+            ${log.notes ? `<div class="log-exercises" style="margin-top:4px;font-style:italic">${log.notes}</div>` : ''}`;
+        listEl.appendChild(card);
+    });
+}
 </script>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard">
+  <div class="dash-box">
+    <div class="dash-header">
+      <h2>🏋️ My Dashboard</h2>
+      <button class="dash-close" onclick="closeDashboard()">×</button>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchDash('current')">Current Programs</button>
+      <button class="dash-tab" onclick="switchDash('archives')">Archives</button>
+    </div>
+
+    <!-- CURRENT PROGRAMS -->
+    <div class="dash-panel active" id="dash-current">
+      <div class="dash-loading" id="loading-current">Loading...</div>
+      <div id="list-current"></div>
+    </div>
+
+    <!-- ARCHIVES -->
+    <div class="dash-panel" id="dash-archives">
+      <div class="dash-loading" id="loading-archives">Loading...</div>
+      <div id="list-archives"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

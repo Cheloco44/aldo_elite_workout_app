@@ -59,7 +59,7 @@ body::before {
 .jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #ff8c42; }
 .jump-options {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
 }
 .jump-btn {
@@ -170,7 +170,7 @@ body::before {
     .form-row label { min-width: 0; flex: 1; font-size: 0.88rem; }
     .form-row input[type="number"] { width: 90px; flex-shrink: 0; }
     .form-row select { width: 150px; flex-shrink: 0; font-size: 13px; }
-    .jump-options { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .jump-options { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .jump-btn { padding: 8px 4px; }
     .jump-btn .jump-pct { font-size: 0.92rem; }
     .jump-btn .jump-tag { font-size: 0.58rem; }
@@ -215,6 +215,40 @@ body::before {
 .proj-val  { font-size: 1.1rem; font-weight: 800; color: #ff8c42; }
 .proj-val small { font-size: 0.65rem; font-weight: 400; opacity: 0.6; margin-left: 2px; }
 .proj-note { font-size: 0.68rem; opacity: 0.45; margin-top: 2px; }
+
+
+
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+}
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,140,66,0.25);
+    border-radius: 18px; padding: 38px 34px; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); position: relative; text-align: center;
+}
+.popup-icon { font-size: 2.6rem; margin-bottom: 14px; }
+.popup-title {
+    font-size: 1.25rem; font-weight: 900; letter-spacing: 2px;
+    color: #ff8c42; margin-bottom: 16px; text-transform: uppercase;
+}
+.popup-body {
+    font-size: 0.92rem; line-height: 1.75; color: rgba(255,255,255,0.82);
+    margin-bottom: 28px;
+}
+.popup-body strong { color: #fff; }
+.popup-start {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.9rem; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -256,22 +290,23 @@ body::before {
     </div>
     <div class="jump-selector">
         <label class="jump-label">
-            ⚡ TM INCREASE PER WAVE
+            ⚡ INCREASE PER WAVE
             <span class="info-icon" tabindex="0">?
                 <span class="info-tooltip">
                     <strong>How TM increases work:</strong><br><br>
-                    <strong>Baseline</strong> — Wendler's exact standard. Lower body (Squat, Deadlift) goes up +10 lbs per wave. Upper body (Bench, OHP) goes up +5 lbs per wave. Flat numbers, every time. This works for 300 lb lifters and 1000 lb lifters alike — bigger lifters just progress slower, which is intentional.<br><br>
-                    <strong>+5% to +20%</strong> — Multiplies the flat increment. Useful if you're feeling strong, coming off a peaking cycle, or want to push harder. +10% = +20 lbs/wave lower, +10 lbs upper. +20% = +30 lbs/wave lower, +15 upper.<br><br>
-                    <strong>Wendler's advice:</strong> start conservative. The TM should feel easy at first. The program works because of consistency over time — not because you're grinding near your max every session.
+                    <strong>Baseline</strong> — Wendler's exact standard. Lower body +10 lbs/wave, upper body +5 lbs/wave. Flat numbers every wave. Built for long-term consistency — the TM should feel manageable, not maximal.<br><br>
+                    <strong>+1%</strong> — Adds a small multiplier on top of the flat increment. Good for intermediate lifters who want slightly faster progress without going off the rails.<br><br>
+                    <strong>+3%</strong> — A moderate push. Best used when you're fresh off a deload, coming back strong, or confident your recovery is dialed in.<br><br>
+                    <strong>+5%</strong> — The most aggressive option here. Use only if your lifts are moving well and you have a full training block ahead. More than this and you'll stall fast.<br><br>
+                    <strong>Wendler's advice:</strong> start conservative. The TM should feel easy at first. The program works because of consistency — not because you're grinding near your max every session.
                 </span>
             </span>
         </label>
         <div class="jump-options">
             <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectJump(this)"><span class="jump-pct">Baseline</span><span class="jump-tag">Wendler standard</span></button>
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">+5%</span><span class="jump-tag">Steady push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">+10%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">+15%</span><span class="jump-tag">Very aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">+20%</span><span class="jump-tag">ARE YOU INSANE?! 🔥</span></button>
+            <button type="button" class="jump-btn" data-pct="0.01" onclick="selectJump(this)"><span class="jump-pct">+1%</span><span class="jump-tag">Slow burn</span></button>
+            <button type="button" class="jump-btn" data-pct="0.03" onclick="selectJump(this)"><span class="jump-pct">+3%</span><span class="jump-tag">Steady push</span></button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">+5%</span><span class="jump-tag">Aggressive</span></button>
         </div>
     </div>
 
@@ -285,7 +320,7 @@ body::before {
         <div class="proj-card"><div class="proj-lift">OHP</div><div class="proj-val" id="proj-OHP">—</div><div class="proj-note" id="projnote-OHP"></div></div>
     </div>
 
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div id="workoutView">
@@ -318,21 +353,74 @@ var percentSchemes = {
 };
 var altProg  = {"5s":0.50,"3s":0.55,"531":0.60,"Deload":0.40};
 var altLifts = {
-    "Squat":    ["Front Squat","Hack Squat","Pause Squat","Box Squat"],
+    "Squat":    ["Front Squat","Hack Squat","Pause Squat","Box Squat","Belt Squat"],
     "Deadlift": ["Deficit Deadlift","Sumo Deadlift","Rack Pull","Paused Deadlift"],
-    "Bench":    ["Close Grip Bench","Incline Bench","Spoto Press","Larsen Press"],
-    "OHP":      ["Military Press","Push Press","Z Press","Seated Barbell Press"]
+    "Bench":    ["Close Grip Bench","Incline Bench","Larsen Press"],
+    "OHP":      ["Military Press","strict Press","Z Press","Seated Barbell Press"]
 };
 var accessories = {
-    "OHP":      ["IYTs","Lateral Raises","Rear Delt Fly","Tricep Pushdowns","Skull Crushers","DB Curls"],
-    "Bench":    ["Cable Fly","Dips","Overhead Tricep Extension","JM Press","Incline DB Press","Pec Deck"],
-    "Deadlift": ["Lat Pulldown","Barbell Row","Back Extension","Chest Supported Row","Good Mornings","Ab Wheel"],
-    "Squat":    ["Leg Extension","Hamstring Curl","Walking Lunges","Bulgarian Split Squat","Leg Press","GHR"]
+
+    "OHP": [
+        "DB IYTs",
+        "Lateral Raises",
+        "Rear Delt Fly",
+        "Face Pulls",
+        "Cable Lateral Raises",
+        "DB Curls",
+        "Hammer Curls",
+        "Seated DB Curls",
+        "EZ Bar Close Grip Curls",
+        "EZ Bar Wide Grip Curls"
+    ],
+
+    "Bench": [
+        "Cable Fly",
+        "Dips",
+        "Tricep Pushdowns",
+        "Skull Crushers",
+        "Overhead Tricep Extension",
+        "JM Press",
+        "Incline DB Press",
+        "Pec Deck Fly",
+        "Close Grip Bench",
+        "DB Bench Press",
+        "Push-Ups"
+    ],
+
+    "Deadlift": [
+        "Lat Pulldown",
+        "Barbell Row",
+        "Back Extension",
+        "Chest Supported Row",
+        "Good Mornings",
+        "Stiff Leg Deadlift",
+        "Romanian Deadlift",
+        "Seated Cable Row",
+        "Single Arm DB Row",
+        "Straight Arm Pulldown",
+        "Shrugs"
+    ],
+
+    "Squat": [
+        "Leg Extension",
+        "Hamstring Curl",
+        "Walking Lunges",
+        "Bulgarian Split Squat",
+        "Leg Press",
+        "Sissy Squats",
+        "Single Leg Extension",
+        "Single Leg Hamstring Curl",
+        "Hack Squat",
+        "Step Ups",
+        "Hip Thrust",
+        "Glute Bridge",
+        "Calf Raises"
+    ]
 };
 var split     = ["OHP","Deadlift","Bench","Squat"];
 var weekOrder = ["5s","3s","531","Deload"];
 var weekNames = {"5s":"5s Week","3s":"3s Week","531":"5/3/1 Week","Deload":"Deload Week"};
-var dayNames  = {"OHP":"Overhead Press","Deadlift":"Deadlift","Bench":"Bench Press","Squat":"Squat"};
+var dayNames  = {"OHP":"Overhead Push Press","Deadlift":"Deadlift","Bench":"Bench Press","Squat":"Squat"};
 
 var program    = [];
 var cursor     = 0;
@@ -345,8 +433,8 @@ var baseTM     = {};
 // TM increases per wave: FLAT lbs - upper +5, lower +10
 // This is intentional - bigger lifters progress slower, that IS the program
 // % options simply multiply the flat increment for lifters who want to push harder
-// Multipliers: baseline=1x, +5%=1.5x, +10%=2x, +15%=2.5x, +20%=3x
-var jumpMultipliers = { 0.00:1, 0.05:1.5, 0.10:2, 0.15:2.5, 0.20:3 };
+// Multipliers: baseline=1x, +1%=1.1x, +3%=1.3x, +5%=1.5x
+var jumpMultipliers = { 0.00:1, 0.01:1.1, 0.03:1.3, 0.05:1.5 };
 var lowerLifts = ["Squat","Deadlift"];
 // Flat Wendler increments (baseline)
 var flatInc = { lower:10, upper:5 };
@@ -368,27 +456,8 @@ function selectJump(btn){
     updateProjections();
 }
 
-// Disable 15% and 20% when waves >= 3 — unrealistic gains
 function updateJumpOptions(){
-    var nw = parseInt(document.getElementById("numWaves").value) || 3;
-    var restricted = nw >= 3;
-    document.querySelectorAll('.jump-btn').forEach(function(btn){
-        var pct = parseFloat(btn.getAttribute('data-pct'));
-        if(pct >= 0.15){
-            if(restricted){
-                btn.classList.add('jump-disabled');
-                // If currently selected, fall back to +10%
-                if(btn.classList.contains('jump-active')){
-                    btn.classList.remove('jump-active');
-                    weeklyJump = 0.10;
-                    document.querySelector('.jump-btn[data-pct="0.10"]').classList.add('jump-active');
-                    updateProjections();
-                }
-            } else {
-                btn.classList.remove('jump-disabled');
-            }
-        }
-    });
+    // All options available at all wave counts — no restrictions needed
 }
 
 // CORRECT WENDLER PROJECTION:
@@ -425,6 +494,15 @@ function updateProjections(){
         valEl.innerHTML    = r.est1RM + '<small>lbs</small>';
         noteEl.textContent = (gain >= 0 ? "+" : "") + gain + " lbs · TM → " + r.newTM + " lbs";
     });
+}
+
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
+}
+
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
 }
 
 function generateProgram(){
@@ -547,14 +625,14 @@ function buildWorkout(day){
         var schemeHTML = setsCount + " &times; <em>" + s.reps + "</em>";
 
         card.innerHTML =
-            '<div>' +
-                '<div class="set-pct">' + Math.round(s.pct*100) + '% of Training Max</div>' +
-                '<div class="set-scheme">' + schemeHTML + '</div>' +
-            '</div>' +
-            '<div class="set-right">' +
-                (isTop ? '<span class="top-badge">TOP SET</span>' : '') +
-                '<div class="set-weight">' + s.weight + '<small>lbs</small></div>' +
-            '</div>';
+            "<div>" +
+                "<div class=\"set-pct\">" + Math.round(s.pct*100) + "% of TM</div>" +
+                "<div class=\"set-scheme\">" + schemeHTML + "</div>" +
+            "</div>" +
+            "<div class=\"set-right\">" +
+                (isTop ? "<span class=\"top-badge\">TOP SET</span>" : "") +
+                "<div class=\"set-weight\">" + s.weight + "<small>lbs</small></div>" +
+            "</div>";
         mainWrap.appendChild(card);
     });
     area.appendChild(mainWrap);
@@ -627,5 +705,22 @@ function resetSetup(){
 // Init
 updateJumpOptions();
 </script>
+
+<!-- BUILD PROGRAM POPUP -->
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-icon">🏋️</div>
+    <div class="popup-title">Your Blueprint, Not Your Cage</div>
+    <div class="popup-body">
+      This program is built to <strong>keep your head in the game</strong> — not buried in a notebook.<br><br>
+      The numbers, the sets, the splits — they're your starting point. 
+      Add weight when it feels light. Pull back when you need to. 
+      Swap a movement that doesn't work for your body.<br><br>
+      <strong>The goal is simple:</strong> walk into the gym, shut your brain off, and <strong>work hard</strong>. 
+      Let the program handle the thinking so you can focus on what actually matters — effort.
+    </div>
+    <button class="popup-start" onclick="dismissPopup()">LET'S GET TO WORK</button>
+  </div>
+</div>
 </body>
 </html>

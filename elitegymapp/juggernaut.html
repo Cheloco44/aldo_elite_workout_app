@@ -102,6 +102,46 @@ tr:hover { background: rgba(255,255,255,0.06); }
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+.btn-shuffle { background: rgba(26,106,204,0.2); border: 1px solid rgba(56,239,157,0.3); color: rgba(56,239,157,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(26,106,204,0.35); }
+
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.80); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+}
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 0; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center;
+}
+.popup-header {
+    background: linear-gradient(135deg, #b92b27, #1565c0);
+    padding: 28px 34px 20px;
+}
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff;
+}
+.popup-body {
+    font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8);
+    padding: 26px 30px; margin: 0;
+}
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start {
+    background: linear-gradient(135deg, #b92b27, #1565c0);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.88rem; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; width: 100%;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -145,7 +185,7 @@ tr:hover { background: rgba(255,255,255,0.06); }
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="wave-banner" id="waveBanner"></div>
@@ -174,6 +214,7 @@ tr:hover { background: rgba(255,255,255,0.06); }
     </select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleJugg()">&#x21bb; Shuffle Accessories</button>
 </div>
 
 <div class="table-wrap" id="tableWrap">
@@ -193,12 +234,28 @@ var waves = [
 
 var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 
-var accessories = {
-    0: [["Front Squat","3 × 5–8"],["Leg Press","3 × 10–15"],["RDL","3 × 8–12"],["Leg Curl","3 × 10–15"]],
-    1: [["Incline Bench","3 × 8–12"],["DB Fly","3 × 10–15"],["Tricep Pushdown","3 × 10–15"],["DB Curl","3 × 10–15"]],
-    2: [["Barbell Row","3 × 8–12"],["Rack Pull","3 × 5–8"],["Back Extension","3 × 10–15"],["Lat Pulldown","3 × 10–15"]],
-    3: [["DB Lateral Raise","3 × 12–15"],["Face Pull","3 × 15–20"],["Z Press","3 × 8–10"],["Skull Crusher","3 × 10–15"]]
+var accPool = {
+    0: [["Front Squat","3 × 5–8"],["Leg Press","3 × 10–15"],["RDL","3 × 8–12"],["Leg Curl","3 × 10–15"],
+        ["Walking Lunge","3 × 10/leg"],["Box Squat","4 × 3"],["GHR","3 × 12"],["Step-Up","3 × 10/leg"]],
+    1: [["Incline Bench","3 × 8–12"],["DB Fly","3 × 10–15"],["Tricep Pushdown","3 × 10–15"],["DB Curl","3 × 10–15"],
+        ["Close Grip Bench","3 × 8"],["Cable Fly","3 × 15"],["Skull Crusher","3 × 10"],["Hammer Curl","3 × 12"]],
+    2: [["Barbell Row","3 × 8–12"],["Rack Pull","3 × 5–8"],["Back Extension","3 × 10–15"],["Lat Pulldown","3 × 10–15"],
+        ["Deficit Deadlift","3 × 3"],["DB Row","3 × 12"],["Face Pull","3 × 20"],["Reverse Hyper","3 × 15"]],
+    3: [["DB Lateral Raise","3 × 12–15"],["Face Pull","3 × 15–20"],["Z Press","3 × 8–10"],["Skull Crusher","3 × 10–15"],
+        ["Arnold Press","3 × 10"],["Rear Delt Fly","3 × 15"],["Upright Row","3 × 12"],["Cable Lateral","3 × 15"]]
 };
+
+function sample(arr, n){
+    var a = arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
+    return a.slice(0,n);
+}
+
+var currentAccs = {}; // keyed by di
+
+function getAccs(di){
+    if(!currentAccs[di]) currentAccs[di] = sample(accPool[di], 4);
+    return currentAccs[di];
+}
 
 var liftNames = ["Squat","Bench","Deadlift","OHP"];
 var tms = {};
@@ -212,6 +269,16 @@ function selectJump(btn){
 }
 
 function round5(v){ return Math.max(45, Math.round(v/5)*5); }
+
+
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
+}
+
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
+}
 
 function generateProgram(){
     var useTM = document.getElementById("useTM").checked;
@@ -272,7 +339,7 @@ function renderTable(){
     }
 
     // Accessories
-    accessories[di].forEach(function(acc){
+    getAccs(di).forEach(function(acc){
         var tr = document.createElement("tr");
         tr.innerHTML = '<td class="type-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td>Moderate</td>';
         tb.appendChild(tr);
@@ -284,6 +351,15 @@ function renderTable(){
     banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>';
 }
 
+function shuffleJugg(){
+    var di = parseInt(document.getElementById("daySel").value)||0;
+    currentAccs[di] = sample(accPool[di], 4);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderTable();
+}
+
 function resetSetup(){
     document.getElementById("setupPanel").style.display = "block";
     document.getElementById("controls").style.display   = "none";
@@ -291,5 +367,18 @@ function resetSetup(){
     document.getElementById("waveBanner").style.display = "none";
 }
 </script>
+
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">🏋️</div>
+      <div class="popup-title">Waves Build Monsters.</div>
+    </div>
+    <div class="popup-body">The Juggernaut method runs in waves for a reason — volume builds the base, intensity cashes the check. <strong>Each wave has a job. Don't skip them.</strong><br><br>Your numbers are a starting point. If the weight moves fast, push harder on your AMRAP. If you're grinding, stay conservative — the next wave will be heavier anyway.<br><br>Swap accessories freely. Add weight when it's flying. The program handles the strategy — <strong>your job is to execute.</strong></div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">UNLEASH THE JUGGERNAUT</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

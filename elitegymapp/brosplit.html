@@ -119,6 +119,46 @@ body::before {
 .form-row input[type="number"]:focus::placeholder {
     color: transparent;
 }
+
+.btn-shuffle { background: rgba(26,106,204,0.2); border: 1px solid rgba(56,239,157,0.3); color: rgba(56,239,157,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(26,106,204,0.35); }
+
+/* BUILD PROGRAM POPUP */
+#buildPopup {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.80); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+}
+#buildPopup.active { display: flex; }
+.popup-box {
+    background: linear-gradient(145deg, #1a2540, #0f1a2e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 0; max-width: 480px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center;
+}
+.popup-header {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    padding: 28px 34px 20px;
+}
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: #fff;
+}
+.popup-body {
+    font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8);
+    padding: 26px 30px; margin: 0;
+}
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start {
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 14px 40px; font-size: 0.88rem; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; width: 100%;
+}
+.popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -164,7 +204,7 @@ body::before {
             <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
         </div>
     </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="controls" id="controls">
@@ -180,12 +220,46 @@ body::before {
     </select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleBro()">&#x21bb; Shuffle Accessories</button>
 </div>
 
 <div class="day-banner" id="dayBanner"></div>
 <div class="card-grid" id="cardGrid"></div>
 
 <script>
+
+function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,n); }
+
+// Alternate exercise pools per day (2 swapped in on shuffle)
+var altPools = [
+    // Chest
+    [{name:"Dips",              ref:null,    pct:null,  sets:3, reps:"Max",   note:"Full dip — lean forward for chest"},
+     {name:"Pec Deck",          ref:"bench", pct:0.25,  sets:3, reps:"15",    note:"Peak contraction, slow negative"},
+     {name:"Low Cable Fly",     ref:"bench", pct:0.20,  sets:3, reps:"15",    note:"Pull up and across for upper chest"},
+     {name:"Smith Incline",     ref:"bench", pct:0.60,  sets:4, reps:"10–12", note:"Controlled path, stop at chin"}],
+    // Back
+    [{name:"T-Bar Row",         ref:"row",   pct:0.70,  sets:4, reps:"8–10",  note:"Chest pad — eliminate body English"},
+     {name:"Straight-Arm Pulldown", ref:"row", pct:0.30, sets:3, reps:"15",   note:"Full lat stretch at top"},
+     {name:"Chest-Supported Row",ref:"row",  pct:0.60,  sets:4, reps:"10–12", note:"No cheating — full isolation"},
+     {name:"Single-Arm Cable Row",ref:"row", pct:0.40,  sets:3, reps:"12",    note:"Rotate the torso slightly at top"}],
+    // Shoulders
+    [{name:"Cable Lateral Raise",ref:"ohp",  pct:0.18,  sets:4, reps:"15",    note:"Keep wrist below elbow"},
+     {name:"Upright Row",       ref:"row",   pct:0.45,  sets:3, reps:"12",    note:"Wide grip — elbows above hands"},
+     {name:"Seated DB Press",   ref:"ohp",   pct:0.40,  sets:4, reps:"10–12", note:"90° elbow at bottom, press up"},
+     {name:"Behind Neck Press", ref:"ohp",   pct:0.50,  sets:3, reps:"10",    note:"Warm up well — controlled motion"}],
+    // Arms
+    [{name:"Preacher Curl",     ref:"bench", pct:0.25,  sets:3, reps:"10–12", note:"Full extension at bottom"},
+     {name:"Rope Pushdown",     ref:"bench", pct:0.22,  sets:3, reps:"15",    note:"Spread the rope at the bottom"},
+     {name:"Concentration Curl",ref:"bench", pct:0.18,  sets:3, reps:"12",    note:"Elbow on inner thigh — no swinging"},
+     {name:"Dips (Triceps)",    ref:null,    pct:null,  sets:3, reps:"Max",   note:"Upright torso — tricep focus"}],
+    // Legs
+    [{name:"Hack Squat",        ref:"squat", pct:0.65,  sets:4, reps:"10–12", note:"Full depth — heels elevated"},
+     {name:"Seated Leg Curl",   ref:null,    pct:null,  sets:4, reps:"12–15", note:"Squeeze at peak, slow negative"},
+     {name:"Sissy Squat",       ref:null,    pct:null,  sets:3, reps:"15",    note:"Pure quad isolation"},
+     {name:"Donkey Calf Raise", ref:null,    pct:null,  sets:5, reps:"20",    note:"Full stretch — no bouncing"}]
+];
+
+var shuffledExercises = [null,null,null,null,null]; // one shuffled set per day
 var broSplit = [
     {
         name:"MONDAY — CHEST DAY",
@@ -262,6 +336,16 @@ function selectJump(btn){
 
 function round5(v){ return Math.max(10,Math.round(v/5)*5); }
 
+
+function showBuildPopup(){
+    document.getElementById('buildPopup').classList.add('active');
+}
+
+function dismissPopup(){
+    document.getElementById('buildPopup').classList.remove('active');
+    generateProgram();
+}
+
 function generateProgram(){
     weights = {
         bench: parseInt(document.getElementById("bench").value)||185,
@@ -282,6 +366,20 @@ function generateProgram(){
     renderDay();
 }
 
+function shuffleBro(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = broSplit[dayIdx];
+    // Keep first 2 exercises (main compound lifts), swap the rest
+    var core = day.exercises.slice(0, 2);
+    var alts = sample(altPools[dayIdx], 2);
+    var rest = sample(day.exercises.slice(2), day.exercises.length - 4);
+    shuffledExercises[dayIdx] = core.concat(rest).concat(alts);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderDay();
+}
+
 function renderDay(){
     var week = parseInt(document.getElementById("weekSel").value)||1;
     var dayIdx = parseInt(document.getElementById("daySel").value)||0;
@@ -290,7 +388,8 @@ function renderDay(){
     grid.innerHTML = "";
     var prog = Math.pow(1 + weeklyJump, week - 1);
 
-    day.exercises.forEach(function(ex){
+    var exList = shuffledExercises[dayIdx] ? shuffledExercises[dayIdx] : day.exercises;
+    exList.forEach(function(ex){
         var card = document.createElement("div");
         card.className = "ex-card";
         var wt = "";
@@ -317,5 +416,18 @@ function resetSetup(){
     document.getElementById("dayBanner").style.display  = "none";
 }
 </script>
+
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">💪</div>
+      <div class="popup-title">Old School. Still Works.</div>
+    </div>
+    <div class="popup-body">The Bro Split gets talked down — by people who've never actually run it.<br><br>One muscle group. Full focus. <strong>Complete annihilation.</strong> Every set on that muscle before you move on. This is how the legends were built — and it still works the same way today.<br><br>Use the template as your foundation. Swap a movement if something doesn't fit your body. Add weight when it's easy. The only rule is <strong>you show up and you work.</strong></div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">LET'S GET JACKED</button>
+    </div>
+  </div>
+</div>
 </body>
-</html>
+</html>s
