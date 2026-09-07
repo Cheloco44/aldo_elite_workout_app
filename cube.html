@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CUBE METHOD</title>
 <style>
@@ -157,6 +159,8 @@ tr:last-child td { border-bottom: none; }
     transition: opacity 0.2s, transform 0.2s; width: 100%;
 }
 .popup-start:hover { opacity: 0.88; transform: translateY(-2px); }
+.log-day-btn { margin: 12px 14px 14px; display: block; width: calc(100% - 28px); padding: 10px; background: rgba(56,239,157,0.12); border: 1px solid rgba(56,239,157,0.35); color: #38ef9d; border-radius: 8px; font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+.log-day-btn:hover { background: rgba(56,239,157,0.22); }
 </style>
 </head>
 <body>
@@ -235,6 +239,52 @@ var rotations = [
 var heavyPcts = [0.85, 0.90, 0.95];
 var expPcts   = [0.50, 0.55, 0.60, 0.65];
 var repReps   = [8, 10, 12];
+
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+async function logWorkout(programName, sessionName, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) { alert('Sign in to save your workout.'); return false; }
+    const { error } = await supa.from('workout_logs').insert({
+        user_id:      user.id,
+        date:         new Date().toISOString().split('T')[0],
+        program_name: programName,
+        session_name: sessionName,
+        exercises:    exerciseList,
+        notes:        ''
+    });
+    return !error;
+}
+
+async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) return;
+    // Upsert into program_sessions — one active row per program per user
+    await supa.from('program_sessions').upsert({
+        user_id:       user.id,
+        session_label: programName,
+        week:          parseInt(weekLabel) || null,
+        day:           parseInt(dayLabel)  || null,
+        exercises:     exerciseList,
+        notes:         ''
+    }, { onConflict: 'user_id,session_label' });
+}
+
+function flashBtn(btn, success) {
+    var orig = btn.textContent;
+    btn.textContent  = success ? '✓ Saved!' : '✗ Error';
+    btn.style.color  = success ? '#38ef9d'  : '#ff6b6b';
+    btn.disabled     = true;
+    setTimeout(function() {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.disabled    = false;
+    }, 2200);
+}
 
 var accPools = {
     squat: [["Box Squat","4×3","Speed focus"],["Leg Press","3×12","Quad volume"],["Leg Curl","3×12","Ham balance"],
@@ -342,6 +392,19 @@ function renderWeek(){
             '</tbody></table>';
         grid.appendChild(card);
     });
+}
+
+async function logDayCube(liftName, weekLabel){
+    var exList = [{ name: liftName, scheme: weekLabel }];
+    getAccs(liftName === "Squat" ? "squat" : liftName === "Bench" ? "bench" : "dead").forEach(function(acc){
+        exList.push({ name: acc[0], scheme: acc[1] });
+    });
+    var wi = parseInt(document.getElementById("weekSel").value)||1;
+    var sessionName = 'Week ' + wi + ' · ' + weekLabel + ' — ' + liftName;
+    var ok = await logWorkout('Cube Method', sessionName, exList);
+    var btn = document.getElementById('logbtn-' + liftName);
+    if(btn) flashBtn(btn, ok);
+    await saveActiveProgram('Cube Method', wi, null, exList);
 }
 
 function shuffleCube(){

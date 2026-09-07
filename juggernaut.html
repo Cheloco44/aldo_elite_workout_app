@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JUGGERNAUT METHOD</title>
 <style>
@@ -234,6 +236,52 @@ var waves = [
 
 var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+async function logWorkout(programName, sessionName, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) { alert('Sign in to save your workout.'); return false; }
+    const { error } = await supa.from('workout_logs').insert({
+        user_id:      user.id,
+        date:         new Date().toISOString().split('T')[0],
+        program_name: programName,
+        session_name: sessionName,
+        exercises:    exerciseList,
+        notes:        ''
+    });
+    return !error;
+}
+
+async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) return;
+    // Upsert into program_sessions — one active row per program per user
+    await supa.from('program_sessions').upsert({
+        user_id:       user.id,
+        session_label: programName,
+        week:          parseInt(weekLabel) || null,
+        day:           parseInt(dayLabel)  || null,
+        exercises:     exerciseList,
+        notes:         ''
+    }, { onConflict: 'user_id,session_label' });
+}
+
+function flashBtn(btn, success) {
+    var orig = btn.textContent;
+    btn.textContent  = success ? '✓ Saved!' : '✗ Error';
+    btn.style.color  = success ? '#38ef9d'  : '#ff6b6b';
+    btn.disabled     = true;
+    setTimeout(function() {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.disabled    = false;
+    }, 2200);
+}
+
 var accPool = {
     0: [["Front Squat","3 × 5–8"],["Leg Press","3 × 10–15"],["RDL","3 × 8–12"],["Leg Curl","3 × 10–15"],
         ["Walking Lunge","3 × 10/leg"],["Box Squat","4 × 3"],["GHR","3 × 12"],["Step-Up","3 × 10/leg"]],
@@ -349,6 +397,21 @@ function renderTable(){
     var banner = document.getElementById("waveBanner");
     var waveDesc = ["Build volume & muscle with 10s","Transition heavier with 8s","Pure strength with 5s","Peak intensity with 3s"];
     banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>';
+}
+
+async function logDayJugg(){
+    var wi = parseInt(document.getElementById("waveSel").value)||0;
+    var wk = document.getElementById("weekSel").value;
+    var di = parseInt(document.getElementById("daySel").value)||0;
+    var liftNames = ["Squat","Bench","Deadlift","OHP"];
+    var lift = liftNames[di];
+    var sessionName = 'Wave ' + (wi+1) + ' · ' + wk + ' · ' + lift;
+    var exList = [{ name: lift, scheme: wk + ' sets' }];
+    getAccs(di).forEach(function(acc){ exList.push({ name: acc[0], scheme: acc[1] }); });
+    var btn = document.getElementById('logBtn');
+    var ok = await logWorkout('Juggernaut Method', sessionName, exList);
+    await saveActiveProgram('Juggernaut Method', wi+1, di+1, exList);
+    flashBtn(btn, ok);
 }
 
 function shuffleJugg(){

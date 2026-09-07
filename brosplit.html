@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BRO SPLIT</title>
 <style>
@@ -260,6 +262,52 @@ var altPools = [
 ];
 
 var shuffledExercises = [null,null,null,null,null]; // one shuffled set per day
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
+const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+async function logWorkout(programName, sessionName, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) { alert('Sign in to save your workout.'); return false; }
+    const { error } = await supa.from('workout_logs').insert({
+        user_id:      user.id,
+        date:         new Date().toISOString().split('T')[0],
+        program_name: programName,
+        session_name: sessionName,
+        exercises:    exerciseList,
+        notes:        ''
+    });
+    return !error;
+}
+
+async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) return;
+    // Upsert into program_sessions — one active row per program per user
+    await supa.from('program_sessions').upsert({
+        user_id:       user.id,
+        session_label: programName,
+        week:          parseInt(weekLabel) || null,
+        day:           parseInt(dayLabel)  || null,
+        exercises:     exerciseList,
+        notes:         ''
+    }, { onConflict: 'user_id,session_label' });
+}
+
+function flashBtn(btn, success) {
+    var orig = btn.textContent;
+    btn.textContent  = success ? '✓ Saved!' : '✗ Error';
+    btn.style.color  = success ? '#38ef9d'  : '#ff6b6b';
+    btn.disabled     = true;
+    setTimeout(function() {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.disabled    = false;
+    }, 2200);
+}
+
 var broSplit = [
     {
         name:"MONDAY — CHEST DAY",
@@ -364,6 +412,18 @@ function generateProgram(){
     document.getElementById("cardGrid").style.display   = "grid";
     document.getElementById("dayBanner").style.display  = "block";
     renderDay();
+}
+
+async function logDayBro(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = broSplit[dayIdx];
+    var exList = (shuffledExercises[dayIdx] || day.exercises).map(function(ex){
+        return { name: ex.name, scheme: ex.sets + ' × ' + ex.reps };
+    });
+    var btn = document.getElementById('logBtn');
+    var ok = await logWorkout('Bro Split', day.name, exList);
+    await saveActiveProgram('Bro Split', null, dayIdx+1, exList);
+    flashBtn(btn, ok);
 }
 
 function shuffleBro(){
