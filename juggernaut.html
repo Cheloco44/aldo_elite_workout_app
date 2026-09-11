@@ -239,12 +239,27 @@ var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
 const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+// ── Auth gate ─────────────────────────────────────────────────────────────────
+(function initAuth() {
+    supa.auth.onAuthStateChange(function(event, session) {
+        var gate = document.getElementById('emailGate');
+        if (!gate) return;
+        if (session) {
+            gate.classList.remove('active');
+        } else {
+            gate.classList.add('active');
+        }
+    });
+    // Keep session alive while user is active
+    document.addEventListener('click', function() { supa.auth.getSession(); });
+})();
 
 async function logWorkout(programName, sessionName, exerciseList) {
     const { data: { user } } = await supa.auth.getUser();
-    if (!user) { alert('Sign in to save your workout.'); return false; }
+    if (!user) { showEmailGate(); return false; }
     const { error } = await supa.from('workout_logs').insert({
         user_id:      user.id,
         date:         new Date().toISOString().split('T')[0],
@@ -254,6 +269,11 @@ async function logWorkout(programName, sessionName, exerciseList) {
         notes:        ''
     });
     return !error;
+}
+
+function showEmailGate() {
+    var gate = document.getElementById('emailGate');
+    if (gate) gate.classList.add('active');
 }
 
 async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {

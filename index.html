@@ -579,22 +579,41 @@ h1 {
 <script>
 // ── Supabase init ─────────────────────────────────────────────────────────────
 const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'YOUR_ANON_KEY_HERE';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
 const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
 
-// ── Email gate ────────────────────────────────────────────────────────────────
-if (!sessionStorage.getItem('aldo_email')) {
-    document.getElementById('emailGate').classList.add('active');
-}
+// ── Auth gate ─────────────────────────────────────────────────────────────────
+supa.auth.onAuthStateChange(function(event, session) {
+    var gate = document.getElementById('emailGate');
+    if (!gate) return;
+    if (session) {
+        gate.classList.remove('active');
+    } else {
+        gate.classList.add('active');
+    }
+});
 
-function submitEmail() {
+// Keep session alive while user is active
+document.addEventListener('click', function() { supa.auth.getSession(); });
+
+async function submitEmail() {
     var val = document.getElementById('gateEmail').value.trim();
     if (!val || !val.includes('@')) {
         document.getElementById('gateError').style.display = 'block';
         return;
     }
-    sessionStorage.setItem('aldo_email', val);
-    document.getElementById('emailGate').classList.remove('active');
+    var btn = document.querySelector('#emailGate button');
+    if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
+    var gateError = document.getElementById('gateError');
+    var { error } = await supa.auth.signInWithOtp({ email: val });
+    if (error) {
+        if (gateError) { gateError.textContent = 'Error: ' + error.message; gateError.style.display = 'block'; }
+        if (btn) { btn.textContent = 'Continue'; btn.disabled = false; }
+        return;
+    }
+    // Show confirmation message
+    var gateBox = document.querySelector('#emailGate .gate-box, #emailGate .modal-box, #emailGate > div');
+    if (gateBox) gateBox.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:2rem;margin-bottom:16px">📧</div><div style="font-size:1rem;font-weight:700;letter-spacing:2px;margin-bottom:10px">CHECK YOUR EMAIL</div><div style="font-size:0.85rem;opacity:0.6;line-height:1.6">We sent a magic link to <strong>' + val + '</strong>.<br>Click it to sign in — no password needed.</div></div>';
 }
 
 document.getElementById('gateEmail').addEventListener('keydown', function(e){
