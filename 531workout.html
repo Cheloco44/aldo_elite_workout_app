@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EATT 5/3/1 BUILDER</title>
@@ -76,6 +77,13 @@ body::before {
 .jump-btn.jump-active { background: linear-gradient(135deg, #ff512f, #dd2476); border-color: #ff8c42; box-shadow: 0 0 14px rgba(255,81,47,0.4); }
 .jump-btn .jump-pct { font-size: 1.05rem; display: block; }
 .jump-btn .jump-tag { font-size: 0.63rem; opacity: 0.78; font-weight: 600; }
+
+/* Live progression-rate toggle, shown in the workout view */
+.jump-toggle { max-width: 700px; margin: 14px auto 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 16px; }
+.jump-toggle-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.55; font-weight: 700; }
+.jump-toggle-options { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.jump-toggle .jump-btn { padding: 6px 12px; font-size: 0.75rem; min-width: 0; }
+.boost-tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.5px; color: #ff8c42; opacity: 0.85; vertical-align: middle; margin-left: 4px; }
 
 /* WORKOUT VIEW */
 #workoutView { display: none; position: relative; z-index: 1; }
@@ -278,48 +286,17 @@ body::before {
     </div>
     <hr class="summary-divider">
     <h2 class="form-title">ENTER YOUR MAXES</h2>
-    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45" oninput="updateProjections()"></div>
-    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="deadlift1rm" placeholder="405" min="45" oninput="updateProjections()"></div>
-    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45" oninput="updateProjections()"></div>
-    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45" oninput="updateProjections()"></div>
+    <div class="form-row"><label>Squat 1RM (lbs)</label><input type="number" id="squat1rm" placeholder="315" min="45"></div>
+    <div class="form-row"><label>Deadlift 1RM (lbs)</label><input type="number" id="deadlift1rm" placeholder="405" min="45"></div>
+    <div class="form-row"><label>Bench 1RM (lbs)</label><input type="number" id="bench1rm" placeholder="225" min="45"></div>
+    <div class="form-row"><label>OHP 1RM (lbs)</label><input type="number" id="ohp1rm" placeholder="135" min="45"></div>
     <div class="form-row"><label>Number of Waves</label>
-        <select id="numWaves" onchange="updateProjections(); updateJumpOptions()">
+        <select id="numWaves">
             <option value="1">1 Wave (4 weeks)</option>
             <option value="2">2 Waves (8 weeks)</option>
             <option value="3" selected>3 Waves (12 weeks)</option>
             <option value="4">4 Waves (16 weeks)</option>
         </select>
-    </div>
-    <div class="jump-selector">
-        <label class="jump-label">
-            ⚡ INCREASE PER WAVE
-            <span class="info-icon" tabindex="0">?
-                <span class="info-tooltip">
-                    <strong>How TM increases work:</strong><br><br>
-                    <strong>Baseline</strong> — Wendler's exact standard. Lower body +10 lbs/wave, upper body +5 lbs/wave. Flat numbers every wave. Built for long-term consistency — the TM should feel manageable, not maximal.<br><br>
-                    <strong>+1%</strong> — Adds a small multiplier on top of the flat increment. Good for intermediate lifters who want slightly faster progress without going off the rails.<br><br>
-                    <strong>+3%</strong> — A moderate push. Best used when you're fresh off a deload, coming back strong, or confident your recovery is dialed in.<br><br>
-                    <strong>+5%</strong> — The most aggressive option here. Use only if your lifts are moving well and you have a full training block ahead. More than this and you'll stall fast.<br><br>
-                    <strong>Wendler's advice:</strong> start conservative. The TM should feel easy at first. The program works because of consistency — not because you're grinding near your max every session.
-                </span>
-            </span>
-        </label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectJump(this)"><span class="jump-pct">Baseline</span><span class="jump-tag">Wendler standard</span></button>
-            <button type="button" class="jump-btn" data-pct="0.01" onclick="selectJump(this)"><span class="jump-pct">+1%</span><span class="jump-tag">Slow burn</span></button>
-            <button type="button" class="jump-btn" data-pct="0.03" onclick="selectJump(this)"><span class="jump-pct">+3%</span><span class="jump-tag">Steady push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">+5%</span><span class="jump-tag">Aggressive</span></button>
-        </div>
-    </div>
-
-    <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,140,66,0.65);margin:20px 0 10px;border-left:3px solid #ff8c42;padding-left:10px;">
-        Estimated 1RM After Final Wave <span style="opacity:0.45;font-size:0.6rem;letter-spacing:0;text-transform:none;font-style:italic">· New TM ÷ 0.90 — upper +5 lbs/wave · lower +10 lbs/wave</span>
-    </div>
-    <div class="proj-grid">
-        <div class="proj-card"><div class="proj-lift">Squat</div><div class="proj-val" id="proj-Squat">—</div><div class="proj-note" id="projnote-Squat"></div></div>
-        <div class="proj-card"><div class="proj-lift">Deadlift</div><div class="proj-val" id="proj-Deadlift">—</div><div class="proj-note" id="projnote-Deadlift"></div></div>
-        <div class="proj-card"><div class="proj-lift">Bench</div><div class="proj-val" id="proj-Bench">—</div><div class="proj-note" id="projnote-Bench"></div></div>
-        <div class="proj-card"><div class="proj-lift">OHP</div><div class="proj-val" id="proj-OHP">—</div><div class="proj-note" id="projnote-OHP"></div></div>
     </div>
 
     <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
@@ -330,6 +307,14 @@ body::before {
         <div class="wave-label" id="waveLabel"></div>
         <div class="day-title" id="dayTitle"></div>
         <div class="day-sub"   id="daySub"></div>
+    </div>
+    <div class="jump-toggle">
+        <span class="jump-toggle-label">⚡ Push It Today</span>
+        <div class="jump-toggle-options">
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectDayBoost(this)">Baseline</button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectDayBoost(this)">+5%</button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectDayBoost(this)">+10%</button>
+        </div>
     </div>
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="nav-controls">
@@ -350,53 +335,101 @@ body::before {
 <script>
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_531';
 
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-(function initAuth() {
-    supa.auth.onAuthStateChange(function(event, session) {
-        var gate = document.getElementById('emailGate');
-        if (!gate) return;
-        if (session) {
-            gate.classList.remove('active');
-        } else {
-            gate.classList.add('active');
-        }
-    });
-    // Keep session alive while user is active
-    document.addEventListener('click', function() { supa.auth.getSession(); });
-})();
-
-async function logWorkout(programName, sessionName, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) { showEmailGate(); return false; }
-    const { error } = await supa.from('workout_logs').insert({
-        user_id:      user.id,
-        date:         new Date().toISOString().split('T')[0],
-        program_name: programName,
-        session_name: sessionName,
-        exercises:    exerciseList,
-        notes:        ''
-    });
-    return !error;
+function getInputs() {
+    return {
+        squat:    parseInt(document.getElementById('squat1rm').value)    || 315,
+        deadlift: parseInt(document.getElementById('deadlift1rm').value) || 405,
+        bench:    parseInt(document.getElementById('bench1rm').value)    || 225,
+        ohp:      parseInt(document.getElementById('ohp1rm').value)      || 135,
+        numWaves: parseInt(document.getElementById('numWaves').value)    || 3
+    };
 }
 
-async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) return;
-    // Upsert into program_sessions — one active row per program per user
-    await supa.from('program_sessions').upsert({
-        user_id:       user.id,
-        session_label: programName,
-        week:          parseInt(weekLabel) || null,
-        day:           parseInt(dayLabel)  || null,
-        exercises:     exerciseList,
-        notes:         ''
-    }, { onConflict: 'user_id,session_label' });
+function saveProgress() {
+    EATT.save({
+        id:         PROG_ID,
+        name:       '5/3/1',
+        page:       '531workout.html',
+        inputs:     getInputs(),
+        cursor:     cursor,
+        cycleCount: (EATT.loadAll().find(function(p){return p.id===PROG_ID;})||{}).cycleCount || 1
+    });
 }
 
+function loadProgress() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    return saved ? saved.cursor || 0 : 0;
+}
+
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('squat1rm').value    = inp.squat;
+    document.getElementById('deadlift1rm').value = inp.deadlift;
+    document.getElementById('bench1rm').value    = inp.bench;
+    document.getElementById('ohp1rm').value      = inp.ohp;
+    document.getElementById('numWaves').value    = inp.numWaves;
+    generateProgram();
+    cursor = Math.min(state.cursor || 0, program.length - 1);
+    resetDayBoost();
+    render();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
+
+// ── Cycle complete modal ──────────────────────────────────────────────────────
+function checkCycleComplete() {
+    if (cursor < program.length - 1) return;
+    var last = program[program.length - 1];
+    var newMaxes = {};
+    var jumps = { Squat: 10, Deadlift: 10, Bench: 5, OHP: 5 };
+    var inp = getInputs();
+    Object.keys(jumps).forEach(function(k) {
+        var key = k.toLowerCase(); if (key === 'deadlift') key = 'deadlift';
+        newMaxes[k] = (inp[key] || inp[k.toLowerCase()]) + (jumps[k] * (inp.numWaves || 3));
+    });
+    showCycleModal(newMaxes, inp.numWaves || 3);
+}
+
+function showCycleModal(newMaxes, waves) {
+    var existing = document.getElementById('cycleModal');
+    if (existing) existing.remove();
+    var modal = document.createElement('div');
+    modal.id = 'cycleModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
+    window._nextCycleMaxes = newMaxes;
+    modal.innerHTML = '<div style="background:linear-gradient(145deg,#1a2540,#0f1a2e);border:1px solid rgba(255,140,66,0.3);border-radius:20px;padding:38px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,0.7)">' +
+        '<div style="font-size:2.5rem;margin-bottom:12px">🏆</div>' +
+        '<div style="font-size:1.1rem;font-weight:900;letter-spacing:3px;color:#ff8c42;margin-bottom:8px">CYCLE COMPLETE</div>' +
+        '<div style="font-size:0.85rem;opacity:0.6;margin-bottom:24px">'+waves+' waves done. Your new training maxes:</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">' +
+        Object.entries(newMaxes).map(function(e){ return '<div style="background:rgba(255,140,66,0.08);border:1px solid rgba(255,140,66,0.2);border-radius:10px;padding:10px"><div style="font-size:0.62rem;letter-spacing:2px;opacity:0.55;text-transform:uppercase">'+e[0]+'</div><div style="font-size:1.2rem;font-weight:900;color:#ff8c42">'+e[1]+' lbs</div></div>'; }).join('') +
+        '</div>' +
+        '<button onclick="startNextCycle(window._nextCycleMaxes)" style="width:100%;padding:14px;background:linear-gradient(135deg,#ff512f,#dd2476);border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-bottom:10px">START NEXT CYCLE →</button>' +
+        '<button onclick="document.getElementById(\'cycleModal\').remove()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer">Not yet — keep reviewing</button>' +
+        '</div>';
+    document.body.appendChild(modal);
+}
+
+function startNextCycle(newMaxes) {
+    document.getElementById('cycleModal').remove();
+    var saved = EATT.loadAll().find(function(p){return p.id===PROG_ID;}) || {};
+    document.getElementById('squat1rm').value    = newMaxes.Squat;
+    document.getElementById('deadlift1rm').value = newMaxes.Deadlift;
+    document.getElementById('bench1rm').value    = newMaxes.Bench;
+    document.getElementById('ohp1rm').value      = newMaxes.OHP;
+    generateProgram();
+    cursor = 0;
+    resetDayBoost();
+    EATT.save({ id: PROG_ID, name: '5/3/1', page: '531workout.html', inputs: getInputs(), cursor: 0, cycleCount: (saved.cycleCount || 1) + 1 });
+    render();
+}
 function flashBtn(btn, success) {
     var orig = btn.textContent;
     btn.textContent  = success ? '✓ Saved!' : '✗ Error';
@@ -409,10 +442,6 @@ function flashBtn(btn, success) {
     }, 2200);
 }
 
-function showEmailGate() {
-    var gate = document.getElementById('emailGate');
-    if (gate) gate.classList.add('active');
-}
 
 var percentSchemes = {
     "5s":     [[0.65,"5"],[0.75,"5"],[0.85,"5+"]],
@@ -493,7 +522,6 @@ var dayNames  = {"OHP":"Overhead Push Press","Deadlift":"Deadlift","Bench":"Benc
 
 var program    = [];
 var cursor     = 0;
-var weeklyJump = 0.00; // 0 = Wendler baseline only
 var baseTM     = {};
 
 // WENDLER'S ACTUAL METHODOLOGY:
@@ -501,68 +529,47 @@ var baseTM     = {};
 // All percentages run off TM, never true 1RM
 // TM increases per wave: FLAT lbs - upper +5, lower +10
 // This is intentional - bigger lifters progress slower, that IS the program
-// % options simply multiply the flat increment for lifters who want to push harder
-// Multipliers: baseline=1x, +1%=1.1x, +3%=1.3x, +5%=1.5x
-var jumpMultipliers = { 0.00:1, 0.01:1.1, 0.03:1.3, 0.05:1.5 };
+// This is fixed — not user-adjustable — so the program stays true to Wendler's method.
 var lowerLifts = ["Squat","Deadlift"];
-// Flat Wendler increments (baseline)
 var flatInc = { lower:10, upper:5 };
 
-function getIncrement(isLower, jumpPct){
-    var base = isLower ? flatInc.lower : flatInc.upper;
-    var mult = jumpMultipliers[jumpPct] !== undefined ? jumpMultipliers[jumpPct] : 1;
-    return base * mult;
+function getIncrement(isLower){
+    return isLower ? flatInc.lower : flatInc.upper;
 }
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function sample(a,n){ var s=[].concat(a); for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;} return s.slice(0,n); }
 function round5(v){ return Math.max(45,Math.round(v/5)*5); }
 
-function selectJump(btn){
+// ── "Push it today" toggle — a one-off bump to THIS day's displayed
+// working weight only. Doesn't touch the program's actual TM progression
+// and resets to Baseline the moment you move to a different day.
+var dayBoost = 0;
+
+function selectDayBoost(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
-    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
-    updateProjections();
+    dayBoost = parseFloat(btn.getAttribute('data-pct'));
+    render();
 }
 
-function updateJumpOptions(){
-    // All options available at all wave counts — no restrictions needed
-}
-
-// CORRECT WENDLER PROJECTION:
-// New TM = baseTM + (flatInc × waves)
-// Estimated new 1RM = New TM ÷ 0.90
-// This matches how the program actually works — TM climbs, 1RM estimate follows
-function estimatedFinal1RM(raw, useTM, nw, jump, lift){
-    var tm      = useTM ? Math.round(raw * 0.9) : raw;
-    var isLower = lowerLifts.indexOf(lift) >= 0;
-    var inc     = getIncrement(isLower, jump);
-    var newTM   = tm + (inc * nw);
-    var est1RM  = Math.round((newTM / 0.90) / 5) * 5;
-    return { est1RM: est1RM, newTM: newTM };
-}
-
-function updateProjections(){
-    var inputs = {
-        Squat:    parseInt(document.getElementById("squat1rm").value)    || 0,
-        Deadlift: parseInt(document.getElementById("deadlift1rm").value) || 0,
-        Bench:    parseInt(document.getElementById("bench1rm").value)    || 0,
-        OHP:      parseInt(document.getElementById("ohp1rm").value)      || 0
-    };
-    var useTM = true; // always 90%
-    var nw    = parseInt(document.getElementById("numWaves").value) || 3;
-    var jump  = weeklyJump;
-
-    ["Squat","Deadlift","Bench","OHP"].forEach(function(k){
-        var valEl  = document.getElementById("proj-" + k);
-        var noteEl = document.getElementById("projnote-" + k);
-        var raw    = inputs[k];
-        if(!raw){ valEl.innerHTML = "—"; noteEl.textContent = ""; return; }
-        var r    = estimatedFinal1RM(raw, useTM, nw, jump, k);
-        var gain = r.est1RM - raw;
-        valEl.innerHTML    = r.est1RM + '<small>lbs</small>';
-        noteEl.textContent = (gain >= 0 ? "+" : "") + gain + " lbs · TM → " + r.newTM + " lbs";
+function resetDayBoost(){
+    dayBoost = 0;
+    document.querySelectorAll('.jump-btn').forEach(function(b){
+        b.classList.toggle('jump-active', parseFloat(b.getAttribute('data-pct')) === 0);
     });
+}
+
+function boostedWeight(w){
+    return dayBoost ? round5(w * (1 + dayBoost)) : w;
+}
+
+// Move to a different day: resets the "push it today" toggle since it's
+// a one-day-only bump, not a program-wide setting.
+function goToDay(newCursor){
+    cursor = Math.max(0, Math.min(program.length - 1, newCursor));
+    resetDayBoost();
+    render();
 }
 
 function showBuildPopup(){
@@ -609,12 +616,12 @@ function generateProgram(){
         }
         for(var k in baseTM){
             var isLower = lowerLifts.indexOf(k) >= 0;
-            var inc = getIncrement(isLower, weeklyJump);
+            var inc = getIncrement(isLower);
             tm[k] = baseTM[k] + (inc * w);
         }
     }
 
-    cursor = 0;
+    cursor = (loadProgress && program.length > 0) ? Math.min(loadProgress(), program.length - 1) : 0;
     document.getElementById("setupPanel").style.display  = "none";
     document.getElementById("workoutView").style.display = "block";
     render();
@@ -652,7 +659,7 @@ function buildBreadcrumb(current){
             var dot = document.createElement("div");
             dot.className = "bc-dot" + (idx===cursor?" active":idx<cursor?" done":"");
             dot.title = d.lift;
-            dot.onclick = (function(i){ return function(){ cursor=i; render(); }; })(idx);
+            dot.onclick = (function(i){ return function(){ goToDay(i); }; })(idx);
             bc.appendChild(dot);
         });
     });
@@ -684,6 +691,8 @@ function buildWorkout(day){
     mainWrap.className = "main-lift-cards";
     var mainSets = day.sets.filter(function(s){ return s.type==="main"; });
 
+    var boostTag = dayBoost ? ' <span class="boost-tag">+' + Math.round(dayBoost*100) + '% today</span>' : '';
+
     mainSets.forEach(function(s, i){
         var isTop = i === mainSets.length-1 && !isDeload;
         var card  = document.createElement("div");
@@ -700,7 +709,7 @@ function buildWorkout(day){
             "</div>" +
             "<div class=\"set-right\">" +
                 (isTop ? "<span class=\"top-badge\">TOP SET</span>" : "") +
-                "<div class=\"set-weight\">" + s.weight + "<small>lbs</small></div>" +
+                "<div class=\"set-weight\">" + boostedWeight(s.weight) + "<small>lbs</small>" + boostTag + "</div>" +
             "</div>";
         mainWrap.appendChild(card);
     });
@@ -719,7 +728,7 @@ function buildWorkout(day){
             var c = document.createElement("div");
             c.className = "aux-card is-alt";
             c.innerHTML = '<div><div class="aux-name">' + s.exercise + '</div><div class="aux-type">Alt Lift</div></div>' +
-                '<div class="aux-right"><span class="aux-scheme">' + s.scheme + '</span><span class="aux-wt">' + s.weight + ' lbs</span></div>';
+                '<div class="aux-right"><span class="aux-scheme">' + s.scheme + '</span><span class="aux-wt">' + boostedWeight(s.weight) + ' lbs</span></div>';
             altWrap.appendChild(c);
         });
         area.appendChild(altWrap);
@@ -745,21 +754,26 @@ function buildWorkout(day){
     }
 }
 
-async function logDay531(){
+function logDay531(){
     var day = program[cursor];
     var sessionName = 'Wave ' + day.wave + ' · ' + weekNames[day.week] + ' · Day ' + day.dayNum + ' — ' + day.lift;
     var exList = day.sets.map(function(s){
-        return { name: s.exercise || day.lift, type: s.type, scheme: s.scheme || (s.pct ? Math.round(s.pct*100)+'% × '+s.reps : ''), weight: s.weight || '' };
+        var wt = s.weight;
+        if (typeof wt === 'number' && (s.type === 'main' || s.type === 'alt')) wt = round5(wt * (1 + dayBoost));
+        return { name: s.exercise || day.lift, type: s.type, scheme: s.scheme || (s.pct ? Math.round(s.pct*100)+'% × '+s.reps : ''), weight: wt || '' };
     });
     var btn = document.getElementById('logBtn');
-    var ok = await logWorkout('5/3/1', sessionName, exList);
-    await saveActiveProgram('5/3/1', day.wave, day.dayNum, exList);
+    var ok = logWorkout('5/3/1', sessionName, exList);
+    saveProgress();
     flashBtn(btn, ok);
+    // Advance to next day
+    if (cursor < program.length - 1) {
+        setTimeout(function() { goToDay(cursor + 1); }, 1500);
+    }
 }
 
 function navigate(dir){
-    cursor = Math.max(0, Math.min(program.length-1, cursor+dir));
-    render();
+    goToDay(cursor + dir);
     window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -783,8 +797,13 @@ function resetSetup(){
     document.getElementById("workoutView").style.display = "none";
 }
 
-// Init
-updateJumpOptions();
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === 'eatt_531'; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
 </script>
 
 <!-- BUILD PROGRAM POPUP -->

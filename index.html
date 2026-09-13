@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELITE ALDO TRAINING TEMPLATES</title>
 <style>
@@ -322,42 +323,6 @@ h1 {
     padding: 3px 10px;
 }
 
-/* EMAIL GATE */
-#emailGate {
-    display: none; position: fixed; inset: 0; z-index: 999;
-    background: rgba(0,0,0,0.88); backdrop-filter: blur(6px);
-    align-items: center; justify-content: center;
-}
-#emailGate.active { display: flex; }
-.gate-box {
-    background: linear-gradient(145deg, #1a2540, #0f1a2e);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px; padding: 44px 36px; max-width: 420px; width: 90%;
-    box-shadow: 0 24px 70px rgba(0,0,0,0.7); text-align: center;
-}
-.gate-logo { height: 70px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-.gate-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
-.gate-sub { font-size: 0.82rem; opacity: 0.5; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 28px; }
-.gate-label { font-size: 0.78rem; opacity: 0.55; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
-.gate-input {
-    width: 100%; padding: 13px 16px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
-    color: #fff; font-size: 0.95rem; margin-bottom: 6px; text-align: center;
-    outline: none; transition: border-color 0.2s;
-}
-.gate-input:focus { border-color: rgba(255,255,255,0.35); }
-.gate-input::placeholder { color: rgba(255,255,255,0.22); }
-.gate-error { font-size: 0.75rem; color: #ff6b6b; margin-bottom: 14px; display: none; }
-.gate-btn {
-    width: 100%; padding: 14px; border: none; border-radius: 10px;
-    background: linear-gradient(135deg, #ff512f, #dd2476);
-    color: #fff; font-size: 0.88rem; font-weight: 800;
-    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s; margin-top: 4px;
-}
-.gate-btn:hover { opacity: 0.88; transform: translateY(-2px); }
-.gate-note { font-size: 0.7rem; opacity: 0.3; margin-top: 16px; }
-
 /* ===== DASHBOARD PANEL ===== */
 #dashboard {
     display: none; position: fixed; inset: 0; z-index: 500;
@@ -410,7 +375,13 @@ h1 {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .prog-card:last-child { margin-bottom: 0; }
-.prog-info { flex: 1; }
+.prog-info { flex: 1; cursor: pointer; min-width: 0; }
+.prog-trash {
+    background: none; border: none; color: rgba(255,255,255,0.35);
+    font-size: 1rem; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+    flex-shrink: 0; transition: all 0.2s; line-height: 1;
+}
+.prog-trash:hover { color: #ff6b6b; background: rgba(255,107,107,0.15); }
 .prog-name { font-size: 0.95rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
 .prog-meta { font-size: 0.75rem; opacity: 0.5; letter-spacing: 0.5px; line-height: 1.6; }
 .prog-badge {
@@ -431,24 +402,70 @@ h1 {
 .log-date { font-size: 0.72rem; opacity: 0.4; }
 .log-session { font-size: 0.78rem; opacity: 0.6; margin-bottom: 6px; }
 .log-exercises { font-size: 0.72rem; opacity: 0.38; line-height: 1.6; }
+
+/* ── Continue Popup ─────────────────────────────────────────────── */
+#continuePopup {
+    display: none; position: fixed; inset: 0; z-index: 900;
+    background: rgba(0,0,0,0.82); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center; padding: 20px;
+}
+#continuePopup.active { display: flex; }
+.cp-box {
+    background: linear-gradient(145deg, #0f1a2e, #1a2540);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 22px; padding: 36px 28px;
+    max-width: 460px; width: 100%;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.75);
+}
+.cp-title {
+    font-size: 0.65rem; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 20px; text-align: center;
+}
+.cp-continue {
+    width: 100%; padding: 18px 20px; margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(255,81,47,0.15), rgba(221,36,118,0.15));
+    border: 1px solid rgba(255,81,47,0.4); border-radius: 14px;
+    color: #fff; text-align: left; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.cp-continue:hover { background: linear-gradient(135deg, rgba(255,81,47,0.28), rgba(221,36,118,0.28)); border-color: rgba(255,81,47,0.7); transform: translateY(-2px); }
+.cp-continue-click { flex: 1; min-width: 0; cursor: pointer; }
+.cp-prog-name { font-size: 1rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 3px; }
+.cp-prog-meta { font-size: 0.73rem; opacity: 0.5; letter-spacing: 0.5px; }
+.cp-arrow { font-size: 1.3rem; opacity: 0.6; flex-shrink: 0; cursor: pointer; }
+.cp-trash {
+    background: none; border: none; color: rgba(255,255,255,0.35);
+    font-size: 0.95rem; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+    flex-shrink: 0; transition: all 0.2s; line-height: 1;
+}
+.cp-trash:hover { color: #ff6b6b; background: rgba(255,107,107,0.15); }
+.cp-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; }
+.cp-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+.cp-divider-text { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+.cp-other-list { display: flex; flex-direction: column; gap: 7px; max-height: 200px; overflow-y: auto; margin-bottom: 16px; }
+.cp-other-btn {
+    width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+    color: rgba(255,255,255,0.7); text-align: left;
+    font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.cp-other-btn:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); color: #fff; }
+.cp-other-click { flex: 1; min-width: 0; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-other-date { font-size: 0.68rem; opacity: 0.4; font-weight: 400; flex-shrink: 0; }
+.cp-fresh {
+    width: 100%; padding: 13px; background: none;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+    color: rgba(255,255,255,0.4); cursor: pointer; font-size: 0.78rem;
+    letter-spacing: 1.5px; text-transform: uppercase; transition: all 0.2s;
+}
+.cp-fresh:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+
 </style>
 </head>
 <body>
 
 <!-- EMAIL GATE -->
-<div id="emailGate">
-  <div class="gate-box">
-    <img src="images/gorillavsbull.png" alt="Elite Aldo" class="gate-logo">
-    <div class="gate-title">ELITE ALDO</div>
-    <div class="gate-sub">Training Templates</div>
-    <div class="gate-label">Enter your email to continue</div>
-    <input id="gateEmail" class="gate-input" type="email" placeholder="you@example.com" autocomplete="email">
-    <div id="gateError" class="gate-error">Please enter a valid email address.</div>
-    <button class="gate-btn" onclick="submitEmail()">Enter</button>
-    <div class="gate-note">No spam. No subscriptions. Just your workouts.</div>
-  </div>
-</div>
-
 
 <!-- ===== NAV ===== -->
 <nav>
@@ -477,7 +494,7 @@ h1 {
             <h2>OLD BUT SPRY</h2>
             <p>Age-adapted DB &amp; Band workouts. Smart progression based on your numbers.</p>
         <div class="wip-label">🚧 Work in Progress</div></a>
-        <a href="stronglifts.html" class="card card-sl">
+        <a href="5x5.html" class="card card-sl">
             <div class="card-badge">Beginner Friendly</div>
             <img src="images/5x5.png" alt="Stronglifts 5x5" class="card-img">
             <h2>THE CLASSIC 5×5</h2>
@@ -531,12 +548,11 @@ h1 {
 
     <div class="section-label">💎 Bodybuilding</div>
     <div class="cards">
-        <a class="card card-wip card-arnold">
-            <div class="card-badge">Coming Soon</div>
+        <a href="arnoldsplit.html" class="card card-arnold">
             <img src="images/arnold.png" alt="Arnold Split" class="card-img">
             <h2>ARNOLD SPLIT</h2>
-            <p>6-day chest/back, shoulders/arms, legs rotation straight from the Oak's playbook.</p>
-        <div class="wip-label">🚧 Work in Progress</div></a>
+            <p>6-day chest/back, shoulders/arms, legs rotation with antagonist supersets straight from the Oak's playbook.</p>
+        </a>
         <a href="brosplit.html" class="card card-bro">
             <div class="card-badge">Classic</div>
             <img src="images/brosplit.png" alt="Bro Split" class="card-img">
@@ -577,50 +593,87 @@ h1 {
 </div>
 
 <script>
-// ── Supabase init ─────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
-
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-supa.auth.onAuthStateChange(function(event, session) {
-    var gate = document.getElementById('emailGate');
-    if (!gate) return;
-    if (session) {
-        gate.classList.remove('active');
-    } else {
-        gate.classList.add('active');
-    }
-});
-
-// Keep session alive while user is active
-document.addEventListener('click', function() { supa.auth.getSession(); });
-
-async function submitEmail() {
-    var val = document.getElementById('gateEmail').value.trim();
-    if (!val || !val.includes('@')) {
-        document.getElementById('gateError').style.display = 'block';
-        return;
-    }
-    var btn = document.querySelector('#emailGate button');
-    if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
-    var gateError = document.getElementById('gateError');
-    var { error } = await supa.auth.signInWithOtp({ email: val });
-    if (error) {
-        if (gateError) { gateError.textContent = 'Error: ' + error.message; gateError.style.display = 'block'; }
-        if (btn) { btn.textContent = 'Continue'; btn.disabled = false; }
-        return;
-    }
-    // Show confirmation message
-    var gateBox = document.querySelector('#emailGate .gate-box, #emailGate .modal-box, #emailGate > div');
-    if (gateBox) gateBox.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:2rem;margin-bottom:16px">📧</div><div style="font-size:1rem;font-weight:700;letter-spacing:2px;margin-bottom:10px">CHECK YOUR EMAIL</div><div style="font-size:0.85rem;opacity:0.6;line-height:1.6">We sent a magic link to <strong>' + val + '</strong>.<br>Click it to sign in — no password needed.</div></div>';
+// ── Continue Popup ────────────────────────────────────────────────────────────
+function formatDate(ts) {
+    if (!ts) return '';
+    var d = new Date(ts);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-document.getElementById('gateEmail').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') submitEmail();
+function formatProgress(state) {
+    if (state.cursor !== undefined && state.cursor !== null) {
+        return 'Day ' + (state.cursor + 1);
+    }
+    if (state.wave !== undefined) return 'Wave ' + state.wave;
+    if (state.week !== undefined) return 'Week ' + state.week;
+    return '';
+}
+
+function initContinuePopup() {
+    var all = EATT.loadAll();
+    var otherSec  = document.getElementById('cpOtherSection');
+    var otherList = document.getElementById('cpOtherList');
+    otherList.innerHTML = '';
+    otherSec.style.display = 'none';
+
+    if (!all.length) { closeContinuePopup(); return; } // nothing saved — show home normally
+
+    // Sort by most recently accessed
+    all.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+    var recent = all[0];
+    var others = all.slice(1);
+
+    // Build "Continue" card
+    var btn = document.getElementById('cpContinueBtn');
+    var progress = formatProgress(recent);
+    btn.innerHTML =
+        '<div class="cp-continue">' +
+        '<div class="cp-continue-click" onclick="resumeProgram(\'' + recent.page + '\')">' +
+        '<div class="cp-prog-name">' + recent.name + '</div>' +
+        '<div class="cp-prog-meta">' + (progress ? progress + ' · ' : '') + 'Last used ' + formatDate(recent.savedAt) + '</div></div>' +
+        '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + recent.id + '\', event)" title="Remove saved program">🗑</button>' +
+        '<div class="cp-arrow" onclick="resumeProgram(\'' + recent.page + '\')">▶</div></div>';
+
+    // Build "Other" list
+    if (others.length) {
+        otherSec.style.display = 'block';
+        others.forEach(function(p) {
+            var prog = formatProgress(p);
+            var item = document.createElement('div');
+            item.className = 'cp-other-btn';
+            item.innerHTML =
+                '<span class="cp-other-click" onclick="resumeProgram(\'' + p.page + '\')">' + p.name + (prog ? ' <span style="opacity:0.4;font-weight:400">· ' + prog + '</span>' : '') + '</span>' +
+                '<span class="cp-other-date">' + formatDate(p.savedAt) + '</span>' +
+                '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>';
+            otherList.appendChild(item);
+        });
+    }
+
+    document.getElementById('continuePopup').classList.add('active');
+}
+
+function confirmDeleteProgram(id, evt) {
+    if (evt) evt.stopPropagation();
+    if (!confirm('Remove this saved program? Your progress on it will be lost.')) return;
+    EATT.deleteProgram(id);
+    initContinuePopup();
+}
+
+function resumeProgram(page) {
+    closeContinuePopup();
+    window.location.href = page;
+}
+
+function closeContinuePopup() {
+    document.getElementById('continuePopup').classList.remove('active');
+}
+
+// Show popup on load (after cloud sync merges in, if any)
+window.addEventListener('DOMContentLoaded', function() {
+    EATT.init().then(initContinuePopup);
 });
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
+// ── Dashboard (localStorage) ──────────────────────────────────────────────────
 function openDashboard() {
     document.getElementById('dashboard').classList.add('active');
     loadCurrentPrograms();
@@ -638,113 +691,67 @@ function switchDash(tab) {
     document.getElementById('dash-' + tab).classList.add('active');
 }
 
-// ── Current Programs — from program_sessions (incomplete) ────────────────────
-async function loadCurrentPrograms() {
-    const loadEl = document.getElementById('loading-current');
-    const listEl = document.getElementById('list-current');
-    loadEl.style.display = 'block';
+function loadCurrentPrograms() {
+    var listEl = document.getElementById('list-current');
+    var loadEl = document.getElementById('loading-current');
+    loadEl.style.display = 'none';
     listEl.innerHTML = '';
 
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) {
-        loadEl.textContent = 'Sign in to see your programs.';
+    var all = EATT.loadAll();
+    all.sort(function(a,b){ return (b.savedAt||0) - (a.savedAt||0); });
+
+    if (!all.length) {
+        listEl.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📋</div>' +
+            '<div class="dash-empty-msg">No active programs yet.<br>Build one from the programs below.</div></div>';
         return;
     }
 
-    const { data, error } = await supa
-        .from('program_sessions')
-        .select('id, session_label, week, day, created_at, completed_at, exercises')
-        .eq('user_id', user.id)
-        .is('completed_at', null)          // not completed = active
-        .order('created_at', { ascending: false });
-
-    loadEl.style.display = 'none';
-
-    if (error || !data || data.length === 0) {
-        listEl.innerHTML = `
-            <div class="dash-empty">
-                <div class="dash-empty-icon">📋</div>
-                <div class="dash-empty-msg">No active programs yet.<br>Build one from the programs below.</div>
-            </div>`;
-        return;
-    }
-
-    // Group by session_label (program name)
-    const grouped = {};
-    data.forEach(s => {
-        const key = s.session_label || 'Unknown Program';
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(s);
-    });
-
-    Object.entries(grouped).forEach(([name, sessions]) => {
-        const latest = sessions[0];
-        const started = new Date(latest.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const sessionCount = sessions.length;
-        const card = document.createElement('div');
+    all.forEach(function(p) {
+        var progress = formatProgress(p);
+        var card = document.createElement('div');
         card.className = 'prog-card';
-        card.innerHTML = `
-            <div class="prog-info">
-                <div class="prog-name">${name}</div>
-                <div class="prog-meta">
-                    Started ${started}<br>
-                    ${sessionCount} session${sessionCount !== 1 ? 's' : ''} logged
-                    ${latest.week ? ' · Week ' + latest.week : ''}
-                    ${latest.day  ? ' · Day '  + latest.day  : ''}
-                </div>
-            </div>
-            <div class="prog-badge active">Active</div>`;
+        card.innerHTML =
+            '<div class="prog-info" onclick="closeDashboard(); window.location.href=\'' + p.page + '\'">' +
+            '<div class="prog-name">' + p.name + '</div>' +
+            '<div class="prog-meta">Last used ' + formatDate(p.savedAt) + (progress ? ' · ' + progress : '') + '</div></div>' +
+            '<button class="prog-trash" onclick="confirmDeleteCurrentProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>' +
+            '<div class="prog-badge active">Resume →</div>';
         listEl.appendChild(card);
     });
 }
 
-// ── Archives — from workout_logs (completed days) ────────────────────────────
-async function loadArchives() {
-    const loadEl = document.getElementById('loading-archives');
-    const listEl = document.getElementById('list-archives');
-    loadEl.style.display = 'block';
+function confirmDeleteCurrentProgram(id, evt) {
+    if (evt) evt.stopPropagation();
+    if (!confirm('Remove this saved program? Your progress on it will be lost.')) return;
+    EATT.deleteProgram(id);
+    loadCurrentPrograms();
+}
+
+function loadArchives() {
+    var listEl = document.getElementById('list-archives');
+    var loadEl = document.getElementById('loading-archives');
+    loadEl.style.display = 'none';
     listEl.innerHTML = '';
 
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) {
-        loadEl.textContent = 'Sign in to see your history.';
+    var logs = JSON.parse(localStorage.getItem('eatt_logs') || '[]');
+
+    if (!logs.length) {
+        listEl.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">🗄️</div>' +
+            '<div class="dash-empty-msg">No workouts logged yet.<br>Complete a session to see your history here.</div></div>';
         return;
     }
 
-    const { data, error } = await supa
-        .from('workout_logs')
-        .select('id, date, program_name, session_name, exercises, notes')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .limit(30);
-
-    loadEl.style.display = 'none';
-
-    if (error || !data || data.length === 0) {
-        listEl.innerHTML = `
-            <div class="dash-empty">
-                <div class="dash-empty-icon">🗄️</div>
-                <div class="dash-empty-msg">No workouts logged yet.<br>Complete a session to see your history here.</div>
-            </div>`;
-        return;
-    }
-
-    data.forEach(log => {
-        const d = new Date(log.date);
-        const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        const exList = Array.isArray(log.exercises)
-            ? log.exercises.slice(0, 4).map(e => e.name || e).filter(Boolean).join(' · ')
+    logs.forEach(function(log) {
+        var exList = Array.isArray(log.exercises)
+            ? log.exercises.slice(0,4).map(function(e){ return e.name || e; }).filter(Boolean).join(' · ')
             : '';
-        const card = document.createElement('div');
+        var card = document.createElement('div');
         card.className = 'log-card';
-        card.innerHTML = `
-            <div class="log-top">
-                <div class="log-program">${log.program_name || 'Workout'}</div>
-                <div class="log-date">${dateStr}</div>
-            </div>
-            ${log.session_name ? `<div class="log-session">${log.session_name}</div>` : ''}
-            ${exList ? `<div class="log-exercises">${exList}${log.exercises.length > 4 ? ' +' + (log.exercises.length - 4) + ' more' : ''}</div>` : ''}
-            ${log.notes ? `<div class="log-exercises" style="margin-top:4px;font-style:italic">${log.notes}</div>` : ''}`;
+        card.innerHTML =
+            '<div class="log-top"><div class="log-program">' + (log.program || 'Workout') + '</div>' +
+            '<div class="log-date">' + log.date + '</div></div>' +
+            (log.session ? '<div class="log-session">' + log.session + '</div>' : '') +
+            (exList ? '<div class="log-exercises">' + exList + (log.exercises.length > 4 ? ' +' + (log.exercises.length-4) + ' more' : '') + '</div>' : '');
         listEl.appendChild(card);
     });
 }
@@ -773,6 +780,20 @@ async function loadArchives() {
       <div class="dash-loading" id="loading-archives">Loading...</div>
       <div id="list-archives"></div>
     </div>
+  </div>
+</div>
+
+
+<!-- ── Continue Popup ────────────────────────────────────────────────────── -->
+<div id="continuePopup">
+  <div class="cp-box">
+    <div class="cp-title">Welcome Back</div>
+    <div id="cpContinueBtn"></div>
+    <div id="cpOtherSection" style="display:none">
+      <div class="cp-divider"><div class="cp-divider-line"></div><div class="cp-divider-text">Other saved programs</div><div class="cp-divider-line"></div></div>
+      <div class="cp-other-list" id="cpOtherList"></div>
+    </div>
+    <button class="cp-fresh" onclick="closeContinuePopup()">↩ Start Fresh — Choose a Program Below</button>
   </div>
 </div>
 

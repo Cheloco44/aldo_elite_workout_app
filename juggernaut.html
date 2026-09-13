@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JUGGERNAUT METHOD</title>
@@ -59,6 +60,14 @@ body::before {
 .jump-btn.jump-active { background: linear-gradient(135deg, #b92b27, #1565c0); border-color: #ef9a9a; box-shadow: 0 0 12px rgba(239,154,154,0.3); }
 .jump-btn .jump-pct { font-size: 1.1rem; display: block; }
 .jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
+
+/* Live progression-rate toggle, shown in the workout view */
+.jump-toggle { margin: 14px 0 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.jump-toggle-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.55; font-weight: 700; }
+.jump-toggle-options { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.jump-toggle .jump-btn { padding: 6px 12px; font-size: 0.75rem; min-width: 0; flex: none; }
+.boost-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #ef9a9a; }
+
 .check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
 .check-row input[type="checkbox"] { width: 20px; height: 20px; }
 
@@ -178,15 +187,6 @@ tr:hover { background: rgba(255,255,255,0.06); }
         <input type="checkbox" id="useTM" checked>
         <label for="useTM">Use 90% Training Max</label>
     </div>
-    <div class="jump-selector">
-        <label class="jump-label">&#9889; TRAINING MAX INCREASE PER WAVE &mdash; How hungry are you?</label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
-        </div>
-    </div>
     <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
@@ -194,21 +194,21 @@ tr:hover { background: rgba(255,255,255,0.06); }
 
 <div class="controls" id="controls">
     <label>Wave</label>
-    <select id="waveSel" onchange="renderTable()">
+    <select id="waveSel" onchange="changeDay()">
         <option value="0">Wave 1 — 10s</option>
         <option value="1">Wave 2 — 8s</option>
         <option value="2">Wave 3 — 5s</option>
         <option value="3">Wave 4 — 3s</option>
     </select>
     <label>Week</label>
-    <select id="weekSel" onchange="renderTable()">
+    <select id="weekSel" onchange="changeDay()">
         <option value="0">Accumulation</option>
         <option value="1">Intensification</option>
         <option value="2">Realization</option>
         <option value="3">Deload</option>
     </select>
     <label>Day</label>
-    <select id="daySel" onchange="renderTable()">
+    <select id="daySel" onchange="changeDay()">
         <option value="0">Squat</option>
         <option value="1">Bench</option>
         <option value="2">Deadlift</option>
@@ -217,6 +217,14 @@ tr:hover { background: rgba(255,255,255,0.06); }
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleJugg()">&#x21bb; Shuffle Accessories</button>
+    <div class="jump-toggle">
+        <span class="jump-toggle-label">⚡ Push It Today</span>
+        <div class="jump-toggle-options">
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectDayBoost(this)">Baseline</button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectDayBoost(this)">+5%</button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectDayBoost(this)">+10%</button>
+        </div>
+    </div>
 </div>
 
 <div class="table-wrap" id="tableWrap">
@@ -238,58 +246,53 @@ var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_jugg';
+var cursor  = 0;
 
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-(function initAuth() {
-    supa.auth.onAuthStateChange(function(event, session) {
-        var gate = document.getElementById('emailGate');
-        if (!gate) return;
-        if (session) {
-            gate.classList.remove('active');
-        } else {
-            gate.classList.add('active');
-        }
-    });
-    // Keep session alive while user is active
-    document.addEventListener('click', function() { supa.auth.getSession(); });
-})();
-
-async function logWorkout(programName, sessionName, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) { showEmailGate(); return false; }
-    const { error } = await supa.from('workout_logs').insert({
-        user_id:      user.id,
-        date:         new Date().toISOString().split('T')[0],
-        program_name: programName,
-        session_name: sessionName,
-        exercises:    exerciseList,
-        notes:        ''
-    });
-    return !error;
+function getInputs() {
+    return {
+        squat:    parseInt(document.getElementById('squat1rm').value) || 315,
+        bench:    parseInt(document.getElementById('bench1rm').value) || 225,
+        deadlift: parseInt(document.getElementById('dead1rm').value)  || 405,
+        ohp:      parseInt(document.getElementById('ohp1rm').value)   || 135,
+        useTM:    document.getElementById('useTM').checked
+    };
 }
 
-function showEmailGate() {
-    var gate = document.getElementById('emailGate');
-    if (gate) gate.classList.add('active');
+function saveProgress() {
+    var wi = parseInt(document.getElementById('waveSel').value) || 0;
+    var di = parseInt(document.getElementById('daySel').value)  || 0;
+    EATT.save({ id: PROG_ID, name: 'Juggernaut Method', page: 'juggernaut.html',
+        inputs: getInputs(), wave: wi, day: di, savedAt: Date.now() });
 }
 
-async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) return;
-    // Upsert into program_sessions — one active row per program per user
-    await supa.from('program_sessions').upsert({
-        user_id:       user.id,
-        session_label: programName,
-        week:          parseInt(weekLabel) || null,
-        day:           parseInt(dayLabel)  || null,
-        exercises:     exerciseList,
-        notes:         ''
-    }, { onConflict: 'user_id,session_label' });
+function loadProgress() {
+    return EATT.loadAll().find(function(p){ return p.id === PROG_ID; }) || null;
 }
 
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('squat1rm').value = inp.squat;
+    document.getElementById('bench1rm').value = inp.bench;
+    document.getElementById('dead1rm').value  = inp.deadlift;
+    document.getElementById('ohp1rm').value   = inp.ohp;
+    if (inp.useTM !== undefined) document.getElementById('useTM').checked = inp.useTM;
+    generateProgram();
+    // Restore wave/day selectors
+    var ws = document.getElementById('waveSel');
+    var ds = document.getElementById('daySel');
+    if (ws && state.wave !== undefined) ws.value = state.wave;
+    if (ds && state.day  !== undefined) ds.value  = state.day;
+    resetDayBoost();
+    renderTable();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
 function flashBtn(btn, success) {
     var orig = btn.textContent;
     btn.textContent  = success ? '✓ Saved!' : '✗ Error';
@@ -328,12 +331,31 @@ function getAccs(di){
 var liftNames = ["Squat","Bench","Deadlift","OHP"];
 var tms = {};
 var baseTms = {};
-var weeklyJump = 0.10;
+var weeklyJump = 0.10; // Juggernaut's built-in per-wave TM increase — fixed, not user-adjustable
 
-function selectJump(btn){
+// ── "Push it today" toggle — a one-off bump to THIS day's displayed
+// working weight only. Doesn't touch the program's built-in TM progression
+// and resets to Baseline the moment you change wave/week/day.
+var dayBoost = 0;
+
+function selectDayBoost(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
-    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    dayBoost = parseFloat(btn.getAttribute('data-pct'));
+    renderTable();
+}
+
+function resetDayBoost(){
+    dayBoost = 0;
+    document.querySelectorAll('.jump-btn').forEach(function(b){
+        b.classList.toggle('jump-active', parseFloat(b.getAttribute('data-pct')) === 0);
+    });
+}
+
+// Wave/week/day selector changed — a different day, so the boost resets
+function changeDay(){
+    resetDayBoost();
+    renderTable();
 }
 
 function round5(v){ return Math.max(45, Math.round(v/5)*5); }
@@ -372,20 +394,33 @@ function renderTable(){
     var di = parseInt(document.getElementById("daySel").value)||0;
     var wave = waves[wi];
     var lift = liftNames[di];
-    // Scale TM based on which wave we're viewing and weekly jump
+    // Scale TM based on which wave we're viewing, then apply today's
+    // optional "push it" boost (display-only, resets on day change)
     var tm = Math.round(baseTms[lift] * Math.pow(1 + weeklyJump, wi));
+    if (dayBoost) tm = Math.round(tm * (1 + dayBoost));
     var tb = document.querySelector("#workoutTable tbody");
     tb.innerHTML = "";
 
     // Main lift rows
-    if(wki < 2) {
-        // Accumulation or Intensification
-        var pctBlock = wki === 0 ? wave.pcts.slice(0,2) : wave.pcts;
-        pctBlock.forEach(function(p){
+    if(wki === 0) {
+        // Accumulation — straight sets only, no top-set test
+        wave.pcts.slice(0, -1).forEach(function(p){
             var tr = document.createElement("tr");
             tr.innerHTML = '<td class="type-main">Main Lift</td><td>'+lift+'</td><td>'+p[1]+' × '+wave.rep+'</td><td>'+round5(tm*p[0])+' lbs ('+Math.round(p[0]*100)+'%)</td>';
             tb.appendChild(tr);
         });
+    } else if(wki === 1) {
+        // Intensification — straight sets, then a single top-set AMRAP
+        // (target scales with the wave's rep range: 10+/8+/5+/3+)
+        wave.pcts.slice(0, -1).forEach(function(p){
+            var tr = document.createElement("tr");
+            tr.innerHTML = '<td class="type-main">Main Lift</td><td>'+lift+'</td><td>'+p[1]+' × '+wave.rep+'</td><td>'+round5(tm*p[0])+' lbs ('+Math.round(p[0]*100)+'%)</td>';
+            tb.appendChild(tr);
+        });
+        var top = wave.pcts[wave.pcts.length - 1];
+        var trTop = document.createElement("tr");
+        trTop.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>1 × '+wave.rep+'+</td><td>'+round5(tm*top[0])+' lbs ('+Math.round(top[0]*100)+'%)</td>';
+        tb.appendChild(trTop);
     } else if(wki === 2) {
         // Realization — top set AMRAP
         var reps = wave.pcts;
@@ -406,20 +441,24 @@ function renderTable(){
         tb.appendChild(trD);
     }
 
-    // Accessories
+    // Accessories — intensity runs opposite the main lift: push harder on
+    // light main-lift days, ease off when the main lift just took you to a
+    // top-set AMRAP or a true test.
+    var accIntensity = ["Push Hard", "Moderate", "Light", "Light — Recovery"];
     getAccs(di).forEach(function(acc){
         var tr = document.createElement("tr");
-        tr.innerHTML = '<td class="type-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td>Moderate</td>';
+        tr.innerHTML = '<td class="type-acc">Accessory</td><td>'+acc[0]+'</td><td>'+acc[1]+'</td><td>'+accIntensity[wki]+'</td>';
         tb.appendChild(tr);
     });
 
     // Update banner
     var banner = document.getElementById("waveBanner");
     var waveDesc = ["Build volume & muscle with 10s","Transition heavier with 8s","Pure strength with 5s","Peak intensity with 3s"];
-    banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>';
+    var boostTag = dayBoost ? ' &nbsp;|&nbsp; <span class="boost-tag">+' + Math.round(dayBoost*100) + '% today</span>' : '';
+    banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>' + boostTag;
 }
 
-async function logDayJugg(){
+function logDayJugg(){
     var wi = parseInt(document.getElementById("waveSel").value)||0;
     var wk = document.getElementById("weekSel").value;
     var di = parseInt(document.getElementById("daySel").value)||0;
@@ -429,9 +468,12 @@ async function logDayJugg(){
     var exList = [{ name: lift, scheme: wk + ' sets' }];
     getAccs(di).forEach(function(acc){ exList.push({ name: acc[0], scheme: acc[1] }); });
     var btn = document.getElementById('logBtn');
-    var ok = await logWorkout('Juggernaut Method', sessionName, exList);
-    await saveActiveProgram('Juggernaut Method', wi+1, di+1, exList);
+    var ok = logWorkout('Juggernaut Method', sessionName, exList);
+    saveProgress();
     flashBtn(btn, ok);
+    if (ok && cursor < program.length - 1) {
+        setTimeout(function() { cursor++; saveProgress(); render(); }, 1500);
+    }
 }
 
 function shuffleJugg(){
@@ -449,6 +491,14 @@ function resetSetup(){
     document.getElementById("tableWrap").style.display  = "none";
     document.getElementById("waveBanner").style.display = "none";
 }
+
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
 </script>
 
 <div id="buildPopup">

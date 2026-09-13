@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BRO SPLIT</title>
@@ -66,6 +67,13 @@ body::before {
 .jump-btn .jump-pct { font-size: 1.1rem; display: block; }
 .jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
 
+/* Live progression-rate toggle, shown in the workout view */
+.jump-toggle { margin: 14px 0 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.jump-toggle-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.55; font-weight: 700; }
+.jump-toggle-options { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.jump-toggle .jump-btn { padding: 6px 12px; font-size: 0.75rem; min-width: 0; flex: none; }
+.boost-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #b39ddb; }
+
 .btn {
     display: block; width: 100%; padding: 14px; margin-top: 22px;
     background: linear-gradient(135deg, #4776e6, #8e54e9);
@@ -105,6 +113,21 @@ body::before {
 .ex-card h4 { margin: 0 0 8px; font-size: 1rem; color: #b39ddb; }
 .ex-card .detail { font-size: 0.88rem; margin: 3px 0; opacity: 0.9; }
 .ex-card .rep-note { font-size: 0.8rem; opacity: 0.55; margin-top: 6px; font-style: italic; }
+.burnout-note { font-size: 0.78rem; color: #ff8c42; font-weight: 700; margin: 4px 0; }
+
+/* Main lift pyramid card */
+.main-lift-card { grid-column: 1 / -1; border-color: rgba(179,157,219,0.5); background: rgba(179,157,219,0.08); }
+.main-badge { font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase; background: linear-gradient(135deg, #4776e6, #8e54e9); padding: 3px 8px; border-radius: 20px; font-weight: 700; color: #fff; vertical-align: middle; margin-left: 6px; }
+.pyramid-rows { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.pyramid-row {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;
+}
+.pyramid-row.pyramid-top { background: rgba(179,157,219,0.18); border: 1px solid rgba(179,157,219,0.4); font-weight: 700; }
+.pyramid-row.pyramid-burnout { background: rgba(255,140,66,0.12); border: 1px solid rgba(255,140,66,0.3); }
+.pyramid-set { font-weight: 700; min-width: 130px; }
+.pyramid-detail { opacity: 0.9; }
+.pyramid-rest { font-size: 0.75rem; opacity: 0.55; }
 
 @media (max-width:600px) {
     .header-text { font-size: 1.3rem; }
@@ -175,13 +198,13 @@ body::before {
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
         <h2>THE BRO SPLIT</h2>
-        <p>One muscle group. One day. Maximum destruction. The OG bodybuilding split that built generation after generation of jacked athletes. Don't let anyone tell you it doesn't work.</p>
+        <p>One muscle group. One day. Built for growth, not just moving weight. Each session pairs one heavy compound lift with focused isolation work — every exercise ends with a set you genuinely can't finish, because that's the stimulus that actually drives hypertrophy.</p>
         <ul>
             <li><strong>5 days on, 2 days off</strong> — Chest, Back, Shoulders, Arms, Legs</li>
-            <li>Each muscle trained once per week with <strong>full dedication and volume</strong></li>
-            <li>High sets, moderate-to-high reps — the pump IS the program</li>
-            <li>Progressive overload: add weight or reps each week</li>
-            <li>Best suited for <strong>intermediate lifters focused on aesthetics and size</strong></li>
+            <li><strong>Main lift:</strong> an ascending pyramid (12 → 10 → 6–8 → burnout set to failure)</li>
+            <li><strong>Isolation work:</strong> rep ranges, not fixed numbers — hit the top of the range before adding weight (that's real progressive overload, not just a bigger number on a formula)</li>
+            <li><strong>Every exercise's last set is taken to true failure</strong> — that's the actual growth signal</li>
+            <li><strong>Rest times are prescribed</strong> — 2–3 min on the main lift, 60–90s on isolation — tuned so each session lands close to an hour</li>
         </ul>
     </div>
     <hr class="summary-divider">
@@ -197,23 +220,14 @@ body::before {
             <option value="16">16 Weeks</option>
         </select>
     </div>
-    <div class="jump-selector">
-        <label class="jump-label">&#9889; WEEKLY WEIGHT PROGRESSION &mdash; How hungry are you?</label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
-        </div>
-    </div>
     <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="controls" id="controls">
     <label>Week</label>
-    <select id="weekSel" onchange="renderDay()"></select>
+    <select id="weekSel" onchange="changeDay()"></select>
     <label>Day</label>
-    <select id="daySel" onchange="renderDay()">
+    <select id="daySel" onchange="changeDay()">
         <option value="0">Monday — Chest</option>
         <option value="1">Tuesday — Back</option>
         <option value="2">Wednesday — Shoulders</option>
@@ -223,6 +237,14 @@ body::before {
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleBro()">&#x21bb; Shuffle Accessories</button>
+    <div class="jump-toggle">
+        <span class="jump-toggle-label">⚡ Push It Today</span>
+        <div class="jump-toggle-options">
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectDayBoost(this)">Baseline</button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectDayBoost(this)">+5%</button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectDayBoost(this)">+10%</button>
+        </div>
+    </div>
 </div>
 
 <div class="day-banner" id="dayBanner"></div>
@@ -233,89 +255,85 @@ body::before {
 function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,n); }
 
 // Alternate exercise pools per day (2 swapped in on shuffle)
+// Alternate isolation pools — one full swap-in set of 4 per body part.
+// Every exercise here (like the primary isolation list) ends its last set
+// at true failure — see the "burnout" note added at render time.
 var altPools = [
     // Chest
-    [{name:"Dips",              ref:null,    pct:null,  sets:3, reps:"Max",   note:"Full dip — lean forward for chest"},
-     {name:"Pec Deck",          ref:"bench", pct:0.25,  sets:3, reps:"15",    note:"Peak contraction, slow negative"},
-     {name:"Low Cable Fly",     ref:"bench", pct:0.20,  sets:3, reps:"15",    note:"Pull up and across for upper chest"},
-     {name:"Smith Incline",     ref:"bench", pct:0.60,  sets:4, reps:"10–12", note:"Controlled path, stop at chin"}],
+    [{name:"Pec Deck",          ref:"bench", pct:0.25, sets:3, repRange:"12–15", rest:"60–90s", note:"Peak contraction, slow negative"},
+     {name:"Low Cable Fly",     ref:"bench", pct:0.20, sets:3, repRange:"12–15", rest:"60–90s", note:"Pull up and across for upper chest"},
+     {name:"Smith Incline Press", ref:"bench", pct:0.60, sets:3, repRange:"10–12", rest:"60–90s", note:"Controlled path, stop at chin"},
+     {name:"Push-Up Finisher",  ref:null,    pct:null, sets:3, repRange:"Max",   rest:"60–90s", note:"Bodyweight — burn out the chest"}],
     // Back
-    [{name:"T-Bar Row",         ref:"row",   pct:0.70,  sets:4, reps:"8–10",  note:"Chest pad — eliminate body English"},
-     {name:"Straight-Arm Pulldown", ref:"row", pct:0.30, sets:3, reps:"15",   note:"Full lat stretch at top"},
-     {name:"Chest-Supported Row",ref:"row",  pct:0.60,  sets:4, reps:"10–12", note:"No cheating — full isolation"},
-     {name:"Single-Arm Cable Row",ref:"row", pct:0.40,  sets:3, reps:"12",    note:"Rotate the torso slightly at top"}],
+    [{name:"T-Bar Row",         ref:"row",   pct:0.70, sets:3, repRange:"8–10",  rest:"60–90s", note:"Chest pad — eliminate body English"},
+     {name:"Straight-Arm Pulldown", ref:"row", pct:0.30, sets:3, repRange:"12–15", rest:"60–90s", note:"Full lat stretch at top"},
+     {name:"Chest-Supported Row", ref:"row",  pct:0.60, sets:3, repRange:"10–12", rest:"60–90s", note:"No cheating — full isolation"},
+     {name:"Single-Arm Cable Row", ref:"row", pct:0.40, sets:3, repRange:"10–12", rest:"60–90s", note:"Rotate the torso slightly at top"}],
     // Shoulders
-    [{name:"Cable Lateral Raise",ref:"ohp",  pct:0.18,  sets:4, reps:"15",    note:"Keep wrist below elbow"},
-     {name:"Upright Row",       ref:"row",   pct:0.45,  sets:3, reps:"12",    note:"Wide grip — elbows above hands"},
-     {name:"Seated DB Press",   ref:"ohp",   pct:0.40,  sets:4, reps:"10–12", note:"90° elbow at bottom, press up"},
-     {name:"Behind Neck Press", ref:"ohp",   pct:0.50,  sets:3, reps:"10",    note:"Warm up well — controlled motion"}],
+    [{name:"Cable Lateral Raise", ref:"ohp", pct:0.18, sets:3, repRange:"12–15", rest:"60–90s", note:"Keep wrist below elbow"},
+     {name:"Upright Row",       ref:"row",   pct:0.45, sets:3, repRange:"10–12", rest:"60–90s", note:"Wide grip — elbows above hands"},
+     {name:"Seated DB Press",   ref:"ohp",   pct:0.40, sets:3, repRange:"10–12", rest:"60–90s", note:"90° elbow at bottom, press up"},
+     {name:"Front Raise",       ref:"ohp",   pct:0.18, sets:3, repRange:"10–12", rest:"60–90s", note:"Alternate arms, keep it controlled"}],
     // Arms
-    [{name:"Preacher Curl",     ref:"bench", pct:0.25,  sets:3, reps:"10–12", note:"Full extension at bottom"},
-     {name:"Rope Pushdown",     ref:"bench", pct:0.22,  sets:3, reps:"15",    note:"Spread the rope at the bottom"},
-     {name:"Concentration Curl",ref:"bench", pct:0.18,  sets:3, reps:"12",    note:"Elbow on inner thigh — no swinging"},
-     {name:"Dips (Triceps)",    ref:null,    pct:null,  sets:3, reps:"Max",   note:"Upright torso — tricep focus"}],
+    [{name:"Preacher Curl",     ref:"bench", pct:0.25, sets:3, repRange:"10–12", rest:"60–90s", note:"Full extension at bottom"},
+     {name:"Rope Pushdown",     ref:"bench", pct:0.22, sets:3, repRange:"12–15", rest:"60–90s", note:"Spread the rope at the bottom"},
+     {name:"Concentration Curl", ref:"bench", pct:0.18, sets:3, repRange:"10–12", rest:"60–90s", note:"Elbow on inner thigh — no swinging"},
+     {name:"Dips (Triceps)",    ref:null,    pct:null, sets:3, repRange:"8–12",  rest:"60–90s", note:"Upright torso — tricep focus"}],
     // Legs
-    [{name:"Hack Squat",        ref:"squat", pct:0.65,  sets:4, reps:"10–12", note:"Full depth — heels elevated"},
-     {name:"Seated Leg Curl",   ref:null,    pct:null,  sets:4, reps:"12–15", note:"Squeeze at peak, slow negative"},
-     {name:"Sissy Squat",       ref:null,    pct:null,  sets:3, reps:"15",    note:"Pure quad isolation"},
-     {name:"Donkey Calf Raise", ref:null,    pct:null,  sets:5, reps:"20",    note:"Full stretch — no bouncing"}]
+    [{name:"Hack Squat",        ref:"squat", pct:0.65, sets:3, repRange:"10–12", rest:"90s–2min", note:"Full depth — heels elevated"},
+     {name:"Sissy Squat",       ref:null,    pct:null, sets:3, repRange:"12–15", rest:"60–90s", note:"Pure quad isolation"},
+     {name:"Walking Lunge",     ref:"squat", pct:0.30, sets:3, repRange:"10–12/leg", rest:"60–90s", note:"Step out far enough, knee tracks toe"},
+     {name:"Donkey Calf Raise", ref:null,    pct:null, sets:4, repRange:"15–20", rest:"45–60s", note:"Full stretch — no bouncing"}]
 ];
 
 var shuffledExercises = [null,null,null,null,null]; // one shuffled set per day
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_bro';
 
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-(function initAuth() {
-    supa.auth.onAuthStateChange(function(event, session) {
-        var gate = document.getElementById('emailGate');
-        if (!gate) return;
-        if (session) {
-            gate.classList.remove('active');
-        } else {
-            gate.classList.add('active');
-        }
-    });
-    // Keep session alive while user is active
-    document.addEventListener('click', function() { supa.auth.getSession(); });
-})();
-
-async function logWorkout(programName, sessionName, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) { showEmailGate(); return false; }
-    const { error } = await supa.from('workout_logs').insert({
-        user_id:      user.id,
-        date:         new Date().toISOString().split('T')[0],
-        program_name: programName,
-        session_name: sessionName,
-        exercises:    exerciseList,
-        notes:        ''
-    });
-    return !error;
+function getInputs() {
+    return {
+        bench:    parseInt(document.getElementById('bench').value)    || 185,
+        row:      parseInt(document.getElementById('row').value)      || 185,
+        ohp:      parseInt(document.getElementById('ohp').value)      || 115,
+        squat:    parseInt(document.getElementById('squat').value)    || 225,
+        numWeeks: parseInt(document.getElementById('numWeeks').value) || 12
+    };
 }
 
-function showEmailGate() {
-    var gate = document.getElementById('emailGate');
-    if (gate) gate.classList.add('active');
+function saveProgress() {
+    var dayIdx = parseInt(document.getElementById('daySel').value)  || 0;
+    var weekIdx = parseInt(document.getElementById('weekSel').value) || 1;
+    EATT.save({ id: PROG_ID, name: 'Bro Split', page: 'brosplit.html',
+        inputs: getInputs(), day: dayIdx, week: weekIdx, savedAt: Date.now() });
 }
 
-async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) return;
-    // Upsert into program_sessions — one active row per program per user
-    await supa.from('program_sessions').upsert({
-        user_id:       user.id,
-        session_label: programName,
-        week:          parseInt(weekLabel) || null,
-        day:           parseInt(dayLabel)  || null,
-        exercises:     exerciseList,
-        notes:         ''
-    }, { onConflict: 'user_id,session_label' });
+function loadProgress() {
+    return EATT.loadAll().find(function(p){ return p.id === PROG_ID; }) || null;
 }
 
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('bench').value    = inp.bench;
+    document.getElementById('row').value      = inp.row;
+    document.getElementById('ohp').value      = inp.ohp;
+    document.getElementById('squat').value    = inp.squat;
+    document.getElementById('numWeeks').value = inp.numWeeks;
+    generateProgram();
+    var ws = document.getElementById('weekSel');
+    var ds = document.getElementById('daySel');
+    if (ws && state.week) ws.value = state.week;
+    if (ds && state.day !== undefined) ds.value = state.day;
+    resetDayBoost();
+    renderDay();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
 function flashBtn(btn, success) {
     var orig = btn.textContent;
     btn.textContent  = success ? '✓ Saved!' : '✗ Error';
@@ -328,78 +346,131 @@ function flashBtn(btn, success) {
     }, 2200);
 }
 
+// Each day: one main compound lift run as an ascending PYRAMID (heavier /
+// fewer reps each set, ending in a lighter burnout set to true failure),
+// plus isolation work with a rep RANGE (progress reps to the top of the
+// range before adding weight — "double progression", the actual mechanism
+// behind "harder than last time") and its own last set taken to failure.
 var broSplit = [
     {
         name:"MONDAY — CHEST DAY",
         emoji:"💪",
-        exercises:[
-            {name:"Barbell Bench Press",     ref:"bench", pct:0.85, sets:4, reps:"6–8",  note:"Control the descent — pause at bottom"},
-            {name:"Incline Dumbbell Press",  ref:"bench", pct:0.55, sets:4, reps:"8–12", note:"30–45° incline, don't flare elbows"},
-            {name:"Flat Dumbbell Fly",       ref:"bench", pct:0.30, sets:3, reps:"12–15",note:"Slight bend in elbow, stretch the chest"},
-            {name:"Cable Crossover",         ref:"bench", pct:0.20, sets:3, reps:"15",   note:"Squeeze at the top"},
-            {name:"Decline Bench Press",     ref:"bench", pct:0.70, sets:3, reps:"10–12",note:"Lower pec emphasis"},
-            {name:"Push-Up Finisher",        ref:null,    pct:null,  sets:2, reps:"Max",  note:"Bodyweight — 2 sets to failure"},
+        mainLift: { name:"Barbell Bench Press", ref:"bench", topPct:0.85, note:"Control the descent — pause at bottom" },
+        isolation: [
+            {name:"Incline Dumbbell Press", ref:"bench", pct:0.55, sets:3, repRange:"8–12",  rest:"60–90s", note:"30–45° incline, don't flare elbows"},
+            {name:"Cable Fly",              ref:"bench", pct:0.20, sets:3, repRange:"12–15", rest:"60–90s", note:"Squeeze at the top, stretch at bottom"},
+            {name:"Dips",                   ref:null,    pct:null, sets:3, repRange:"8–12",  rest:"60–90s", note:"Lean forward for chest emphasis"},
+            {name:"Decline Bench Press",    ref:"bench", pct:0.70, sets:3, repRange:"10–12", rest:"60–90s", note:"Lower pec emphasis"}
         ]
     },
     {
         name:"TUESDAY — BACK DAY",
         emoji:"🔥",
-        exercises:[
-            {name:"Weighted Pull-Up",        ref:null,   pct:null,  sets:4, reps:"6–8",  note:"Dead hang start, chin over bar"},
-            {name:"Bent-Over Barbell Row",   ref:"row",  pct:0.85,  sets:4, reps:"8–10", note:"Chest to bar — no cheating"},
-            {name:"Seated Cable Row",        ref:"row",  pct:0.65,  sets:4, reps:"10–12",note:"Pull elbows back, squeeze scapula"},
-            {name:"Lat Pulldown",            ref:"row",  pct:0.70,  sets:3, reps:"10–12",note:"Wide grip, pull to chest"},
-            {name:"Dumbbell Row",            ref:"row",  pct:0.50,  sets:3, reps:"12",   note:"Chest supported for more isolation"},
-            {name:"Hyperextension",          ref:null,   pct:null,  sets:3, reps:"15",   note:"Lower back & glute finisher"},
+        mainLift: { name:"Bent-Over Barbell Row", ref:"row", topPct:0.85, note:"Chest to bar — no cheating" },
+        isolation: [
+            {name:"Weighted Pull-Up", ref:null,  pct:null, sets:3, repRange:"6–10",  rest:"60–90s", note:"Dead hang start, chin over bar"},
+            {name:"Lat Pulldown",     ref:"row", pct:0.70, sets:3, repRange:"10–12", rest:"60–90s", note:"Wide grip, pull to chest"},
+            {name:"Seated Cable Row", ref:"row", pct:0.65, sets:3, repRange:"10–12", rest:"60–90s", note:"Pull elbows back, squeeze scapula"},
+            {name:"Hyperextension",  ref:null,  pct:null, sets:3, repRange:"12–15", rest:"60–90s", note:"Lower back & glute finisher"}
         ]
     },
     {
         name:"WEDNESDAY — SHOULDER DAY",
         emoji:"🎯",
-        exercises:[
-            {name:"Barbell Overhead Press",  ref:"ohp",  pct:0.80,  sets:4, reps:"6–8",  note:"Strict — no leg drive"},
-            {name:"Dumbbell Lateral Raise",  ref:"ohp",  pct:0.20,  sets:4, reps:"12–15",note:"Slight lean forward, lead with elbows"},
-            {name:"Rear Delt Cable Fly",     ref:"ohp",  pct:0.15,  sets:4, reps:"15",   note:"Cross-body cable, squeeze at end"},
-            {name:"Arnold Press",            ref:"ohp",  pct:0.35,  sets:3, reps:"10–12",note:"Full rotation from neutral"},
-            {name:"Front Raise",             ref:"ohp",  pct:0.18,  sets:3, reps:"12",   note:"Alternate arms, keep it controlled"},
-            {name:"Shrugs",                  ref:"row",  pct:0.80,  sets:3, reps:"15–20",note:"Hold at top, don't roll"},
+        mainLift: { name:"Barbell Overhead Press", ref:"ohp", topPct:0.80, note:"Strict — no leg drive" },
+        isolation: [
+            {name:"Dumbbell Lateral Raise", ref:"ohp", pct:0.20, sets:3, repRange:"12–15", rest:"60–90s", note:"Slight lean forward, lead with elbows"},
+            {name:"Rear Delt Cable Fly",    ref:"ohp", pct:0.15, sets:3, repRange:"12–15", rest:"60–90s", note:"Cross-body cable, squeeze at end"},
+            {name:"Arnold Press",           ref:"ohp", pct:0.35, sets:3, repRange:"10–12", rest:"60–90s", note:"Full rotation from neutral"},
+            {name:"Shrugs",                 ref:"row", pct:0.80, sets:3, repRange:"12–15", rest:"60–90s", note:"Hold at top, don't roll"}
         ]
     },
     {
         name:"THURSDAY — ARMS DAY",
         emoji:"💥",
-        exercises:[
-            {name:"Barbell Curl",            ref:"bench", pct:0.30,  sets:4, reps:"8–10",  note:"Strict form — no swinging"},
-            {name:"Close-Grip Bench Press",  ref:"bench", pct:0.65,  sets:4, reps:"8–10",  note:"Elbows in, triceps doing the work"},
-            {name:"Incline Dumbbell Curl",   ref:"bench", pct:0.20,  sets:3, reps:"10–12", note:"Full stretch at bottom"},
-            {name:"Skull Crusher",           ref:"bench", pct:0.28,  sets:3, reps:"10–12", note:"EZ bar or DB, lower to forehead"},
-            {name:"Hammer Curl",             ref:"bench", pct:0.22,  sets:3, reps:"12",    note:"Neutral grip — hit the brachialis"},
-            {name:"Overhead Tricep Ext",     ref:"bench", pct:0.22,  sets:3, reps:"12–15", note:"Cable or DB, full extension"},
-            {name:"Cable Curl + Pushdown",   ref:null,    pct:null,   sets:2, reps:"15/15", note:"Superset to finish — feel the pump"},
+        mainLift: { name:"Close-Grip Bench Press", ref:"bench", topPct:0.65, note:"Elbows in, triceps doing the work" },
+        isolation: [
+            {name:"Barbell Curl",         ref:"bench", pct:0.30, sets:3, repRange:"8–10",  rest:"60–90s", note:"Strict form — no swinging"},
+            {name:"Hammer Curl",          ref:"bench", pct:0.22, sets:3, repRange:"10–12", rest:"60–90s", note:"Neutral grip — hit the brachialis"},
+            {name:"Skull Crusher",        ref:"bench", pct:0.28, sets:3, repRange:"10–12", rest:"60–90s", note:"EZ bar or DB, lower to forehead"},
+            {name:"Overhead Tricep Ext",  ref:"bench", pct:0.22, sets:3, repRange:"12–15", rest:"60–90s", note:"Cable or DB, full extension"}
         ]
     },
     {
         name:"FRIDAY — LEG DAY",
         emoji:"🦵",
-        exercises:[
-            {name:"Barbell Back Squat",      ref:"squat", pct:0.85,  sets:4, reps:"6–8",  note:"Depth below parallel, chest up"},
-            {name:"Romanian Deadlift",       ref:"squat", pct:0.55,  sets:4, reps:"10–12",note:"Hinge at the hip — feel the stretch"},
-            {name:"Leg Press",               ref:"squat", pct:0.70,  sets:4, reps:"10–15",note:"Don't lock out — keep tension"},
-            {name:"Walking Lunge",           ref:"squat", pct:0.30,  sets:3, reps:"12/leg",note:"Step out far enough, knee tracks toe"},
-            {name:"Leg Curl",                ref:null,    pct:null,   sets:4, reps:"12–15",note:"Controlled — don't jerk"},
-            {name:"Standing Calf Raise",     ref:null,    pct:null,   sets:5, reps:"15–20",note:"Full range — stretch at bottom"},
+        mainLift: { name:"Barbell Back Squat", ref:"squat", topPct:0.85, note:"Depth below parallel, chest up" },
+        isolation: [
+            {name:"Romanian Deadlift",   ref:"squat", pct:0.55, sets:3, repRange:"10–12", rest:"90s–2min", note:"Hinge at the hip — feel the stretch"},
+            {name:"Leg Press",           ref:"squat", pct:0.70, sets:3, repRange:"10–15", rest:"60–90s", note:"Don't lock out — keep tension"},
+            {name:"Leg Curl",            ref:null,    pct:null, sets:3, repRange:"12–15", rest:"60–90s", note:"Controlled — don't jerk"},
+            {name:"Standing Calf Raise", ref:null,    pct:null, sets:4, repRange:"15–20", rest:"45–60s", note:"Full range — stretch at bottom"}
         ]
     }
 ];
 
+// The pyramid shape applied to every main lift's topPct: set-by-set
+// fraction of the top weight, reps, and rest. Set 3 is the tracked "top
+// set" (push to hit the top of its rep range before adding weight next
+// time); set 4 is a lighter burnout set taken to true failure.
+var PYRAMID_SHAPE = [
+    { mult: 0.75, reps: "12",    rest: "2 min" },
+    { mult: 0.85, reps: "10",    rest: "2 min" },
+    { mult: 1.00, reps: "6–8",   rest: "2–3 min", isTop: true },
+    { mult: 0.65, reps: "AMRAP", rest: "90s",     isBurnout: true }
+];
+
+function buildPyramid(topPct) {
+    return PYRAMID_SHAPE.map(function(s) {
+        return { pct: Math.round(topPct * s.mult * 100) / 100, reps: s.reps, rest: s.rest, isTop: !!s.isTop, isBurnout: !!s.isBurnout };
+    });
+}
+
+// Rough time budget so a session lands near an hour: ~40s per set worked,
+// plus the rest period after each set (using the midpoint of any range).
+function restSeconds(restStr) {
+    var nums = restStr.replace('min','*60').match(/[\d.]+(\*60)?/g) || [];
+    var vals = nums.map(function(n){ return n.indexOf('*60') >= 0 ? parseFloat(n) * 60 : parseFloat(n); });
+    if (!vals.length) return 75;
+    return vals.reduce(function(a,b){ return a+b; }, 0) / vals.length;
+}
+
+function estimateSessionSeconds(day) {
+    var total = 0;
+    PYRAMID_SHAPE.forEach(function(s) { total += 40 + restSeconds(s.rest); });
+    day.isolation.forEach(function(ex) {
+        total += ex.sets * 40 + ex.sets * restSeconds(ex.rest);
+    });
+    return total;
+}
+
 var weights = {};
 var programWeeks = 12;
-var weeklyJump = 0.10;
+var weeklyJump = 0.10; // Bro Split's built-in per-week weight increase — fixed, not user-adjustable
 
-function selectJump(btn){
+// ── "Push it today" toggle — a one-off bump to THIS day's displayed
+// working weight only. Doesn't touch the program's built-in weight progression
+// and resets to Baseline the moment you change week/day.
+var dayBoost = 0;
+
+function selectDayBoost(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
-    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    dayBoost = parseFloat(btn.getAttribute('data-pct'));
+    renderDay();
+}
+
+function resetDayBoost(){
+    dayBoost = 0;
+    document.querySelectorAll('.jump-btn').forEach(function(b){
+        b.classList.toggle('jump-active', parseFloat(b.getAttribute('data-pct')) === 0);
+    });
+}
+
+// Week/day selector changed — a different day, so the boost resets
+function changeDay(){
+    resetDayBoost();
+    renderDay();
 }
 
 function round5(v){ return Math.max(10,Math.round(v/5)*5); }
@@ -434,26 +505,37 @@ function generateProgram(){
     renderDay();
 }
 
-async function logDayBro(){
+function logDayBro(){
     var dayIdx = parseInt(document.getElementById("daySel").value)||0;
     var day = broSplit[dayIdx];
-    var exList = (shuffledExercises[dayIdx] || day.exercises).map(function(ex){
-        return { name: ex.name, scheme: ex.sets + ' × ' + ex.reps };
-    });
+    var iso = shuffledExercises[dayIdx] || day.isolation;
+    var exList = [{ name: day.mainLift.name, scheme: "Pyramid 12/10/6–8/AMRAP" }]
+        .concat(iso.map(function(ex){ return { name: ex.name, scheme: ex.sets + ' × ' + ex.repRange }; }));
     var btn = document.getElementById('logBtn');
-    var ok = await logWorkout('Bro Split', day.name, exList);
-    await saveActiveProgram('Bro Split', null, dayIdx+1, exList);
+    var ok = logWorkout('Bro Split', day.name, exList);
+    saveProgress();
     flashBtn(btn, ok);
+    if (ok) {
+        setTimeout(function() {
+            var ds = document.getElementById('daySel');
+            var ws = document.getElementById('weekSel');
+            var nextDay = (parseInt(ds.value) + 1) % ds.options.length;
+            // Advance week when day wraps
+            if (nextDay === 0 && ws) {
+                var nextWeek = Math.min(parseInt(ws.value) + 1, ws.options.length);
+                ws.value = nextWeek;
+            }
+            ds.value = nextDay;
+            saveProgress();
+            ds.dispatchEvent(new Event('change'));
+        }, 1500);
+    }
 }
 
 function shuffleBro(){
     var dayIdx = parseInt(document.getElementById("daySel").value)||0;
-    var day = broSplit[dayIdx];
-    // Keep first 2 exercises (main compound lifts), swap the rest
-    var core = day.exercises.slice(0, 2);
-    var alts = sample(altPools[dayIdx], 2);
-    var rest = sample(day.exercises.slice(2), day.exercises.length - 4);
-    shuffledExercises[dayIdx] = core.concat(rest).concat(alts);
+    // Main lift stays fixed — only the isolation work swaps to the alt pool
+    shuffledExercises[dayIdx] = sample(altPools[dayIdx], 4);
     var btn = document.getElementById('shuffleBtn');
     btn.style.transform = 'rotate(180deg)';
     setTimeout(function(){ btn.style.transform=''; }, 400);
@@ -467,26 +549,47 @@ function renderDay(){
     var grid = document.getElementById("cardGrid");
     grid.innerHTML = "";
     var prog = Math.pow(1 + weeklyJump, week - 1);
+    if (dayBoost) prog *= (1 + dayBoost); // today's optional "push it" boost — display-only
 
-    var exList = shuffledExercises[dayIdx] ? shuffledExercises[dayIdx] : day.exercises;
-    exList.forEach(function(ex){
+    // MAIN LIFT — ascending pyramid ending in a burnout set
+    var main = day.mainLift;
+    var pyramid = buildPyramid(main.topPct);
+    var mainCard = document.createElement("div");
+    mainCard.className = "ex-card main-lift-card";
+    var rows = pyramid.map(function(s, i){
+        var wt = round5(weights[main.ref] * s.pct * prog);
+        var rowCls = s.isTop ? "pyramid-top" : s.isBurnout ? "pyramid-burnout" : "";
+        var tag = s.isTop ? " — TOP SET" : s.isBurnout ? " — BURNOUT (to failure)" : "";
+        return '<div class="pyramid-row ' + rowCls + '">' +
+            '<span class="pyramid-set">Set ' + (i+1) + tag + '</span>' +
+            '<span class="pyramid-detail">' + s.reps + ' reps @ ' + wt + ' lbs</span>' +
+            '<span class="pyramid-rest">Rest ' + s.rest + '</span>' +
+        '</div>';
+    }).join('');
+    mainCard.innerHTML =
+        '<h4>' + main.name + ' <span class="main-badge">MAIN LIFT</span></h4>' +
+        '<div class="pyramid-rows">' + rows + '</div>' +
+        '<p class="rep-note">' + main.note + '</p>';
+    grid.appendChild(mainCard);
+
+    // ISOLATION — rep range + last set to failure
+    var iso = shuffledExercises[dayIdx] ? shuffledExercises[dayIdx] : day.isolation;
+    iso.forEach(function(ex){
         var card = document.createElement("div");
         card.className = "ex-card";
-        var wt = "";
-        if(ex.ref && ex.pct) {
-            wt = round5(weights[ex.ref] * ex.pct * prog) + " lbs";
-        } else {
-            wt = "Bodyweight";
-        }
+        var wt = (ex.ref && ex.pct) ? round5(weights[ex.ref] * ex.pct * prog) + " lbs" : "Bodyweight";
         card.innerHTML =
             '<h4>'+ex.name+'</h4>'+
-            '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.reps+'</p>'+
+            '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.repRange+' &nbsp; <strong>Rest:</strong> '+ex.rest+'</p>'+
             '<p class="detail"><strong>Weight:</strong> '+wt+'</p>'+
+            '<p class="burnout-note">Last set: push to true failure</p>'+
             '<p class="rep-note">'+ex.note+'</p>';
         grid.appendChild(card);
     });
 
-    document.getElementById("dayBanner").innerHTML = day.emoji + " " + day.name + " &nbsp;|&nbsp; <span style='opacity:0.6;font-weight:400;font-size:0.9rem'>Week "+week+" of "+programWeeks+"</span>";
+    var mins = Math.round(estimateSessionSeconds(day) / 60);
+    var boostTag = dayBoost ? " &nbsp;|&nbsp; <span class='boost-tag'>+" + Math.round(dayBoost*100) + "% today</span>" : "";
+    document.getElementById("dayBanner").innerHTML = day.emoji + " " + day.name + " &nbsp;|&nbsp; <span style='opacity:0.6;font-weight:400;font-size:0.9rem'>Week "+week+" of "+programWeeks+" &nbsp;·&nbsp; ~"+mins+" min session</span>" + boostTag;
 }
 
 function resetSetup(){
@@ -495,6 +598,14 @@ function resetSetup(){
     document.getElementById("cardGrid").style.display   = "none";
     document.getElementById("dayBanner").style.display  = "none";
 }
+
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
 </script>
 
 <div id="buildPopup">
@@ -503,11 +614,11 @@ function resetSetup(){
       <div class="popup-icon">💪</div>
       <div class="popup-title">Old School. Still Works.</div>
     </div>
-    <div class="popup-body">The Bro Split gets talked down — by people who've never actually run it.<br><br>One muscle group. Full focus. <strong>Complete annihilation.</strong> Every set on that muscle before you move on. This is how the legends were built — and it still works the same way today.<br><br>Use the template as your foundation. Swap a movement if something doesn't fit your body. Add weight when it's easy. The only rule is <strong>you show up and you work.</strong></div>
+    <div class="popup-body">The Bro Split gets talked down — by people who've never actually run it right.<br><br>One muscle group. Full focus. <strong>Every set taken somewhere real.</strong> The main lift builds through a pyramid to a heavy top set and a burnout finisher; isolation work chases the top of its rep range before the weight goes up. This is how you actually grow — not just moving the same weight for the same reps forever.<br><br>Use the template as your foundation. Swap a movement if something doesn't fit your body. Push each rep range before adding weight. The only rule is <strong>every last set means it.</strong></div>
     <div class="popup-footer">
       <button class="popup-start" onclick="dismissPopup()">LET'S GET JACKED</button>
     </div>
   </div>
 </div>
 </body>
-</html>s
+</html>

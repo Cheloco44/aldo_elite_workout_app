@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CUBE METHOD</title>
@@ -58,6 +59,14 @@ body::before {
 .jump-btn.jump-active { background: linear-gradient(135deg, #b8860b, #ffd200); border-color: #ffd200; color: #111; box-shadow: 0 0 12px rgba(255,210,0,0.3); }
 .jump-btn .jump-pct { font-size: 1.1rem; display: block; }
 .jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
+
+/* Live progression-rate toggle, shown in the workout view */
+.jump-toggle { margin: 14px 0 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.jump-toggle-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.75; font-weight: 700; }
+.jump-toggle-options { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.jump-toggle .jump-btn { padding: 6px 12px; font-size: 0.75rem; min-width: 0; flex: none; }
+.boost-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #ffd200; }
+
 .check-row { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
 .check-row input[type="checkbox"] { width: 20px; height: 20px; }
 
@@ -198,36 +207,54 @@ tr:last-child td { border-bottom: none; }
             <option value="15">15 Weeks (5 cycles)</option>
         </select>
     </div>
-    <div class="jump-selector">
-        <label class="jump-label">&#9889; LOADING INCREASE PER 3-WEEK CYCLE &mdash; How hungry are you?</label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
-        </div>
-    </div>
     <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="controls" id="controls">
     <label>Week</label>
-    <select id="weekSel" onchange="renderWeek()"></select>
+    <select id="weekSel" onchange="changeDay()"></select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()" style="color:#111">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleCube()">&#x21bb; Shuffle Accessories</button>
+    <div class="jump-toggle">
+        <span class="jump-toggle-label">⚡ Push It Today</span>
+        <div class="jump-toggle-options">
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectDayBoost(this)">Baseline</button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectDayBoost(this)">+5%</button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectDayBoost(this)">+10%</button>
+        </div>
+    </div>
 </div>
 
 <div class="week-grid" id="weekGrid"></div>
 
 <script>
 var baseTms    = {};
-var weeklyJump = 0.10;
+var weeklyJump = 0.10; // Cube Method's built-in per-cycle loading increase — fixed, not user-adjustable
 
-function selectJump(btn){
+// ── "Push it today" toggle — a one-off bump to THIS day's displayed
+// working weight only. Doesn't touch the program's built-in loading progression
+// and resets to Baseline the moment you change week.
+var dayBoost = 0;
+
+function selectDayBoost(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
-    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    dayBoost = parseFloat(btn.getAttribute('data-pct'));
+    renderWeek();
+}
+
+function resetDayBoost(){
+    dayBoost = 0;
+    document.querySelectorAll('.jump-btn').forEach(function(b){
+        b.classList.toggle('jump-active', parseFloat(b.getAttribute('data-pct')) === 0);
+    });
+}
+
+// Week selector changed — a different day, so the boost resets
+function changeDay(){
+    resetDayBoost();
+    renderWeek();
 }
 
 var rotations = [
@@ -242,58 +269,47 @@ var repReps   = [8, 10, 12];
 
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZWNieXRrcWtoZXZleG1mZG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNTE3NjgsImV4cCI6MjA4OTYyNzc2OH0.CRAlB_8t5MWliMLvtzmNk0R1U_AFzZCERlypOfVpYfw';
-const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_cube';
 
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-(function initAuth() {
-    supa.auth.onAuthStateChange(function(event, session) {
-        var gate = document.getElementById('emailGate');
-        if (!gate) return;
-        if (session) {
-            gate.classList.remove('active');
-        } else {
-            gate.classList.add('active');
-        }
-    });
-    // Keep session alive while user is active
-    document.addEventListener('click', function() { supa.auth.getSession(); });
-})();
-
-async function logWorkout(programName, sessionName, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) { showEmailGate(); return false; }
-    const { error } = await supa.from('workout_logs').insert({
-        user_id:      user.id,
-        date:         new Date().toISOString().split('T')[0],
-        program_name: programName,
-        session_name: sessionName,
-        exercises:    exerciseList,
-        notes:        ''
-    });
-    return !error;
+function getInputs() {
+    return {
+        squat:    parseInt(document.getElementById('squat1rm').value) || 405,
+        bench:    parseInt(document.getElementById('bench1rm').value) || 275,
+        dead:     parseInt(document.getElementById('dead1rm').value)  || 500,
+        useTM:    document.getElementById('useTM').checked,
+        numWeeks: parseInt(document.getElementById('numWeeks').value) || 12
+    };
 }
 
-function showEmailGate() {
-    var gate = document.getElementById('emailGate');
-    if (gate) gate.classList.add('active');
+function saveProgress() {
+    var wi = parseInt(document.getElementById('weekSel').value) || 1;
+    EATT.save({ id: PROG_ID, name: 'Cube Method', page: 'cube.html',
+        inputs: getInputs(), week: wi, savedAt: Date.now() });
 }
 
-async function saveActiveProgram(programName, weekLabel, dayLabel, exerciseList) {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) return;
-    // Upsert into program_sessions — one active row per program per user
-    await supa.from('program_sessions').upsert({
-        user_id:       user.id,
-        session_label: programName,
-        week:          parseInt(weekLabel) || null,
-        day:           parseInt(dayLabel)  || null,
-        exercises:     exerciseList,
-        notes:         ''
-    }, { onConflict: 'user_id,session_label' });
+function loadProgress() {
+    return EATT.loadAll().find(function(p){ return p.id === PROG_ID; }) || null;
 }
 
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('squat1rm').value = inp.squat;
+    document.getElementById('bench1rm').value = inp.bench;
+    document.getElementById('dead1rm').value  = inp.dead;
+    if (inp.useTM !== undefined) document.getElementById('useTM').checked = inp.useTM;
+    document.getElementById('numWeeks').value = inp.numWeeks;
+    generateProgram();
+    var ws = document.getElementById('weekSel');
+    if (ws && state.week) { ws.value = state.week; ws.dispatchEvent(new Event('change')); }
+    else resetDayBoost();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
 function flashBtn(btn, success) {
     var orig = btn.textContent;
     btn.textContent  = success ? '✓ Saved!' : '✗ Error';
@@ -309,13 +325,17 @@ function flashBtn(btn, success) {
 var accPools = {
     squat: [["Box Squat","4×3","Speed focus"],["Leg Press","3×12","Quad volume"],["Leg Curl","3×12","Ham balance"],
             ["Ab Wheel","3×12","Core"],["Walking Lunge","3×10/leg","Unilateral"],["GHR","3×12","Posterior chain"],
-            ["Step-Up","3×10","Hip drive"],["RDL","3×10","Hamstrings"]],
+            ["Step-Up","3×10","Hip drive"],["RDL","3×10","Hamstrings"],["Front Squat","3×5","Quad + upper back"],
+            ["Bulgarian Split Squat","3×10/leg","Unilateral quad"],["Belt Squat","3×10","Leg drive, no spinal load"],
+            ["Hip Thrust","3×10","Glute drive"]],
     bench: [["Close Grip Bench","3×8","Tricep lockout"],["DB Row","4×10","Back strength"],["Face Pull","3×20","Shoulder health"],
             ["Tricep Pushdown","3×15","Triceps"],["Incline DB Press","3×10","Upper chest"],["Cable Fly","3×15","Chest pump"],
-            ["Skull Crusher","3×10","Elbow extension"],["DB Curl","3×12","Supination"]],
+            ["Skull Crusher","3×10","Elbow extension"],["DB Curl","3×12","Supination"],["Incline DB Fly","3×12","Upper chest stretch"],
+            ["Dips","3×10","Chest + triceps"],["JM Press","3×8","Tricep lockout"],["Landmine Press","3×10","Shoulder-friendly press"]],
     dead:  [["Deficit Deadlift","3×3","Off-floor strength"],["GHR","3×12","Posterior chain"],["Barbell Row","4×8","Upper back"],
             ["Reverse Hyper","3×15","Low back"],["Rack Pull","3×3","Lockout"],["Back Extension","3×15","Erectors"],
-            ["Lat Pulldown","3×12","Lats"],["Cable Row","3×15","Mid-back"]]
+            ["Lat Pulldown","3×12","Lats"],["Cable Row","3×15","Mid-back"],["Good Morning","3×8","Posterior chain"],
+            ["Pull-Up","3×max","Lats + grip"],["Farmer's Carry","3×40yd","Grip + trunk"],["Hyperextension","3×15","Erectors"]]
 };
 
 function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,4); }
@@ -365,6 +385,7 @@ function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
     var cycle       = Math.floor((weekNum - 1) / 3);
     var weekInCycle = (weekNum - 1) % 3;
     var tm = Math.round(baseTmVal * Math.pow(1 + weeklyJump, cycle));
+    if (dayBoost) tm = Math.round(tm * (1 + dayBoost)); // today's optional "push it" boost — display-only
     var html = "";
 
     if(mode === "Heavy"){
@@ -381,8 +402,13 @@ function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
         html += '<tr><td class="t-rep">Rep Set</td><td>' + liftName + '</td><td>3 × ' + reps + '</td><td>' + round5(tm * rPct) + ' lbs (' + Math.round(rPct * 100) + '%)</td></tr>';
     }
 
+    // Accessory intensity follows Cube's own day-type logic: heavy days
+    // already taxed the CNS with a near-max single, so ease off; speed days
+    // are submaximal, so there's room to push; rep days are already volume
+    // work, so stay moderate.
+    var accIntensity = { Heavy: "Light", Explosive: "Push Hard", Rep: "Moderate" }[mode] || "Moderate";
     accs.forEach(function(a){
-        html += '<tr><td class="t-acc">Accessory</td><td>' + a[0] + '</td><td>' + a[1] + '</td><td style="opacity:0.55;font-size:0.83rem">' + a[2] + '</td></tr>';
+        html += '<tr><td class="t-acc">Accessory</td><td>' + a[0] + '<div style="opacity:0.5;font-size:0.75rem;font-weight:400">' + a[2] + '</div></td><td>' + a[1] + '</td><td>' + accIntensity + '</td></tr>';
     });
     return html;
 }
@@ -399,6 +425,8 @@ function renderWeek(){
         {name:"Deadlift", key:"dead",  mode:rot.dead,  accs:getAccs("dead")}
     ];
 
+    var boostTag = dayBoost ? ' &nbsp;·&nbsp; <span class="boost-tag">+' + Math.round(dayBoost*100) + '% today</span>' : '';
+
     lifts.forEach(function(l){
         var card      = document.createElement("div");
         card.className = "day-card";
@@ -406,7 +434,7 @@ function renderWeek(){
         var badge     = l.mode === "Heavy" ? "🔥 Top set day" : l.mode === "Explosive" ? "⚡ Speed day" : "💪 Volume day";
         card.innerHTML =
             '<div class="day-header ' + headerCls + '">' + l.name + ' — ' + l.mode.toUpperCase() + ' DAY<br>' +
-            '<span style="font-size:0.8rem;font-weight:400;opacity:0.85">' + badge + '</span></div>' +
+            '<span style="font-size:0.8rem;font-weight:400;opacity:0.85">' + badge + boostTag + '</span></div>' +
             '<table><thead><tr><th>Type</th><th>Exercise</th><th>Sets / Reps</th><th>Weight</th></tr></thead><tbody>' +
             buildDayHTML(l.name, baseTms[l.key], l.mode, week, l.accs) +
             '</tbody></table>';
@@ -414,17 +442,17 @@ function renderWeek(){
     });
 }
 
-async function logDayCube(liftName, weekLabel){
+function logDayCube(liftName, weekLabel){
     var exList = [{ name: liftName, scheme: weekLabel }];
     getAccs(liftName === "Squat" ? "squat" : liftName === "Bench" ? "bench" : "dead").forEach(function(acc){
         exList.push({ name: acc[0], scheme: acc[1] });
     });
     var wi = parseInt(document.getElementById("weekSel").value)||1;
     var sessionName = 'Week ' + wi + ' · ' + weekLabel + ' — ' + liftName;
-    var ok = await logWorkout('Cube Method', sessionName, exList);
+    var ok = logWorkout('Cube Method', sessionName, exList);
     var btn = document.getElementById('logbtn-' + liftName);
     if(btn) flashBtn(btn, ok);
-    await saveActiveProgram('Cube Method', wi, null, exList);
+    saveProgress();
 }
 
 function shuffleCube(){
@@ -442,6 +470,14 @@ function resetSetup(){
     document.getElementById("controls").style.display   = "none";
     document.getElementById("weekGrid").classList.remove("visible");
 }
+
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
 </script>
 
 <div id="buildPopup">

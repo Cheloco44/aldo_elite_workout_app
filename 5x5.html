@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRONGLIFTS 5×5</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f1923, #1a2a3a, #0d1b2a);
+    color: #fff;
+    min-height: 100vh;
+}
+body::before {
+    content: "";
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: url('images/gorillavsbull.png') no-repeat center center;
+    background-size: contain; opacity: 0.07; pointer-events: none; z-index: 0;
+}
+.header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    padding: 25px 20px; text-align: center;
+    box-shadow: 0 6px 20px rgba(15,52,96,0.6);
+    border-bottom: 4px solid rgba(255,255,255,0.1);
+    position: relative; z-index: 1;
+}
+.header-inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; }
+.header img.logo { height: 75px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.header-text { font-size: 1.8rem; font-weight: 900; letter-spacing: 3px; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+.back-link { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #fff; text-decoration: none; font-size: 1.4rem; opacity: 0.8; }
+.back-link:hover { opacity: 1; }
+
+/* SETUP */
+.setup-panel {
+    max-width: 520px; margin: 30px auto; padding: 30px;
+    background: rgba(255,255,255,0.06); border-radius: 16px;
+    backdrop-filter: blur(6px); position: relative; z-index: 1;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.program-summary h2 { text-align: center; margin-bottom: 14px; font-size: 1.4rem; color: #90caf9; }
+.program-summary p { font-size: 0.95rem; line-height: 1.65; opacity: 0.88; margin-bottom: 12px; }
+.program-summary ul { list-style: none; padding: 0; margin: 0; }
+.program-summary ul li { position: relative; padding-left: 22px; margin: 8px 0; font-size: 0.9rem; line-height: 1.5; opacity: 0.85; }
+.program-summary ul li::before { content: "\25B8"; position: absolute; left: 0; color: #90caf9; }
+.summary-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 22px 0; }
+.form-title { text-align: center; margin-bottom: 20px; color: #90caf9; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; gap: 10px; }
+.form-row label { font-weight: 600; font-size: 0.93rem; flex: 1; }
+.form-row input[type="number"] { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 105px; text-align: center; color: #222; flex-shrink: 0; }
+.form-row input[type="number"]::placeholder { color: rgba(0,0,0,0.3); font-style: italic; }
+.form-row input[type="number"]:focus::placeholder { color: transparent; }
+.form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 14px; width: 160px; color: #222; flex-shrink: 0; }
+
+.btn { display: block; width: 100%; padding: 14px; margin-top: 22px; background: linear-gradient(135deg, #1a1a2e, #0f3460); color: #fff; border: 2px solid rgba(144,202,249,0.4); border-radius: 10px; font-size: 17px; font-weight: 900; cursor: pointer; letter-spacing: 2px; transition: all 0.2s; }
+.btn:hover { border-color: #90caf9; box-shadow: 0 0 20px rgba(144,202,249,0.25); transform: scale(1.01); }
+
+/* WORKOUT VIEW */
+#workoutView { display: none; position: relative; z-index: 1; }
+
+.position-banner {
+    max-width: 680px; margin: 24px auto 0; padding: 20px 26px;
+    background: rgba(144,202,249,0.07);
+    border: 1px solid rgba(144,202,249,0.2);
+    border-radius: 14px; text-align: center;
+}
+.wave-label { font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(144,202,249,0.6); margin-bottom: 6px; }
+.day-title  { font-size: 1.55rem; font-weight: 900; letter-spacing: 2px; color: #90caf9; margin-bottom: 4px; }
+.day-sub    { font-size: 0.83rem; opacity: 0.55; letter-spacing: 1px; }
+
+.breadcrumb { max-width: 680px; margin: 14px auto 0; display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; padding: 0 16px; }
+.bc-week-lbl { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.38; margin: 0 5px; }
+.bc-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.2s; }
+.bc-dot.active { background: #90caf9; border-color: #90caf9; transform: scale(1.5); }
+.bc-dot.done   { background: rgba(144,202,249,0.35); border-color: rgba(144,202,249,0.35); }
+
+.nav-controls { max-width: 680px; margin: 18px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px; }
+.nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+.nav-btn:hover { background: rgba(144,202,249,0.15); border-color: #90caf9; }
+.nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+.nav-center { text-align: center; }
+.nav-progress { font-size: 0.73rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 6px; }
+.nav-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.btn-new { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-new:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+.btn-shuffle { background: rgba(15,52,96,0.3); border: 1px solid rgba(144,202,249,0.3); color: rgba(144,202,249,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(15,52,96,0.5); }
+.btn-log { background: rgba(56,239,157,0.12); border: 1px solid rgba(56,239,157,0.35); color: #38ef9d; padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-log:hover { background: rgba(56,239,157,0.22); }
+
+.workout-area { max-width: 680px; margin: 22px auto 60px; padding: 0 16px; }
+
+.section-heading { font-size: 0.63rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(144,202,249,0.6); margin: 22px 0 10px; border-left: 3px solid #0f3460; padding-left: 10px; }
+
+/* Main lift cards */
+.main-lift-cards { display: flex; flex-direction: column; gap: 10px; }
+.lift-set-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(144,202,249,0.15); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lift-set-card.primary { background: rgba(15,52,96,0.3); border-color: rgba(144,202,249,0.5); }
+.set-pct { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(144,202,249,0.55); margin-bottom: 4px; }
+.set-scheme { font-size: 1.05rem; font-weight: 800; letter-spacing: 1px; }
+.set-scheme em { color: #90caf9; font-style: normal; font-size: 1.2rem; }
+.set-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.set-weight { font-size: 1.45rem; font-weight: 900; color: #90caf9; }
+.set-weight small { font-size: 0.65rem; font-weight: 400; opacity: 0.5; margin-left: 3px; }
+.primary-badge { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg, #1a1a2e, #0f3460); border: 1px solid rgba(144,202,249,0.4); padding: 3px 9px; border-radius: 20px; font-weight: 700; color: #90caf9; }
+.fail-streak { font-size: 0.7rem; font-weight: 700; color: #ffb74d; margin-top: 4px; }
+.missed-toggle {
+    background: none; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.5);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; padding: 4px 10px;
+    border-radius: 20px; cursor: pointer; transition: all 0.2s;
+}
+.missed-toggle:hover { border-color: rgba(255,183,77,0.6); color: #ffb74d; }
+.missed-toggle.missed-active { background: rgba(255,107,107,0.15); border-color: #ff6b6b; color: #ff6b6b; }
+
+/* Week 9 max-test cards */
+.max-test-card { flex-direction: column; align-items: stretch; border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.06); }
+.max-test-card.tested { border-color: rgba(56,239,157,0.4); background: rgba(56,239,157,0.06); }
+.max-test-note { font-size: 0.82rem; opacity: 0.75; line-height: 1.5; margin: 6px 0 12px; }
+.max-test-input-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.max-test-input-row input { flex: 1; min-width: 100px; padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; color: #222; }
+.meet-attempts { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 0.88rem; font-weight: 700; }
+.meet-label { display: inline-block; min-width: 90px; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; font-weight: 700; }
+.deload-badge { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); padding: 3px 9px; border-radius: 20px; font-weight: 700; color: rgba(255,255,255,0.6); }
+
+/* Accessory cards */
+.aux-cards { display: flex; flex-direction: column; gap: 8px; }
+.aux-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.aux-name { font-size: 0.93rem; font-weight: 600; }
+.aux-type { font-size: 0.64rem; opacity: 0.38; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.aux-right { display: flex; gap: 14px; align-items: center; flex-shrink: 0; }
+.aux-scheme { font-size: 0.88rem; color: #90caf9; font-weight: 700; }
+.aux-wt { font-size: 0.78rem; opacity: 0.45; }
+
+/* Deload */
+.deload-note { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 22px; text-align: center; color: rgba(255,255,255,0.45); font-size: 0.88rem; line-height: 1.7; }
+.deload-note strong { color: #90caf9; }
+
+/* Stall notice */
+.stall-note { background: rgba(255,140,66,0.08); border: 1px solid rgba(255,140,66,0.25); border-radius: 10px; padding: 14px 18px; margin-top: 16px; font-size: 0.82rem; line-height: 1.6; color: rgba(255,255,255,0.7); }
+.stall-note strong { color: #ff8c42; }
+
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.slide-in { animation: slideIn 0.22s ease both; }
+
+@media (max-width:600px) {
+    .header-text { font-size: 1.3rem; }
+    .back-link { position: static; transform: none; display: block; margin-bottom: 8px; }
+    .setup-panel { padding: 20px 16px; margin: 16px auto; }
+    .form-row { flex-wrap: wrap; }
+    .nav-controls { flex-direction: column; }
+    .nav-btn { width: 100%; text-align: center; }
+    .lift-set-card { flex-direction: column; align-items: flex-start; }
+}
+
+/* BUILD POPUP */
+#buildPopup { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.80); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+#buildPopup.active { display: flex; }
+.popup-box { background: linear-gradient(145deg, #0f1923, #0d1b2a); border: 1px solid rgba(144,202,249,0.15); border-radius: 18px; padding: 0; max-width: 460px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; text-align: center; }
+.popup-header { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 28px 34px 20px; }
+.popup-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.popup-title { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #90caf9; }
+.popup-body { font-size: 0.9rem; line-height: 1.78; color: rgba(255,255,255,0.8); padding: 26px 30px; }
+.popup-body strong { color: #fff; }
+.popup-footer { padding: 0 30px 30px; }
+.popup-start { background: linear-gradient(135deg, #1a1a2e, #0f3460); border: 2px solid rgba(144,202,249,0.5); color: #90caf9; border-radius: 10px; padding: 14px 40px; font-size: 0.88rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; width: 100%; }
+.popup-start:hover { border-color: #90caf9; box-shadow: 0 0 20px rgba(144,202,249,0.2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <a href="index.html" class="back-link">&larr; Home</a>
+    <div class="header-inner">
+        <img src="images/gorillavsbull.png" alt="Logo" class="logo">
+        <div class="header-text">STRONGLIFTS 5×5</div>
+    </div>
+</div>
+
+<div class="setup-panel" id="setupPanel">
+    <div class="program-summary">
+        <h2>SQUAT · BENCH · DEADLIFT</h2>
+        <p>Built around the big 3. Add weight every session. <strong>That's the whole program.</strong> Squat, bench, and deadlift headline the two workout days — overhead press and barbell row ride along to keep your shoulders and back balanced.</p>
+        <ul>
+            <li><strong>Squat & Bench Day:</strong> Squat 5×5 · Bench Press 5×5 · Overhead Press 5×5</li>
+            <li><strong>Squat & Deadlift Day:</strong> Squat 5×5 · Deadlift 1×5 · Barbell Row 5×5</li>
+            <li>Alternate the two days — 3 sessions per week, rest day between each</li>
+            <li>Add <strong>5 lbs per session</strong> on upper body, <strong>10 lbs</strong> on squat and deadlift</li>
+            <li>Miss reps 3 sessions in a row on a lift? <strong>Deload that lift 10%</strong> — automatically</li>
+            <li><strong>Fixed 10-week block:</strong> Weeks 1–8 build weight normally</li>
+            <li><strong>Week 9:</strong> work up to a true 2-rep max on squat, bench &amp; deadlift — get your estimated 1RM and powerlifting-meet attempt suggestions</li>
+            <li><strong>Week 10:</strong> deload everything, then start your next block from a freshly tested max</li>
+        </ul>
+    </div>
+    <hr class="summary-divider">
+    <h2 class="form-title">ENTER YOUR STARTING WEIGHTS</h2>
+    <div class="form-row"><label>Squat (lbs)</label><input type="number" id="squat_w" placeholder="135" min="45" oninput="updatePreview()"></div>
+    <div class="form-row"><label>Bench Press (lbs)</label><input type="number" id="bench_w" placeholder="95" min="45" oninput="updatePreview()"></div>
+    <div class="form-row"><label>Barbell Row (lbs)</label><input type="number" id="row_w" placeholder="95" min="45" oninput="updatePreview()"></div>
+    <div class="form-row"><label>Overhead Press (lbs)</label><input type="number" id="ohp_w" placeholder="65" min="45" oninput="updatePreview()"></div>
+    <div class="form-row"><label>Deadlift (lbs)</label><input type="number" id="dead_w" placeholder="135" min="45" oninput="updatePreview()"></div>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
+</div>
+
+<div id="workoutView">
+    <div class="position-banner">
+        <div class="wave-label" id="waveLabel"></div>
+        <div class="day-title"  id="dayTitle"></div>
+        <div class="day-sub"    id="daySub"></div>
+    </div>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="btnPrev" onclick="navigate(-1)">← Prev</button>
+        <div class="nav-center">
+            <div class="nav-progress" id="navProgress"></div>
+            <div class="nav-actions">
+                <button class="btn-new"     onclick="resetSetup()">↩ New Program</button>
+                <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleSL()">↻ Shuffle</button>
+                <button class="btn-log"     id="logBtn"     onclick="logDaySL()">✓ Log This Day</button>
+            </div>
+        </div>
+        <button class="nav-btn" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+    <div class="workout-area" id="workoutArea"></div>
+</div>
+
+<!-- BUILD POPUP -->
+<div id="buildPopup">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-icon">⚡</div>
+      <div class="popup-title">Simple. Brutal. Effective.</div>
+    </div>
+    <div class="popup-body">
+      Two workouts. Five lifts. Add weight every session. <strong>That's it — that's the whole program.</strong><br><br>
+      5×5 works because it forces you to get stronger on the movements that matter most.
+      Don't overcomplicate it. Don't add extra work because you feel good.
+      Trust the process and <strong>add the weight when the sets are done.</strong><br><br>
+      If a weight stalls, deload and come back. The bar will move again — it always does when you stay consistent.
+    </div>
+    <div class="popup-footer">
+      <button class="popup-start" onclick="dismissPopup()">START ADDING WEIGHT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Supabase ──────────────────────────────────────────────────────────────────
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_5x5';
+
+function getInputs() {
+    return {
+        squat: parseInt(document.getElementById('squat_w').value) || 135,
+        bench: parseInt(document.getElementById('bench_w').value) || 95,
+        row:   parseInt(document.getElementById('row_w').value)   || 95,
+        ohp:   parseInt(document.getElementById('ohp_w').value)   || 65,
+        dead:  parseInt(document.getElementById('dead_w').value)  || 135
+    };
+}
+
+function saveProgress() {
+    EATT.save({ id: PROG_ID, name: 'StrongLifts 5×5', page: '5x5.html',
+        inputs: getInputs(), cursor: cursor, savedAt: Date.now(),
+        failStreaks: failStreaks, deloadEvents: deloadEvents, week9Results: week9Results });
+}
+
+function loadProgress() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    return saved ? saved.cursor || 0 : 0;
+}
+
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('squat_w').value  = inp.squat;
+    document.getElementById('bench_w').value  = inp.bench;
+    document.getElementById('row_w').value    = inp.row;
+    document.getElementById('ohp_w').value    = inp.ohp;
+    document.getElementById('dead_w').value   = inp.dead;
+    failStreaks   = state.failStreaks   || { squat:0, bench:0, ohp:0, dead:0, row:0 };
+    deloadEvents  = state.deloadEvents  || [];
+    week9Results  = state.week9Results  || { squat: null, bench: null, dead: null };
+    generateProgram();
+    cursor = Math.min(state.cursor || 0, program.length - 1);
+    resetMissedToday();
+    render();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
+
+// Finds the last PRESCRIBED (non-deload, non-max-test) weight logged for a
+// lift — i.e. its real working weight before week 10 artificially cut it.
+function getLastNormalWeight(key) {
+    for (var i = program.length - 1; i >= 0; i--) {
+        var ex = program[i].exercises.find(function(e){ return e.key === key; });
+        if (ex && !ex.isDeload && !ex.isMaxTest && typeof ex.weight === 'number') return ex.weight;
+    }
+    return null;
+}
+
+function checkCycleComplete() {
+    if (cursor < program.length - 1) return;
+    // Week 10's displayed weight is a deload, not a real number to restart
+    // from. Squat/bench/deadlift restart from 80% of the tested max (typical
+    // conservative 5x5 restart point — leaves headroom for 8 weeks of
+    // linear progression before the next test); OHP/Row just continue from
+    // wherever they last actually were (they were never deloaded down for
+    // testing purposes, only for the week-10 recovery week).
+    var nameMap = { squat:'Squat', bench:'Bench Press', dead:'Deadlift', ohp:'Overhead Press', row:'Barbell Row' };
+    var newMaxes = {};
+    Object.keys(nameMap).forEach(function(key) {
+        if (PL_LIFTS.indexOf(key) >= 0 && week9Results[key]) {
+            newMaxes[nameMap[key]] = round5(week9Results[key].estMax * 0.80);
+        } else {
+            newMaxes[nameMap[key]] = getLastNormalWeight(key);
+        }
+    });
+    showCycleModal(newMaxes);
+}
+
+function showCycleModal(newMaxes) {
+    window._nextCycleMaxes = newMaxes;
+    var existing = document.getElementById('cycleModal');
+    if (existing) existing.remove();
+    var modal = document.createElement('div');
+    modal.id = 'cycleModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
+    var rows = Object.entries(newMaxes).map(function(e){
+        return '<div style="background:rgba(56,239,157,0.06);border:1px solid rgba(56,239,157,0.2);border-radius:10px;padding:10px"><div style="font-size:0.62rem;letter-spacing:2px;opacity:0.55;text-transform:uppercase">'+e[0]+'</div><div style="font-size:1.1rem;font-weight:900;color:#38ef9d">'+e[1]+' lbs</div></div>';
+    }).join('');
+    modal.innerHTML = '<div style="background:linear-gradient(145deg,#141e30,#1a2a3a);border:1px solid rgba(56,239,157,0.25);border-radius:20px;padding:38px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,0.7)">' +
+        '<div style="font-size:2.5rem;margin-bottom:12px">🏆</div>' +
+        '<div style="font-size:1.1rem;font-weight:900;letter-spacing:3px;color:#38ef9d;margin-bottom:8px">BLOCK COMPLETE</div>' +
+        '<div style="font-size:0.85rem;opacity:0.6;margin-bottom:24px">New starting weights for your next 10-week block:</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px">'+rows+'</div>' +
+        '<button onclick="startFresh()" style="width:100%;padding:14px;background:linear-gradient(135deg,#11998e,#38ef9d);border:none;border-radius:10px;color:#000;font-size:0.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-bottom:10px">START NEXT BLOCK →</button>' +
+        '<button onclick="document.getElementById(\'cycleModal\').remove()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer">Not yet</button></div>';
+    document.body.appendChild(modal);
+}
+
+function startFresh() {
+    document.getElementById('cycleModal').remove();
+    var newMaxes = window._nextCycleMaxes || {};
+    var map = { Squat: 'squat_w', 'Bench Press': 'bench_w', 'Barbell Row': 'row_w', 'Overhead Press': 'ohp_w', Deadlift: 'dead_w' };
+    Object.keys(map).forEach(function(name) {
+        if (newMaxes[name] != null) document.getElementById(map[name]).value = newMaxes[name];
+    });
+    // Fresh block — clear fail streaks, past deloads, and the last test
+    failStreaks  = { squat:0, bench:0, ohp:0, dead:0, row:0 };
+    deloadEvents = [];
+    week9Results = { squat: null, bench: null, dead: null };
+    generateProgram(); cursor = 0; resetMissedToday(); saveProgress(); render();
+}
+function flashBtn(btn, success) {
+    var orig = btn.textContent;
+    btn.textContent = success ? '✓ Saved!' : '✗ Error';
+    btn.style.color = success ? '#38ef9d'  : '#ff6b6b';
+    btn.disabled    = true;
+    setTimeout(function() { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2200);
+}
+
+// ── Program data ──────────────────────────────────────────────────────────────
+// 5 lb increment upper body, 10 lb increment lower body
+var INC = { squat:10, bench:5, row:5, ohp:5, dead:10 };
+
+// Accessory pool — split A vs B to complement each day's theme
+var slAccPool = {
+    A: [ // Bench & Shoulders day — chest, triceps, delts
+        ["Dip",                  "3 × max",   "Lean forward slightly for chest"],
+        ["Tricep Pushdown",      "3 × 15",    "Full extension each rep"],
+        ["Face Pull",            "3 × 20",    "Rotator cuff health"],
+        ["DB Lateral Raise",     "3 × 15",    "Shoulder stability"],
+        ["Push-Up Finisher",     "2 × max",   "Bodyweight chest pump"],
+        ["DB Curl",              "3 × 12",    "Supinate at the top"],
+        ["Hammer Curl",          "3 × 12",    "Neutral grip, elbows in"],
+        ["Reverse Fly",          "3 × 15",    "Rear delt health"],
+        ["Band Pull-Apart",      "3 × 20",    "Shoulder health"]
+    ],
+    B: [ // Deadlift & Back day — lats, hamstrings, glutes, core
+        ["Pull-Up / Chin-Up",    "3 × max",   "Dead hang, full extension"],
+        ["Cable Row",            "3 × 12",    "Upper back balance"],
+        ["Lat Pulldown",         "3 × 10",    "Wide grip, pull to chest"],
+        ["GHR / Leg Curl",       "3 × 12",    "Hamstring balance after deadlift"],
+        ["Hip Thrust",           "3 × 10",    "Glute activation, full extension"],
+        ["Ab Wheel",             "3 × 10",    "Brace hard, no hip drop"],
+        ["Plank",                "3 × 45s",   "Squeeze everything"],
+        ["Weighted Plank",       "3 × 30s",   "Add plate on back"],
+        ["Pallof Press",         "3 × 12/side","Anti-rotation core"]
+    ]
+};
+
+function sample(a, n) {
+    var s = [].concat(a);
+    for (var i = s.length-1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i+1));
+        var t = s[i]; s[i] = s[j]; s[j] = t;
+    }
+    return s.slice(0, n);
+}
+
+function round5(v) { return Math.max(45, Math.round(v / 5) * 5); }
+
+// Workout A and B definitions — squat, bench, and deadlift are the three
+// headline lifts (PRIMARY badge). OHP rides along on bench day as the
+// shoulder-pressing counterpart; Barbell Row rides along on deadlift day
+// as the back-focused counterpart. Squat is trained every session, as in
+// the original StrongLifts template.
+var workoutDefs = {
+    A: [ // Squat & Bench Day
+        { name:"Squat",          key:"squat", sets:5, reps:5, primary:true  },
+        { name:"Bench Press",    key:"bench", sets:5, reps:5, primary:true  },
+        { name:"Overhead Press", key:"ohp",   sets:5, reps:5, primary:false }
+    ],
+    B: [ // Squat & Deadlift Day
+        { name:"Squat",        key:"squat", sets:5, reps:5, primary:true  },
+        { name:"Deadlift",     key:"dead",  sets:1, reps:5, primary:true  },
+        { name:"Barbell Row",  key:"row",   sets:5, reps:5, primary:false }
+    ]
+};
+
+var dayTypeNames = { A: "Squat & Bench Day", B: "Squat & Deadlift Day" };
+
+var program  = [];
+var cursor   = 0;
+var currentAccs = {};
+
+// ── Automatic deload — the actual StrongLifts safety valve ──────────────────
+// failStreaks tracks consecutive missed sessions per lift (persisted).
+// missedToday tracks which lifts you're marking as missed for the day
+// you're CURRENTLY viewing (resets whenever you move to a different day).
+// deloadEvents records every deload that's happened (persisted) so
+// generateProgram() can replay them — otherwise a fresh page load would
+// regenerate the array from the original start weights and the deload
+// would silently vanish.
+var failStreaks  = { squat:0, bench:0, ohp:0, dead:0, row:0 };
+var missedToday  = {};
+var deloadEvents = []; // [{ key, atIndex }]
+
+function toggleMissed(key, btn) {
+    missedToday[key] = !missedToday[key];
+    btn.classList.toggle('missed-active', missedToday[key]);
+    btn.textContent = missedToday[key] ? '✗ Marked as missed' : 'Missed a rep?';
+}
+
+function resetMissedToday() { missedToday = {}; }
+
+// Cuts a lift's weight 10% starting from the session AFTER atIndex, then
+// resumes the normal per-session increment from that lower point.
+function applyDeload(key, atIndex) {
+    var w = null;
+    for (var i = atIndex + 1; i < program.length; i++) {
+        var ex = program[i].exercises.find(function(e){ return e.key === key; });
+        if (!ex) continue;
+        if (w === null) w = round5(ex.weight * 0.9);
+        ex.weight = w;
+        w = round5(w + INC[key]);
+    }
+}
+
+// ── Week 9: true 2-rep max test on the big 3 ─────────────────────────────────
+// PL_LIFTS get tested; OHP/Row keep progressing normally that week.
+// week9Results is persisted — once a lift is tested, every remaining
+// week-9 occurrence of that lift shows the result instead of re-prompting.
+var PL_LIFTS = ["squat", "bench", "dead"];
+var TOTAL_WEEKS = 10;
+
+// Meet-style attempt percentages of the estimated max: a safe opener, a
+// confident PR attempt, and either your calculated max (aggressive) or one
+// rung short of it (confident) so you bank a clean lift instead of missing.
+var MEET_PCTS = { aggressive: [0.87, 0.95, 1.00], confident: [0.82, 0.87, 0.95] };
+
+var week9Results = { squat: null, bench: null, dead: null };
+
+// 2-rep max → estimated 1RM: the weight you can do for exactly 2 reps
+// (can't complete a 3rd) is taken as ~91% of a true 1RM, so add 10% back.
+function computeMaxTest(twoRepWeight) {
+    var estMax = round5(twoRepWeight * 1.10);
+    return {
+        twoRepMax:  twoRepWeight,
+        estMax:     estMax,
+        aggressive: MEET_PCTS.aggressive.map(function(p){ return round5(estMax * p); }),
+        confident:  MEET_PCTS.confident.map(function(p){ return round5(estMax * p); })
+    };
+}
+
+function submitMaxTest(key, inputEl) {
+    var val = parseInt(inputEl.value);
+    if (!val || val < 45) { alert('Enter the weight you hit for your 2-rep max.'); return; }
+    week9Results[key] = computeMaxTest(val);
+    applyWeek9ToWeek10();
+    saveProgress();
+    render();
+}
+
+// Patches week 10's deload weight for squat/bench/dead using the real
+// tested max once available (50% of estimated max). Until tested, week 10
+// falls back to whatever generateProgram() prescribed (50% of the
+// would-have-been week-9 linear-progression weight).
+function applyWeek9ToWeek10() {
+    program.forEach(function(day) {
+        if (day.week !== 10) return;
+        day.exercises.forEach(function(ex) {
+            if (PL_LIFTS.indexOf(ex.key) === -1) return;
+            if (week9Results[ex.key]) ex.weight = round5(week9Results[ex.key].estMax * 0.5);
+        });
+    });
+}
+
+function getAccs(type) {
+    if (!currentAccs[type]) currentAccs[type] = sample(slAccPool[type], 2);
+    return currentAccs[type];
+}
+
+function updatePreview() { /* placeholder — no projection grid for SL */ }
+
+function showBuildPopup() { document.getElementById('buildPopup').classList.add('active'); }
+function dismissPopup() {
+    document.getElementById('buildPopup').classList.remove('active');
+    // Building a brand-new program from setup — clear any fail streaks /
+    // deloads / max-test results left over from a previous program.
+    failStreaks  = { squat:0, bench:0, ohp:0, dead:0, row:0 };
+    deloadEvents = [];
+    week9Results = { squat: null, bench: null, dead: null };
+    generateProgram();
+}
+
+function generateProgram() {
+    var startWeights = {
+        squat: parseInt(document.getElementById("squat_w").value) || 135,
+        bench: parseInt(document.getElementById("bench_w").value) || 95,
+        row:   parseInt(document.getElementById("row_w").value)   || 95,
+        ohp:   parseInt(document.getElementById("ohp_w").value)   || 65,
+        dead:  parseInt(document.getElementById("dead_w").value)  || 135
+    };
+
+    program = [];
+    var weights = Object.assign({}, startWeights);
+    var sessionCount = TOTAL_WEEKS * 3; // fixed 10-week block, 3 sessions/week
+
+    for (var i = 0; i < sessionCount; i++) {
+        var type    = i % 2 === 0 ? "A" : "B";
+        var week    = Math.floor(i / 3) + 1;
+        var dayInWk = (i % 3) + 1;
+
+        var exList = workoutDefs[type].map(function(ex) {
+            var isPL = PL_LIFTS.indexOf(ex.key) >= 0;
+
+            if (week === 9 && isPL) {
+                // Max-test week — no fixed prescription, work up to a true 2RM
+                return { name: ex.name, key: ex.key, sets: ex.sets, reps: ex.reps,
+                         primary: ex.primary, isMaxTest: true, weight: null };
+            }
+            if (week === 10) {
+                // Deload for everyone. PL lifts get patched to 50% of the
+                // real tested max afterward (applyWeek9ToWeek10) — this is
+                // just the fallback if a test was skipped.
+                return { name: ex.name, key: ex.key, sets: ex.sets, reps: ex.reps,
+                         primary: ex.primary, isDeload: true, weight: round5(weights[ex.key] * 0.5) };
+            }
+            return { name: ex.name, key: ex.key, sets: ex.sets, reps: ex.reps,
+                     primary: ex.primary, weight: round5(weights[ex.key]) };
+        });
+
+        program.push({ type:type, week:week, day:dayInWk, sessionNum:i+1, exercises:exList });
+
+        // Increment weights for next session. Frozen for PL lifts during
+        // week 9 (no prescription to increment from) and for everyone
+        // during week 10 (a deload doesn't feed forward).
+        workoutDefs[type].forEach(function(ex) {
+            var isPL = PL_LIFTS.indexOf(ex.key) >= 0;
+            if (week === 9 && isPL) return;
+            if (week === 10) return;
+            weights[ex.key] = round5(weights[ex.key] + INC[ex.key]);
+        });
+    }
+
+    // Replay any past deloads (fail-streak safety valve) and any completed
+    // week-9 max test — the array above was just rebuilt from scratch, so
+    // without this both would silently vanish on reload.
+    deloadEvents.forEach(function(ev) { applyDeload(ev.key, ev.atIndex); });
+    applyWeek9ToWeek10();
+
+    currentAccs = {};
+    cursor = Math.min(loadProgress(), program.length - 1 || 0);
+    document.getElementById("setupPanel").style.display  = "none";
+    document.getElementById("workoutView").style.display = "block";
+    render();
+}
+
+function render() {
+    var day   = program[cursor];
+    var total = program.length;
+
+    document.getElementById("waveLabel").textContent    = "Week " + day.week + "  ·  " + dayTypeNames[day.type];
+    document.getElementById("dayTitle").textContent     = "Session " + day.sessionNum + " — " + dayTypeNames[day.type];
+    document.getElementById("daySub").textContent       = "Day " + day.day + " of Week " + day.week + "  ·  5×5 Linear Progression";
+    document.getElementById("navProgress").textContent  = "Session " + (cursor+1) + " of " + total;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === total-1;
+
+    buildBreadcrumb(day);
+    buildWorkout(day);
+}
+
+function buildBreadcrumb(current) {
+    var bc = document.getElementById("breadcrumb");
+    bc.innerHTML = "";
+
+    // Group by week — show current week ±1
+    var minW = Math.max(1, current.week - 1);
+    var maxW = Math.min(Math.ceil(program.length / 3), current.week + 1);
+
+    for (var w = minW; w <= maxW; w++) {
+        var lbl = document.createElement("span");
+        lbl.className   = "bc-week-lbl";
+        lbl.textContent = "Wk " + w;
+        bc.appendChild(lbl);
+
+        var weekSessions = program.filter(function(d) { return d.week === w; });
+        weekSessions.forEach(function(d) {
+            var idx = program.indexOf(d);
+            var dot = document.createElement("div");
+            dot.className = "bc-dot" + (idx === cursor ? " active" : idx < cursor ? " done" : "");
+            dot.title     = "Week " + d.week + " · Session " + d.sessionNum + " · " + dayTypeNames[d.type];
+            dot.onclick   = (function(i) { return function() { goToDay(i); }; })(idx);
+            bc.appendChild(dot);
+        });
+    }
+}
+
+function buildWorkout(day) {
+    var area = document.getElementById("workoutArea");
+    area.innerHTML = "";
+    area.classList.remove("slide-in");
+    void area.offsetWidth;
+    area.classList.add("slide-in");
+
+    // MAIN LIFTS
+    var mh = document.createElement("div");
+    mh.className   = "section-heading";
+    mh.textContent = "Main Lifts — " + dayTypeNames[day.type];
+    area.appendChild(mh);
+
+    var mainWrap = document.createElement("div");
+    mainWrap.className = "main-lift-cards";
+
+    day.exercises.forEach(function(ex) {
+        var card = document.createElement("div");
+
+        // WEEK 9 — max test, not yet done: work-up-to-a-2RM input
+        if (ex.isMaxTest && !week9Results[ex.key]) {
+            card.className = "lift-set-card max-test-card";
+            card.innerHTML =
+                "<div style=\"flex:1\">" +
+                    "<div class=\"set-pct\">" + ex.name + " — WEEK 9 MAX TEST</div>" +
+                    "<div class=\"max-test-note\">Work up to a true 2-rep max — the heaviest weight you can do for exactly 2 reps (can't complete a 3rd). Enter it below once you're done.</div>" +
+                    "<div class=\"max-test-input-row\">" +
+                        "<input type=\"number\" min=\"45\" placeholder=\"e.g. 500\" id=\"maxtest-" + ex.key + "\">" +
+                        "<button class=\"btn-new\" onclick=\"submitMaxTest('" + ex.key + "', document.getElementById('maxtest-" + ex.key + "'))\">Submit 2RM</button>" +
+                    "</div>" +
+                "</div>";
+            mainWrap.appendChild(card);
+            return;
+        }
+
+        // WEEK 9 — max test, already done: show the estimated max + meet attempts
+        if (ex.isMaxTest && week9Results[ex.key]) {
+            var r = week9Results[ex.key];
+            card.className = "lift-set-card max-test-card tested";
+            card.innerHTML =
+                "<div style=\"flex:1\">" +
+                    "<div class=\"set-pct\">" + ex.name + " — TESTED</div>" +
+                    "<div class=\"set-scheme\">2RM: <em>" + r.twoRepMax + " lbs</em> &nbsp;→&nbsp; Est. Max: <em>" + r.estMax + " lbs</em></div>" +
+                    "<div class=\"meet-attempts\">" +
+                        "<div><span class=\"meet-label\">Aggressive</span>" + r.aggressive.join(" / ") + " lbs</div>" +
+                        "<div><span class=\"meet-label\">Confident</span>" + r.confident.join(" / ") + " lbs</div>" +
+                    "</div>" +
+                "</div>";
+            mainWrap.appendChild(card);
+            return;
+        }
+
+        // WEEK 10 — deload
+        if (ex.isDeload) {
+            card.className = "lift-set-card" + (ex.primary ? " primary" : "");
+            var schemeHTMLd = "<em>" + ex.sets + "</em> sets × <em>" + ex.reps + "</em> reps";
+            card.innerHTML =
+                "<div>" +
+                    "<div class=\"set-pct\">" + ex.name + " — DELOAD</div>" +
+                    "<div class=\"set-scheme\">" + schemeHTMLd + "</div>" +
+                "</div>" +
+                "<div class=\"set-right\">" +
+                    "<span class=\"deload-badge\">DELOAD</span>" +
+                    "<div class=\"set-weight\">" + ex.weight + "<small>lbs</small></div>" +
+                "</div>";
+            mainWrap.appendChild(card);
+            return;
+        }
+
+        // Normal week 1-8 session
+        card.className = "lift-set-card" + (ex.primary ? " primary" : "");
+        var schemeHTML = "<em>" + ex.sets + "</em> sets × <em>" + ex.reps + "</em> reps";
+        var streak = failStreaks[ex.key] || 0;
+        var missed = !!missedToday[ex.key];
+        card.innerHTML =
+            "<div>" +
+                "<div class=\"set-pct\">" + ex.name + (ex.key === "dead" ? " — 1 working set" : " — 5 working sets") + "</div>" +
+                "<div class=\"set-scheme\">" + schemeHTML + "</div>" +
+                (streak > 0 ? "<div class=\"fail-streak\">⚠ Missed " + streak + " session" + (streak>1?'s':'') + " in a row</div>" : "") +
+            "</div>" +
+            "<div class=\"set-right\">" +
+                (ex.primary ? "<span class=\"primary-badge\">PRIMARY</span>" : "") +
+                "<div class=\"set-weight\">" + ex.weight + "<small>lbs</small></div>" +
+                "<button class=\"missed-toggle" + (missed ? " missed-active" : "") + "\" onclick=\"toggleMissed('" + ex.key + "', this)\">" +
+                    (missed ? "✗ Marked as missed" : "Missed a rep?") +
+                "</button>" +
+            "</div>";
+        mainWrap.appendChild(card);
+    });
+    area.appendChild(mainWrap);
+
+    // STALL REMINDER — only relevant during the normal linear-progression weeks
+    if (day.week <= 8) {
+        var stall = document.createElement("div");
+        stall.className = "stall-note";
+        stall.innerHTML = "<strong>Can't complete all 5 reps?</strong> That's fine — log what you got. If you miss reps <strong>3 sessions in a row</strong> on the same lift, deload that lift by 10% and build back up.";
+        area.appendChild(stall);
+    }
+
+    // ACCESSORIES
+    var acch = document.createElement("div");
+    acch.className   = "section-heading";
+    acch.textContent = "Accessories";
+    area.appendChild(acch);
+
+    var accWrap = document.createElement("div");
+    accWrap.className = "aux-cards";
+    getAccs(day.type).forEach(function(acc) {
+        var c = document.createElement("div");
+        c.className = "aux-card";
+        c.innerHTML =
+            "<div><div class=\"aux-name\">" + acc[0] + "</div><div class=\"aux-type\">Accessory</div></div>" +
+            "<div class=\"aux-right\"><span class=\"aux-scheme\">" + acc[1] + "</span><span class=\"aux-wt\">" + acc[2] + "</span></div>";
+        accWrap.appendChild(c);
+    });
+    area.appendChild(accWrap);
+}
+
+// Move to a different day: clears the "missed a rep?" marks since those
+// are for the day you're currently looking at, not a permanent setting.
+function goToDay(newCursor) {
+    cursor = Math.max(0, Math.min(program.length - 1, newCursor));
+    resetMissedToday();
+    render();
+}
+
+function navigate(dir) {
+    goToDay(cursor + dir);
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function shuffleSL() {
+    var type = program[cursor].type;
+    currentAccs[type] = sample(slAccPool[type], 2);
+    var btn = document.getElementById("shuffleBtn");
+    btn.style.transform = "rotate(180deg)";
+    setTimeout(function() { btn.style.transform = ""; }, 400);
+    buildWorkout(program[cursor]);
+}
+
+function logDaySL() {
+    var day     = program[cursor];
+    var session = "Week " + day.week + " · " + dayTypeNames[day.type] + " · Session " + day.sessionNum;
+    var exList  = day.exercises.map(function(ex) {
+        if (ex.isMaxTest) {
+            var r = week9Results[ex.key];
+            return { name: ex.name, scheme: "2-rep max test", weight: r ? (r.twoRepMax + " lbs (2RM) → est. max " + r.estMax + " lbs") : "Not tested" };
+        }
+        return { name: ex.name, scheme: ex.sets + " × " + ex.reps, weight: ex.weight + " lbs" };
+    });
+
+    // Process today's "missed a rep?" marks into each lift's fail streak —
+    // 3 misses in a row on a lift triggers an automatic 10% deload on it,
+    // starting next session.
+    var deloaded = [];
+    day.exercises.forEach(function(ex) {
+        if (ex.isMaxTest || ex.isDeload) return; // no fail-tracking during test/deload weeks
+        if (missedToday[ex.key]) {
+            failStreaks[ex.key] = (failStreaks[ex.key] || 0) + 1;
+            if (failStreaks[ex.key] >= 3) {
+                deloadEvents.push({ key: ex.key, atIndex: cursor });
+                applyDeload(ex.key, cursor);
+                failStreaks[ex.key] = 0;
+                deloaded.push(ex.name);
+            }
+        } else {
+            failStreaks[ex.key] = 0;
+        }
+    });
+
+    var btn = document.getElementById("logBtn");
+    var ok  = logWorkout("Strong Lifts 5×5", session, exList);
+    saveProgress();
+    flashBtn(btn, ok);
+    if (deloaded.length) {
+        setTimeout(function(){ alert('Deloaded ' + deloaded.join(' & ') + ' by 10% — 3 missed sessions in a row. Building back up from here.'); }, 300);
+    }
+    if (ok) {
+        if (cursor < program.length - 1) {
+            setTimeout(function() { goToDay(cursor + 1); saveProgress(); }, 1500);
+        } else { setTimeout(checkCycleComplete, 1500); }
+    }
+}
+
+function resetSetup() {
+    document.getElementById("setupPanel").style.display  = "block";
+    document.getElementById("workoutView").style.display = "none";
+    currentAccs = {};
+}
+
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="eatt_save.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARNOLD SPLIT</title>
 <style>
@@ -48,21 +50,8 @@ body::before {
 .form-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; gap: 10px; }
 .form-row label { font-weight: 600; min-width: 160px; }
 .form-row input[type="number"], .form-row select { padding: 9px 14px; border-radius: 8px; border: none; font-size: 15px; width: 120px; text-align: center; color: #222; }
-
-/* WEIGHT JUMP SELECTOR */
-.jump-selector { margin: 18px 0 6px; }
-.jump-selector label.jump-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #f48fb1; }
-.jump-options { display: flex; gap: 8px; flex-wrap: wrap; }
-.jump-btn {
-    flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px;
-    border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
-    color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer;
-    transition: all 0.2s; text-align: center; line-height: 1.3;
-}
-.jump-btn:hover { border-color: rgba(244,143,177,0.5); background: rgba(244,143,177,0.1); }
-.jump-btn.jump-active { background: linear-gradient(135deg, #c94b4b, #4b134f); border-color: #f48fb1; box-shadow: 0 0 12px rgba(244,143,177,0.3); }
-.jump-btn .jump-pct { font-size: 1.1rem; display: block; }
-.jump-btn .jump-tag { font-size: 0.7rem; opacity: 0.75; font-weight: 600; }
+.form-row input[type="number"]::placeholder { color: rgba(0,0,0,0.28); font-style: italic; }
+.form-row input[type="number"]:focus::placeholder { color: transparent; }
 
 .btn {
     display: block; width: 100%; padding: 14px; margin-top: 22px;
@@ -72,10 +61,29 @@ body::before {
 }
 .btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(201,75,75,0.4); }
 .btn-sm { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; margin-top: 0; }
+.btn-new { background: none; border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.55); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-new:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+.btn-shuffle { background: rgba(75,19,79,0.3); border: 1px solid rgba(244,143,177,0.3); color: rgba(244,143,177,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-shuffle:hover { background: rgba(75,19,79,0.5); }
+.btn-log { background: rgba(56,239,157,0.12); border: 1px solid rgba(56,239,157,0.35); color: #38ef9d; padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-log:hover { background: rgba(56,239,157,0.22); }
 
 .controls { text-align: center; margin: 20px auto; position: relative; z-index: 1; display: none; }
 .controls select { padding: 10px 14px; margin: 6px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; color: #222; }
 .controls label { font-weight: 700; margin-left: 10px; }
+
+/* Live progression-rate toggle, shown in the workout view */
+.jump-toggle { margin: 14px 0 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.jump-toggle-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.55; font-weight: 700; }
+.jump-toggle-options { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.jump-btn {
+    padding: 6px 12px; font-size: 0.75rem; min-width: 0; flex: none;
+    border-radius: 20px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+    color: #fff; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.jump-btn:hover { border-color: rgba(244,143,177,0.5); background: rgba(244,143,177,0.1); }
+.jump-btn.jump-active { background: linear-gradient(135deg, #c94b4b, #4b134f); border-color: #f48fb1; box-shadow: 0 0 12px rgba(244,143,177,0.3); }
+.boost-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #f48fb1; }
 
 .day-grid {
     display: grid;
@@ -98,6 +106,34 @@ body::before {
 .ex-card h4 { margin: 0 0 8px; font-size: 1rem; color: #f48fb1; }
 .ex-card .detail { font-size: 0.88rem; margin: 3px 0; opacity: 0.9; }
 .ex-card .muscle-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-top: 6px; background: rgba(201,75,75,0.25); color: #f48fb1; }
+.burnout-note { font-size: 0.78rem; color: #ff8c42; font-weight: 700; margin: 4px 0; }
+
+/* Superset pair cards — Arnold's signature antagonist-muscle pairing */
+.superset-card { grid-column: 1 / -1; border-color: rgba(244,143,177,0.5); background: rgba(244,143,177,0.06); }
+.superset-badge { font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase; background: linear-gradient(135deg, #c94b4b, #4b134f); padding: 3px 8px; border-radius: 20px; font-weight: 700; color: #fff; vertical-align: middle; margin-left: 6px; }
+.superset-halves { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin: 10px 0; }
+.superset-half h5 { margin: 0 0 4px; font-size: 0.95rem; color: #fff; }
+.superset-half .detail { font-size: 0.85rem; opacity: 0.85; margin: 2px 0; }
+.superset-link { font-size: 1.3rem; opacity: 0.5; text-align: center; }
+.superset-rest { font-size: 0.75rem; opacity: 0.6; margin-top: 8px; }
+@media (max-width: 700px) {
+    .superset-halves { grid-template-columns: 1fr; }
+    .superset-link { transform: rotate(90deg); }
+}
+
+/* Main lift pyramid card (leg days) */
+.main-lift-card { grid-column: 1 / -1; border-color: rgba(201,75,75,0.5); background: rgba(201,75,75,0.08); }
+.main-badge { font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase; background: linear-gradient(135deg, #c94b4b, #4b134f); padding: 3px 8px; border-radius: 20px; font-weight: 700; color: #fff; vertical-align: middle; margin-left: 6px; }
+.pyramid-rows { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.pyramid-row {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;
+}
+.pyramid-row.pyramid-top { background: rgba(244,143,177,0.18); border: 1px solid rgba(244,143,177,0.4); font-weight: 700; }
+.pyramid-row.pyramid-burnout { background: rgba(255,140,66,0.12); border: 1px solid rgba(255,140,66,0.3); }
+.pyramid-set { font-weight: 700; min-width: 130px; }
+.pyramid-detail { opacity: 0.9; }
+.pyramid-rest { font-size: 0.75rem; opacity: 0.55; }
 
 .day-header-bar {
     width: 92%; max-width: 1100px; margin: 16px auto 0;
@@ -115,14 +151,6 @@ body::before {
     .form-row input, .form-row select { width: 100%; }
     .day-grid { grid-template-columns: 1fr; }
 }
-
-.form-row input[type="number"]::placeholder {
-    color: rgba(0,0,0,0.28);
-    font-style: italic;
-}
-.form-row input[type="number"]:focus::placeholder {
-    color: transparent;
-}
 </style>
 </head>
 <body>
@@ -137,13 +165,13 @@ body::before {
 <div class="setup-panel" id="setupPanel">
     <div class="program-summary">
         <h2>THE ARNOLD SPLIT</h2>
-        <p>Six days. Two muscle groups per day. The exact framework Arnold Schwarzenegger used to build the most dominant physique in bodybuilding history. <strong>High volume, high frequency, maximum size.</strong></p>
+        <p>Six days. Two muscle groups per day. Arnold's own signature move — antagonist supersets (chest paired with back, biceps paired with triceps) — is what let him run this much volume without the session running forever: rest one muscle while you work its opposite.</p>
         <ul>
-            <li><strong>Day 1 & 4:</strong> Chest + Back — highest volume, antagonist superset style</li>
-            <li><strong>Day 2 & 5:</strong> Shoulders + Arms — isolate and pump</li>
-            <li><strong>Day 3 & 6:</strong> Legs — quads, hamstrings, calves get their own spotlight</li>
-            <li>Each muscle group trained <strong>twice per week</strong> at different rep ranges</li>
-            <li>Goal: <strong>maximum hypertrophy</strong> through volume, not just intensity</li>
+            <li><strong>Day 1 & 4:</strong> Chest + Back — supersetted, antagonist-pair style</li>
+            <li><strong>Day 2 & 5:</strong> Shoulders + Arms — biceps/triceps supersetted, delts standalone</li>
+            <li><strong>Day 3 & 6:</strong> Legs — main lift pyramid + isolation, run straight (no superset)</li>
+            <li>Each muscle group trained <strong>twice per week</strong> — real training frequency, not just volume in one sitting</li>
+            <li><strong>Every exercise's last set is taken to true failure</strong> — supersets keep the clock reasonable even at higher volume</li>
         </ul>
     </div>
     <hr class="summary-divider">
@@ -159,23 +187,14 @@ body::before {
             <option value="16">16 Weeks</option>
         </select>
     </div>
-    <div class="jump-selector">
-        <label class="jump-label">&#9889; WEEKLY WEIGHT PROGRESSION &mdash; How hungry are you?</label>
-        <div class="jump-options">
-            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectJump(this)"><span class="jump-pct">5%</span><span class="jump-tag">Steady Grind</span></button>
-            <button type="button" class="jump-btn jump-active" data-pct="0.10" onclick="selectJump(this)"><span class="jump-pct">10%</span><span class="jump-tag">Standard Push</span></button>
-            <button type="button" class="jump-btn" data-pct="0.15" onclick="selectJump(this)"><span class="jump-pct">15%</span><span class="jump-tag">Aggressive</span></button>
-            <button type="button" class="jump-btn" data-pct="0.20" onclick="selectJump(this)"><span class="jump-pct">20%</span><span class="jump-tag">ARE YOU INSANE?! &#128293;</span></button>
-        </div>
-    </div>
-    <button class="btn" onclick="generateProgram()">BUILD MY PROGRAM</button>
+    <button class="btn" onclick="showBuildPopup()">BUILD MY PROGRAM</button>
 </div>
 
 <div class="controls" id="controls">
     <label>Week</label>
-    <select id="weekSel" onchange="renderDay()"></select>
+    <select id="weekSel" onchange="changeDay()"></select>
     <label>Day</label>
-    <select id="daySel" onchange="renderDay()">
+    <select id="daySel" onchange="changeDay()">
         <option value="0">Day 1 — Chest + Back</option>
         <option value="1">Day 2 — Shoulders + Arms</option>
         <option value="2">Day 3 — Legs</option>
@@ -185,93 +204,269 @@ body::before {
     </select>
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
+        <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleArnold()">&#x21bb; Shuffle Isolation</button>
+        <button class="btn-log" id="logBtn" onclick="logDayArnold()">&#x2713; Log This Day</button>
+    <div class="jump-toggle">
+        <span class="jump-toggle-label">&#9889; Push It Today</span>
+        <div class="jump-toggle-options">
+            <button type="button" class="jump-btn jump-active" data-pct="0.00" onclick="selectDayBoost(this)">Baseline</button>
+            <button type="button" class="jump-btn" data-pct="0.05" onclick="selectDayBoost(this)">+5%</button>
+            <button type="button" class="jump-btn" data-pct="0.10" onclick="selectDayBoost(this)">+10%</button>
+        </div>
+    </div>
 </div>
 
 <div class="day-header-bar" id="dayHeaderBar"></div>
 <div class="day-grid" id="dayGrid"></div>
 
+<!-- BUILD PROGRAM POPUP -->
+<div id="buildPopup" style="display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,0.80); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+  <div style="background:linear-gradient(145deg,#2d0a18,#1a0010); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:0; max-width:480px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.6); overflow:hidden; text-align:center;">
+    <div style="background:linear-gradient(135deg,#c94b4b,#4b134f); padding:28px 34px 20px;">
+      <div style="font-size:2.4rem; margin-bottom:10px;">🦁</div>
+      <div style="font-size:1.2rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; color:#fff;">Train Like The Oak</div>
+    </div>
+    <div style="font-size:0.9rem; line-height:1.78; color:rgba(255,255,255,0.8); padding:26px 30px;">
+      Six days. Every muscle hit twice. <strong>Supersets aren't optional here — they're the whole mechanism.</strong> Chest and back work together; biceps and triceps work together. Rest one side while you load the other.<br><br>
+      Push every isolation exercise to the top of its rep range before adding weight. The last set of everything is a genuine failure set — that's the growth signal, not just showing up.<br><br>
+      Legs get no shortcuts either — a real pyramid, then isolation, same as everything else.
+    </div>
+    <div style="padding:0 30px 30px;">
+      <button style="background:linear-gradient(135deg,#c94b4b,#4b134f); color:#fff; border:none; border-radius:10px; padding:14px 40px; font-size:0.88rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; cursor:pointer; width:100%;" onclick="dismissPopup()">BUILD THE PHYSIQUE</button>
+    </div>
+  </div>
+</div>
+
 <script>
-var days = [
+
+// ── Program data ──────────────────────────────────────────────────────────────
+// Superset days (Chest+Back, Shoulders+Arms) pair antagonist muscles —
+// Arnold's own signature technique. The main pair runs as a pyramid on
+// both sides; isolation pairs are 3 rounds with the last taken to failure.
+// Leg days have no natural antagonist pairing, so they run as a standalone
+// main-lift pyramid + isolation, same shape as Bro Split's leg day.
+var arnoldDays = [
     {
-        name:"Day 1 — CHEST + BACK",
-        exercises:[
-            {name:"Barbell Bench Press",       sets:5, reps:"6–8",  ref:"bench", pct:0.85, muscle:"Chest"},
-            {name:"Wide-Grip Pull-Up",          sets:5, reps:"Max",  ref:null,    pct:null,  muscle:"Back"},
-            {name:"Incline Dumbbell Press",     sets:4, reps:"8–12", ref:"bench", pct:0.55, muscle:"Chest"},
-            {name:"T-Bar Row",                  sets:5, reps:"8–10", ref:"row",   pct:0.80, muscle:"Back"},
-            {name:"Dumbbell Fly",               sets:3, reps:"12–15",ref:"bench", pct:0.30, muscle:"Chest"},
-            {name:"Seated Cable Row",           sets:4, reps:"10–12",ref:"row",   pct:0.65, muscle:"Back"},
-            {name:"Cable Crossover",            sets:3, reps:"15",   ref:"bench", pct:0.20, muscle:"Chest"},
+        name: "Day 1 — CHEST + BACK", emoji: "🦁", type: "superset",
+        mainPair: {
+            a: { name:"Barbell Bench Press", ref:"bench", topPct:0.85, muscle:"Chest" },
+            b: { name:"Wide-Grip Pull-Up",   ref:null,    topPct:null, muscle:"Back"  }
+        },
+        isoPairs: [
+            { a:{name:"Incline Dumbbell Press", ref:"bench", pct:0.55, repRange:"8–12"}, b:{name:"T-Bar Row", ref:"row", pct:0.70, repRange:"8–10"}, sets:3, rest:"90s" },
+            { a:{name:"Dumbbell Fly", ref:"bench", pct:0.30, repRange:"12–15"}, b:{name:"Seated Cable Row", ref:"row", pct:0.65, repRange:"10–12"}, sets:3, rest:"90s" },
+            { a:{name:"Cable Crossover", ref:"bench", pct:0.20, repRange:"15"}, b:{name:"Lat Pulldown", ref:"row", pct:0.70, repRange:"10–12"}, sets:3, rest:"60–90s" }
         ]
     },
     {
-        name:"Day 2 — SHOULDERS + ARMS",
-        exercises:[
-            {name:"Barbell Overhead Press",     sets:5, reps:"6–8",  ref:"ohp",   pct:0.80, muscle:"Shoulders"},
-            {name:"Barbell Curl",               sets:4, reps:"8–10", ref:"bench", pct:0.30, muscle:"Biceps"},
-            {name:"Close-Grip Bench Press",     sets:4, reps:"8–10", ref:"bench", pct:0.65, muscle:"Triceps"},
-            {name:"Dumbbell Lateral Raise",     sets:4, reps:"12–15",ref:"ohp",   pct:0.20, muscle:"Shoulders"},
-            {name:"Incline Dumbbell Curl",      sets:3, reps:"10–12",ref:"bench", pct:0.20, muscle:"Biceps"},
-            {name:"Skull Crusher",              sets:4, reps:"10–12",ref:"bench", pct:0.30, muscle:"Triceps"},
-            {name:"Rear Delt Fly",              sets:3, reps:"15",   ref:"ohp",   pct:0.15, muscle:"Shoulders"},
+        name: "Day 2 — SHOULDERS + ARMS", emoji: "🎯", type: "superset",
+        mainPair: {
+            a: { name:"Barbell Overhead Press", ref:"ohp", topPct:0.80, muscle:"Shoulders" },
+            b: { name:"Close-Grip Bench Press", ref:"bench", topPct:0.65, muscle:"Triceps" }
+        },
+        isoPairs: [
+            { a:{name:"Dumbbell Lateral Raise", ref:"ohp", pct:0.20, repRange:"12–15"}, b:{name:"Barbell Curl", ref:"bench", pct:0.30, repRange:"8–10"}, sets:3, rest:"60–90s" },
+            { a:{name:"Rear Delt Fly", ref:"ohp", pct:0.15, repRange:"15"}, b:{name:"Skull Crusher", ref:"bench", pct:0.28, repRange:"10–12"}, sets:3, rest:"60–90s" },
+            { a:{name:"Arnold Press", ref:"ohp", pct:0.35, repRange:"10–12"}, b:{name:"Hammer Curl", ref:"bench", pct:0.20, repRange:"12"}, sets:3, rest:"60–90s" }
         ]
     },
     {
-        name:"Day 3 — LEGS",
-        exercises:[
-            {name:"Barbell Back Squat",         sets:5, reps:"6–8",  ref:"squat", pct:0.85, muscle:"Quads"},
-            {name:"Romanian Deadlift",          sets:4, reps:"8–10", ref:"squat", pct:0.55, muscle:"Hamstrings"},
-            {name:"Leg Press",                  sets:4, reps:"10–12",ref:"squat", pct:0.70, muscle:"Quads"},
-            {name:"Leg Curl",                   sets:4, reps:"12–15",ref:null,    pct:null,  muscle:"Hamstrings"},
-            {name:"Standing Calf Raise",        sets:5, reps:"15–20",ref:null,    pct:null,  muscle:"Calves"},
-            {name:"Leg Extension",              sets:3, reps:"15",   ref:null,    pct:null,  muscle:"Quads"},
+        name: "Day 3 — LEGS", emoji: "🦵", type: "legs",
+        mainLift: { name:"Barbell Back Squat", ref:"squat", topPct:0.85, note:"Depth below parallel, chest up" },
+        isolation: [
+            {name:"Romanian Deadlift",   ref:"squat", pct:0.55, sets:3, repRange:"10–12", rest:"90s–2min", note:"Hinge at the hip — feel the stretch", muscle:"Hamstrings"},
+            {name:"Leg Press",           ref:"squat", pct:0.70, sets:3, repRange:"10–15", rest:"60–90s", note:"Don't lock out — keep tension", muscle:"Quads"},
+            {name:"Leg Curl",            ref:null,    pct:null, sets:3, repRange:"12–15", rest:"60–90s", note:"Controlled — don't jerk", muscle:"Hamstrings"},
+            {name:"Standing Calf Raise", ref:null,    pct:null, sets:4, repRange:"15–20", rest:"45–60s", note:"Full range — stretch at bottom", muscle:"Calves"}
         ]
     },
     {
-        name:"Day 4 — CHEST + BACK (B)",
-        exercises:[
-            {name:"Incline Barbell Press",      sets:5, reps:"6–8",  ref:"bench", pct:0.75, muscle:"Chest"},
-            {name:"Bent-Over Barbell Row",      sets:5, reps:"6–8",  ref:"row",   pct:0.85, muscle:"Back"},
-            {name:"Flat Dumbbell Press",        sets:4, reps:"10–12",ref:"bench", pct:0.55, muscle:"Chest"},
-            {name:"Lat Pulldown",               sets:5, reps:"10–12",ref:"row",   pct:0.70, muscle:"Back"},
-            {name:"Cable Fly",                  sets:3, reps:"15",   ref:"bench", pct:0.20, muscle:"Chest"},
-            {name:"Dumbbell Pullover",          sets:3, reps:"12–15",ref:"bench", pct:0.25, muscle:"Back"},
+        name: "Day 4 — CHEST + BACK (B)", emoji: "🦁", type: "superset",
+        mainPair: {
+            a: { name:"Incline Barbell Press", ref:"bench", topPct:0.75, muscle:"Chest" },
+            b: { name:"Bent-Over Barbell Row", ref:"row",   topPct:0.85, muscle:"Back"  }
+        },
+        isoPairs: [
+            { a:{name:"Flat Dumbbell Press", ref:"bench", pct:0.55, repRange:"10–12"}, b:{name:"Lat Pulldown", ref:"row", pct:0.70, repRange:"10–12"}, sets:3, rest:"90s" },
+            { a:{name:"Cable Fly", ref:"bench", pct:0.20, repRange:"15"}, b:{name:"Dumbbell Pullover", ref:"bench", pct:0.25, repRange:"12–15"}, sets:3, rest:"60–90s" },
+            { a:{name:"Push-Up Finisher", ref:null, pct:null, repRange:"Max"}, b:{name:"Straight-Arm Pulldown", ref:"row", pct:0.30, repRange:"12–15"}, sets:3, rest:"60–90s" }
         ]
     },
     {
-        name:"Day 5 — SHOULDERS + ARMS (B)",
-        exercises:[
-            {name:"Dumbbell Shoulder Press",    sets:4, reps:"10–12",ref:"ohp",   pct:0.40, muscle:"Shoulders"},
-            {name:"Preacher Curl",              sets:4, reps:"10–12",ref:"bench", pct:0.22, muscle:"Biceps"},
-            {name:"Overhead Tricep Extension",  sets:4, reps:"12–15",ref:"bench", pct:0.20, muscle:"Triceps"},
-            {name:"Arnold Press",               sets:4, reps:"12",   ref:"ohp",   pct:0.35, muscle:"Shoulders"},
-            {name:"Hammer Curl",                sets:3, reps:"12",   ref:"bench", pct:0.20, muscle:"Biceps"},
-            {name:"Tricep Dip",                 sets:3, reps:"Max",  ref:null,    pct:null,  muscle:"Triceps"},
+        name: "Day 5 — SHOULDERS + ARMS (B)", emoji: "🎯", type: "superset",
+        mainPair: {
+            a: { name:"Dumbbell Shoulder Press", ref:"ohp", topPct:0.55, muscle:"Shoulders" },
+            b: { name:"Weighted Dip",             ref:"bench", topPct:0.55, muscle:"Triceps" }
+        },
+        isoPairs: [
+            { a:{name:"Front Raise", ref:"ohp", pct:0.18, repRange:"10–12"}, b:{name:"Preacher Curl", ref:"bench", pct:0.22, repRange:"10–12"}, sets:3, rest:"60–90s" },
+            { a:{name:"Cable Lateral Raise", ref:"ohp", pct:0.18, repRange:"12–15"}, b:{name:"Overhead Tricep Extension", ref:"bench", pct:0.20, repRange:"12–15"}, sets:3, rest:"60–90s" },
+            { a:{name:"Upright Row", ref:"row", pct:0.45, repRange:"10–12"}, b:{name:"Incline Dumbbell Curl", ref:"bench", pct:0.20, repRange:"10–12"}, sets:3, rest:"60–90s" }
         ]
     },
     {
-        name:"Day 6 — LEGS (B)",
-        exercises:[
-            {name:"Front Squat",                sets:4, reps:"8–10", ref:"squat", pct:0.65, muscle:"Quads"},
-            {name:"Lying Leg Curl",             sets:4, reps:"10–12",ref:null,    pct:null,  muscle:"Hamstrings"},
-            {name:"Hack Squat",                 sets:4, reps:"10–12",ref:"squat", pct:0.55, muscle:"Quads"},
-            {name:"Seated Calf Raise",          sets:5, reps:"20",   ref:null,    pct:null,  muscle:"Calves"},
-            {name:"Walking Lunge",              sets:3, reps:"12/leg",ref:"squat", pct:0.30, muscle:"Quads"},
+        name: "Day 6 — LEGS (B)", emoji: "🦵", type: "legs",
+        mainLift: { name:"Front Squat", ref:"squat", topPct:0.65, note:"Elbows high, upright torso" },
+        isolation: [
+            {name:"Hack Squat",         ref:"squat", pct:0.65, sets:3, repRange:"10–12", rest:"90s–2min", note:"Full depth — heels elevated", muscle:"Quads"},
+            {name:"Lying Leg Curl",     ref:null,    pct:null, sets:3, repRange:"10–12", rest:"60–90s", note:"Controlled — don't jerk", muscle:"Hamstrings"},
+            {name:"Walking Lunge",      ref:"squat", pct:0.30, sets:3, repRange:"10–12/leg", rest:"60–90s", note:"Step out far enough, knee tracks toe", muscle:"Quads"},
+            {name:"Seated Calf Raise",  ref:null,    pct:null, sets:4, repRange:"15–20", rest:"45–60s", note:"Full stretch — no bouncing", muscle:"Calves"}
         ]
     }
 ];
 
+// Alternate isolation pairs for shuffling superset days (2 body-part days
+// only — leg days reuse Bro Split-style alt pools if ever added later).
+var altPairPools = [
+    // Chest+Back alternates
+    [
+        { a:{name:"Decline Bench Press", ref:"bench", pct:0.70, repRange:"10–12"}, b:{name:"Chest-Supported Row", ref:"row", pct:0.60, repRange:"10–12"}, sets:3, rest:"90s" },
+        { a:{name:"Pec Deck", ref:"bench", pct:0.25, repRange:"12–15"}, b:{name:"Single-Arm Cable Row", ref:"row", pct:0.40, repRange:"10–12"}, sets:3, rest:"60–90s" },
+        { a:{name:"Low Cable Fly", ref:"bench", pct:0.20, repRange:"12–15"}, b:{name:"T-Bar Row", ref:"row", pct:0.70, repRange:"8–10"}, sets:3, rest:"90s" }
+    ],
+    // Shoulders+Arms alternates
+    [
+        { a:{name:"Seated DB Press", ref:"ohp", pct:0.40, repRange:"10–12"}, b:{name:"Rope Pushdown", ref:"bench", pct:0.22, repRange:"12–15"}, sets:3, rest:"60–90s" },
+        { a:{name:"Behind-the-Back Cable Raise", ref:"ohp", pct:0.15, repRange:"12–15"}, b:{name:"Concentration Curl", ref:"bench", pct:0.18, repRange:"10–12"}, sets:3, rest:"60–90s" },
+        { a:{name:"Shrugs", ref:"row", pct:0.80, repRange:"12–15"}, b:{name:"Dips (Triceps)", ref:null, pct:null, repRange:"8–12"}, sets:3, rest:"60–90s" }
+    ]
+];
+
 var weights = {};
 var programWeeks = 12;
-var weeklyJump = 0.10;
+var weeklyJump = 0.10; // Arnold's built-in per-week weight increase — fixed, not user-adjustable
 
-function round5(v){ return Math.max(10,Math.round(v/5)*5); }
+// ── "Push it today" toggle — a one-off bump to THIS day's displayed
+// working weight only. Doesn't touch the program's built-in weight progression
+// and resets to Baseline the moment you change week/day.
+var dayBoost = 0;
 
-function selectJump(btn){
+function selectDayBoost(btn){
     document.querySelectorAll('.jump-btn').forEach(function(b){ b.classList.remove('jump-active'); });
     btn.classList.add('jump-active');
-    weeklyJump = parseFloat(btn.getAttribute('data-pct'));
+    dayBoost = parseFloat(btn.getAttribute('data-pct'));
+    renderDay();
 }
+
+function resetDayBoost(){
+    dayBoost = 0;
+    document.querySelectorAll('.jump-btn').forEach(function(b){
+        b.classList.toggle('jump-active', parseFloat(b.getAttribute('data-pct')) === 0);
+    });
+}
+
+function changeDay(){
+    resetDayBoost();
+    renderDay();
+}
+
+function round5(v){ return Math.max(10, Math.round(v/5)*5); }
+function sample(arr,n){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a.slice(0,n); }
+
+// The pyramid shape applied to every main lift's topPct — same shape used
+// across the app: set 3 is the tracked "top set", set 4 a burnout to failure.
+var PYRAMID_SHAPE = [
+    { mult: 0.75, reps: "12",    rest: "2 min" },
+    { mult: 0.85, reps: "10",    rest: "2 min" },
+    { mult: 1.00, reps: "6–8",   rest: "2–3 min", isTop: true },
+    { mult: 0.65, reps: "AMRAP", rest: "90s",     isBurnout: true }
+];
+
+function buildPyramid(topPct) {
+    return PYRAMID_SHAPE.map(function(s) {
+        return { pct: topPct == null ? null : Math.round(topPct * s.mult * 100) / 100, reps: s.reps, rest: s.rest, isTop: !!s.isTop, isBurnout: !!s.isBurnout };
+    });
+}
+
+function restSeconds(restStr) {
+    var nums = restStr.replace('min','*60').match(/[\d.]+(\*60)?/g) || [];
+    var vals = nums.map(function(n){ return n.indexOf('*60') >= 0 ? parseFloat(n) * 60 : parseFloat(n); });
+    if (!vals.length) return 75;
+    return vals.reduce(function(a,b){ return a+b; }, 0) / vals.length;
+}
+
+// Superset pairs share rest — the two halves are done back-to-back (no
+// rest between them), then one rest period before the next pair. That's
+// the whole reason antagonist supersets let you fit more volume in the
+// same session length.
+function estimateSessionSeconds(day) {
+    var total = 0;
+    if (day.type === "superset") {
+        PYRAMID_SHAPE.forEach(function(s) { total += 40 + 40 + restSeconds(s.rest); });
+        day.isoPairs.forEach(function(pair) {
+            total += pair.sets * (40 + 40) + pair.sets * restSeconds(pair.rest);
+        });
+    } else {
+        PYRAMID_SHAPE.forEach(function(s) { total += 40 + restSeconds(s.rest); });
+        day.isolation.forEach(function(ex) {
+            total += ex.sets * 40 + ex.sets * restSeconds(ex.rest);
+        });
+    }
+    return total;
+}
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+// ── Program save/restore ─────────────────────────────────────────────────────
+var PROG_ID = 'eatt_arnold';
+var shuffledIso = [null, null, null, null, null, null]; // per day index
+
+function getInputs() {
+    return {
+        bench:    parseInt(document.getElementById('bench').value)    || 185,
+        row:      parseInt(document.getElementById('row').value)      || 185,
+        ohp:      parseInt(document.getElementById('ohp').value)      || 115,
+        squat:    parseInt(document.getElementById('squat').value)    || 225,
+        numWeeks: parseInt(document.getElementById('numWeeks').value) || 12
+    };
+}
+
+function saveProgress() {
+    var dayIdx  = parseInt(document.getElementById('daySel').value)  || 0;
+    var weekIdx = parseInt(document.getElementById('weekSel').value) || 1;
+    EATT.save({ id: PROG_ID, name: 'Arnold Split', page: 'arnoldsplit.html',
+        inputs: getInputs(), day: dayIdx, week: weekIdx, savedAt: Date.now() });
+}
+
+function loadProgress() {
+    return EATT.loadAll().find(function(p){ return p.id === PROG_ID; }) || null;
+}
+
+function restoreFromSave(state) {
+    var inp = state.inputs;
+    document.getElementById('bench').value    = inp.bench;
+    document.getElementById('row').value      = inp.row;
+    document.getElementById('ohp').value      = inp.ohp;
+    document.getElementById('squat').value    = inp.squat;
+    document.getElementById('numWeeks').value = inp.numWeeks;
+    generateProgram();
+    var ws = document.getElementById('weekSel');
+    var ds = document.getElementById('daySel');
+    if (ws && state.week) ws.value = state.week;
+    if (ds && state.day !== undefined) ds.value = state.day;
+    resetDayBoost();
+    renderDay();
+}
+
+function logWorkout(programName, sessionName, exerciseList) {
+    return EATT.logWorkout(programName, sessionName, exerciseList);
+}
+
+function saveActiveProgram() { saveProgress(); }
+function flashBtn(btn, success) {
+    var orig = btn.textContent;
+    btn.textContent  = success ? '✓ Saved!' : '✗ Error';
+    btn.style.color  = success ? '#38ef9d'  : '#ff6b6b';
+    btn.disabled     = true;
+    setTimeout(function() {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.disabled    = false;
+    }, 2200);
+}
+
+function showBuildPopup(){ document.getElementById('buildPopup').style.display = 'flex'; }
+function dismissPopup(){ document.getElementById('buildPopup').style.display = 'none'; generateProgram(); }
 
 function generateProgram(){
     weights = {
@@ -293,35 +488,146 @@ function generateProgram(){
     renderDay();
 }
 
+function weightFor(ref, pct, prog) {
+    if (!ref || pct == null) return "Bodyweight";
+    return round5(weights[ref] * pct * prog) + " lbs";
+}
+
 function renderDay(){
-    var week = parseInt(document.getElementById("weekSel").value)||1;
+    var week   = parseInt(document.getElementById("weekSel").value)||1;
     var dayIdx = parseInt(document.getElementById("daySel").value)||0;
-    var day = days[dayIdx];
-    var grid = document.getElementById("dayGrid");
+    var day    = arnoldDays[dayIdx];
+    var grid   = document.getElementById("dayGrid");
     grid.innerHTML = "";
 
-    // Progressive overload based on user-selected weekly jump %
     var prog = Math.pow(1 + weeklyJump, week - 1);
+    if (dayBoost) prog *= (1 + dayBoost);
+    var boostTag = dayBoost ? " — <span class='boost-tag'>+" + Math.round(dayBoost*100) + "% today</span>" : "";
 
-    day.exercises.forEach(function(ex){
-        var card = document.createElement("div");
-        card.className = "ex-card";
-        var wt = "";
-        if(ex.ref && ex.pct) {
-            wt = round5(weights[ex.ref] * ex.pct * prog) + " lbs";
-        } else {
-            wt = "Bodyweight / moderate";
-        }
-        card.innerHTML =
-            '<h4>'+ex.name+'</h4>'+
-            '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.reps+'</p>'+
-            '<p class="detail"><strong>Weight:</strong> '+wt+'</p>'+
-            '<span class="muscle-tag">'+ex.muscle+'</span>';
-        grid.appendChild(card);
-    });
+    if (day.type === "superset") {
+        // MAIN PAIR — pyramid on both sides, antagonist superset style
+        var pA = buildPyramid(day.mainPair.a.topPct);
+        var pB = buildPyramid(day.mainPair.b.topPct);
+        var mainCard = document.createElement("div");
+        mainCard.className = "ex-card superset-card";
+        var rounds = pA.map(function(sA, i){
+            var sB = pB[i];
+            var tag = sA.isTop ? " — TOP SET" : sA.isBurnout ? " — BURNOUT" : "";
+            var wtA = sA.pct == null ? "Bodyweight" : round5(weights[day.mainPair.a.ref] * sA.pct * prog) + " lbs";
+            var wtB = sB.pct == null ? "Bodyweight" : round5(weights[day.mainPair.b.ref] * sB.pct * prog) + " lbs";
+            return '<div class="pyramid-row ' + (sA.isTop?'pyramid-top':sA.isBurnout?'pyramid-burnout':'') + '">' +
+                '<span class="pyramid-set">Round ' + (i+1) + tag + '</span>' +
+                '<span class="pyramid-detail">' + day.mainPair.a.name + ': ' + sA.reps + ' @ ' + wtA + ' &nbsp;→&nbsp; ' + day.mainPair.b.name + ': ' + sB.reps + ' @ ' + wtB + '</span>' +
+                '<span class="pyramid-rest">Rest ' + sA.rest + ' after the pair</span>' +
+            '</div>';
+        }).join('');
+        mainCard.innerHTML =
+            '<h4>' + day.mainPair.a.name + ' &harr; ' + day.mainPair.b.name + ' <span class="superset-badge">MAIN SUPERSET</span></h4>' +
+            '<div class="pyramid-rows">' + rounds + '</div>' +
+            '<p class="rep-note" style="font-size:0.8rem;opacity:0.55;font-style:italic;margin-top:6px">No rest between the two halves — go straight from one into the other.</p>';
+        grid.appendChild(mainCard);
 
-    var jumpLabel = weeklyJump===0.05?"5% Steady":weeklyJump===0.10?"10% Standard":weeklyJump===0.15?"15% Aggressive":"20% INSANE";
-    document.getElementById("dayHeaderBar").innerHTML = "🦁 " + day.name + " &nbsp;|&nbsp; <span style='opacity:0.6;font-weight:400;font-size:0.9rem'>Week "+week+" of "+programWeeks+" &nbsp;&bull;&nbsp; +"+jumpLabel+" per week</span>";
+        // ISOLATION SUPERSET PAIRS
+        var pairs = shuffledIso[dayIdx] || day.isoPairs;
+        pairs.forEach(function(pair){
+            var card = document.createElement("div");
+            card.className = "ex-card superset-card";
+            var wtA = weightFor(pair.a.ref, pair.a.pct, prog);
+            var wtB = weightFor(pair.b.ref, pair.b.pct, prog);
+            card.innerHTML =
+                '<h4>Superset <span class="superset-badge">' + pair.sets + ' ROUNDS</span></h4>' +
+                '<div class="superset-halves">' +
+                    '<div class="superset-half"><h5>' + pair.a.name + '</h5><p class="detail">' + pair.a.repRange + ' reps @ ' + wtA + '</p></div>' +
+                    '<div class="superset-link">&harr;</div>' +
+                    '<div class="superset-half"><h5>' + pair.b.name + '</h5><p class="detail">' + pair.b.repRange + ' reps @ ' + wtB + '</p></div>' +
+                '</div>' +
+                '<p class="burnout-note">Last round: both sides to true failure</p>' +
+                '<p class="superset-rest">Rest ' + pair.rest + ' after each round · no rest between the two halves</p>';
+            grid.appendChild(card);
+        });
+    } else {
+        // LEG DAY — standalone main lift pyramid + isolation, no superset
+        var main = day.mainLift;
+        var pyramid = buildPyramid(main.topPct);
+        var mainCard2 = document.createElement("div");
+        mainCard2.className = "ex-card main-lift-card";
+        var rows = pyramid.map(function(s, i){
+            var wt = round5(weights[main.ref] * s.pct * prog);
+            var rowCls = s.isTop ? "pyramid-top" : s.isBurnout ? "pyramid-burnout" : "";
+            var tag = s.isTop ? " — TOP SET" : s.isBurnout ? " — BURNOUT (to failure)" : "";
+            return '<div class="pyramid-row ' + rowCls + '">' +
+                '<span class="pyramid-set">Set ' + (i+1) + tag + '</span>' +
+                '<span class="pyramid-detail">' + s.reps + ' reps @ ' + wt + ' lbs</span>' +
+                '<span class="pyramid-rest">Rest ' + s.rest + '</span>' +
+            '</div>';
+        }).join('');
+        mainCard2.innerHTML =
+            '<h4>' + main.name + ' <span class="main-badge">MAIN LIFT</span></h4>' +
+            '<div class="pyramid-rows">' + rows + '</div>' +
+            '<p class="detail">' + main.note + '</p>';
+        grid.appendChild(mainCard2);
+
+        day.isolation.forEach(function(ex){
+            var card = document.createElement("div");
+            card.className = "ex-card";
+            var wt = weightFor(ex.ref, ex.pct, prog);
+            card.innerHTML =
+                '<h4>'+ex.name+'</h4>'+
+                '<p class="detail"><strong>Sets:</strong> '+ex.sets+' &nbsp; <strong>Reps:</strong> '+ex.repRange+' &nbsp; <strong>Rest:</strong> '+ex.rest+'</p>'+
+                '<p class="detail"><strong>Weight:</strong> '+wt+'</p>'+
+                '<p class="burnout-note">Last set: push to true failure</p>'+
+                '<p class="detail" style="opacity:0.6;font-style:italic">'+ex.note+'</p>'+
+                '<span class="muscle-tag">'+ex.muscle+'</span>';
+            grid.appendChild(card);
+        });
+    }
+
+    var mins = Math.round(estimateSessionSeconds(day) / 60);
+    document.getElementById("dayHeaderBar").innerHTML = day.emoji + " " + day.name + " &nbsp;|&nbsp; <span style='opacity:0.6;font-weight:400;font-size:0.9rem'>Week "+week+" of "+programWeeks+" &nbsp;·&nbsp; ~"+mins+" min session"+boostTag+"</span>";
+}
+
+function shuffleArnold(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = arnoldDays[dayIdx];
+    if (day.type !== "superset") return; // leg days have no alt pool yet
+    var poolIdx = dayIdx % 2 === 0 ? 0 : 1; // chest+back pool vs shoulders+arms pool
+    shuffledIso[dayIdx] = sample(altPairPools[poolIdx], 3);
+    var btn = document.getElementById('shuffleBtn');
+    btn.style.transform = 'rotate(180deg)';
+    setTimeout(function(){ btn.style.transform=''; }, 400);
+    renderDay();
+}
+
+function logDayArnold(){
+    var dayIdx = parseInt(document.getElementById("daySel").value)||0;
+    var day = arnoldDays[dayIdx];
+    var exList;
+    if (day.type === "superset") {
+        var pairs = shuffledIso[dayIdx] || day.isoPairs;
+        exList = [{ name: day.mainPair.a.name + ' / ' + day.mainPair.b.name, scheme: "Superset pyramid 12/10/6–8/AMRAP" }]
+            .concat(pairs.map(function(p){ return { name: p.a.name + ' / ' + p.b.name, scheme: p.sets + ' rounds × ' + p.a.repRange + ' + ' + p.b.repRange }; }));
+    } else {
+        exList = [{ name: day.mainLift.name, scheme: "Pyramid 12/10/6–8/AMRAP" }]
+            .concat(day.isolation.map(function(ex){ return { name: ex.name, scheme: ex.sets + ' × ' + ex.repRange }; }));
+    }
+    var btn = document.getElementById('logBtn');
+    var ok = logWorkout('Arnold Split', day.name, exList);
+    saveProgress();
+    flashBtn(btn, ok);
+    if (ok) {
+        setTimeout(function() {
+            var ds = document.getElementById('daySel');
+            var ws = document.getElementById('weekSel');
+            var nextDay = (parseInt(ds.value) + 1) % ds.options.length;
+            if (nextDay === 0 && ws) {
+                var nextWeek = Math.min(parseInt(ws.value) + 1, ws.options.length);
+                ws.value = nextWeek;
+            }
+            ds.value = nextDay;
+            saveProgress();
+            ds.dispatchEvent(new Event('change'));
+        }, 1500);
+    }
 }
 
 function resetSetup(){
@@ -329,7 +635,16 @@ function resetSetup(){
     document.getElementById("controls").style.display   = "none";
     document.getElementById("dayGrid").style.display    = "none";
     document.getElementById("dayHeaderBar").style.display = "none";
+    shuffledIso = [null, null, null, null, null, null];
 }
+
+// ── Auto-restore if returning to this program ────────────────────────────────
+EATT.init().then(function() {
+    var saved = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    if (saved && saved.inputs) {
+        restoreFromSave(saved);
+    }
+});
 </script>
 </body>
 </html>
