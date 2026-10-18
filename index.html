@@ -5,6 +5,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="eatt_save.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f0c29">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="pwa.js" defer></script>
 <title>ELITE ALDO TRAINING TEMPLATES</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -601,6 +606,12 @@ h1 {
 
 <script>
 // ── Continue Popup ────────────────────────────────────────────────────────────
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
 function formatDate(ts) {
     if (!ts) return '';
     var d = new Date(ts);
@@ -636,7 +647,7 @@ function initContinuePopup() {
     btn.innerHTML =
         '<div class="cp-continue">' +
         '<div class="cp-continue-click" onclick="resumeProgram(\'' + recent.page + '\')">' +
-        '<div class="cp-prog-name">' + recent.name + '</div>' +
+        '<div class="cp-prog-name">' + esc(recent.name) + '</div>' +
         '<div class="cp-prog-meta">' + (progress ? progress + ' · ' : '') + 'Last used ' + formatDate(recent.savedAt) + '</div></div>' +
         '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + recent.id + '\', event)" title="Remove saved program">🗑</button>' +
         '<div class="cp-arrow" onclick="resumeProgram(\'' + recent.page + '\')">▶</div></div>';
@@ -649,7 +660,7 @@ function initContinuePopup() {
             var item = document.createElement('div');
             item.className = 'cp-other-btn';
             item.innerHTML =
-                '<span class="cp-other-click" onclick="resumeProgram(\'' + p.page + '\')">' + p.name + (prog ? ' <span style="opacity:0.4;font-weight:400">· ' + prog + '</span>' : '') + '</span>' +
+                '<span class="cp-other-click" onclick="resumeProgram(\'' + p.page + '\')">' + esc(p.name) + (prog ? ' <span style="opacity:0.4;font-weight:400">· ' + prog + '</span>' : '') + '</span>' +
                 '<span class="cp-other-date">' + formatDate(p.savedAt) + '</span>' +
                 '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>';
             otherList.appendChild(item);
@@ -719,7 +730,7 @@ function loadCurrentPrograms() {
         card.className = 'prog-card';
         card.innerHTML =
             '<div class="prog-info" onclick="closeDashboard(); window.location.href=\'' + p.page + '\'">' +
-            '<div class="prog-name">' + p.name + '</div>' +
+            '<div class="prog-name">' + esc(p.name) + '</div>' +
             '<div class="prog-meta">Last used ' + formatDate(p.savedAt) + (progress ? ' · ' + progress : '') + '</div></div>' +
             '<button class="prog-trash" onclick="confirmDeleteCurrentProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>' +
             '<div class="prog-badge active">Resume →</div>';
@@ -755,10 +766,10 @@ function loadArchives() {
         var card = document.createElement('div');
         card.className = 'log-card';
         card.innerHTML =
-            '<div class="log-top"><div class="log-program">' + (log.program || 'Workout') + '</div>' +
-            '<div class="log-date">' + log.date + '</div></div>' +
-            (log.session ? '<div class="log-session">' + log.session + '</div>' : '') +
-            (exList ? '<div class="log-exercises">' + exList + (log.exercises.length > 4 ? ' +' + (log.exercises.length-4) + ' more' : '') + '</div>' : '');
+            '<div class="log-top"><div class="log-program">' + esc(log.program || 'Workout') + '</div>' +
+            '<div class="log-date">' + esc(log.date) + '</div></div>' +
+            (log.session ? '<div class="log-session">' + esc(log.session) + '</div>' : '') +
+            (exList ? '<div class="log-exercises">' + esc(exList) + (log.exercises.length > 4 ? ' +' + (log.exercises.length-4) + ' more' : '') + '</div>' : '');
         listEl.appendChild(card);
     });
 }

@@ -55,6 +55,7 @@ var EATT = (function() {
             if (!stateRes.error && stateRes.data) {
                 var local = loadAll();
                 stateRes.data.forEach(function(row) {
+                    if (!SAFE_ID.test(row.prog_id || '') || !SAFE_PAGE.test(row.page || '')) return;
                     var remote = rowToProgram(row);
                     var idx = local.findIndex(function(p) { return p.id === remote.id; });
                     if (idx < 0) local.push(remote);
@@ -87,6 +88,16 @@ var EATT = (function() {
                 });
             }
         });
+    }
+
+    // Program ids/pages end up in links and onclick handlers, so only accept
+    // the shapes the app itself produces.
+    var SAFE_ID   = /^[\w-]+$/;
+    var SAFE_PAGE = /^[\w-]+\.html$/;
+
+    function localISODate() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
     function rowToProgram(row) {
@@ -176,7 +187,7 @@ var EATT = (function() {
         var logs = [];
         try { logs = JSON.parse(localStorage.getItem(LOGS_KEY) || '[]'); } catch(e){}
         var entry = {
-            date:      new Date().toLocaleDateString(),
+            date:      localISODate(),
             ts:        Date.now(),
             program:   programName,
             session:   sessionName,

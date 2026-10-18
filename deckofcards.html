@@ -5,6 +5,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="eatt_save.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f0c29">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="pwa.js" defer></script>
 <title>DECK OF CARDS — EATT</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -643,6 +648,8 @@ function drawCard(){
         localStorage.setItem('eatt_deck_prefs', JSON.stringify({ time: selectedTime, equip: selectedEquip }));
     } catch(e) {}
 }
+
+EATT.init();
 
 function logDeckWorkout(){
     if (!currentWorkout) return;

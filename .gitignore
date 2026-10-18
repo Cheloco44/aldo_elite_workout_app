@@ -1,0 +1,13 @@
+# Dependencies / build
+node_modules/
+
+# Secrets
+.env
+.env.*
+
+# Editor
+.vscode/
+
+# Not part of the deployed app
+may need later js server/
+*.pdf
