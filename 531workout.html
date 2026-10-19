@@ -368,9 +368,21 @@ function finishOpts() {
         onRecorded: function() { saveProgress(); },
         program:   '5/3/1',
         length:    waves + (waves === 1 ? ' wave' : ' waves') + ' · ' + (waves * 4) + ' weeks',
-        note:      'Next cycle training maxes: ' + Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
+        note:       'Next cycle: lifts you record start from the max you hit (training max = 90%). ' +
+                    'Untested lifts move up Wendler-style: ' +
+                    Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
         nextLabel: 'Start next cycle →',
-        onNext:    function() { startNextCycle(newMaxes); }
+        onNext:    function(withHits) {
+            // A recorded max replaces that lift's Wendler jump; the page's
+            // usual 90% training max is then applied to it.
+            var next = Object.assign({}, newMaxes);
+            (withHits || []).forEach(function(r) {
+                if (r.source !== 'hit' || !(r.e1rm > 0)) return;
+                var key = Object.keys(next).find(function(k) { return k === r.lift || dayNames[k] === r.lift; });
+                if (key) next[key] = r.e1rm;
+            });
+            startNextCycle(next);
+        }
     };
 }
 
