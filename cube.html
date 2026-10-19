@@ -620,14 +620,18 @@ function logDayCube(key){
 function finishOpts(results){
     var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
     return {
+        projected:  projectedMaxes(),
+        completed:  completed,
+        onRecorded: function() { saveProgress(); },
         program:   'Cube Method',
         length:    weeks + ' weeks · ' + (weeks / 3) + ' cycles',
         note:      'Start next Cube to run it again with these as your starting maxes.',
         nextLabel: 'Start next Cube',
-        onNext:    function(){
-            document.getElementById('squat1rm').value = results[0].e1rm;
-            document.getElementById('bench1rm').value = results[1].e1rm;
-            document.getElementById('dead1rm').value  = results[2].e1rm;
+        onNext:    function(withHits){
+            var r = withHits || results;
+            document.getElementById('squat1rm').value = r[0].e1rm;
+            document.getElementById('bench1rm').value = r[1].e1rm;
+            document.getElementById('dead1rm').value  = r[2].e1rm;
             nextRunCount = runCount + 1;
             resetSetup();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -695,5 +699,24 @@ EATT.init().then(function() {
     </div>
   </div>
 </div>
+<script>
+// Projected end-of-program 1RM: the Cube adds ~10% per 3-week cycle.
+function enteredNow() {
+    return { Squat: (parseInt(document.getElementById('squat1rm').value) || 0), Bench: (parseInt(document.getElementById('bench1rm').value) || 0), Deadlift: (parseInt(document.getElementById('dead1rm').value) || 0) };
+}
+function projectedMaxes() {
+    var cycles = (parseInt(document.getElementById('numWeeks').value) || 12) / 3;
+    var now = enteredNow(), out = {};
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = Math.round(now[k] * Math.pow(1 + weeklyJump, cycles - 1) / 5) * 5; });
+    return out;
+}
+
+// ── Setup screen: projected 1RM preview ──────────────────────────────────────
+E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
+    var proj = projectedMaxes();
+    return { length: (parseInt(document.getElementById('numWeeks').value) || 12) + ' weeks', note: 'The Cube adds ~10% per cycle if every cycle goes to plan. Your real number gets recorded at the end.',
+             rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
+});
+</script>
 </body>
 </html>

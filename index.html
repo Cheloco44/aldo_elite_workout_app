@@ -759,7 +759,8 @@ function buildLogCard(log) {
     var detail = ex.map(function(e) {
         if (!e || typeof e !== 'object') return '<div class="log-ex"><div class="log-ex-name">' + esc(e) + '</div></div>';
         var wt = e.type === 'e1rm' ? fmtWeight(e.e1rm) : fmtWeight(e.weight);
-        var scheme = [e.scheme, e.repsDone != null ? e.repsDone + ' reps done' : '', e.detail].filter(Boolean).join(' · ');
+        var scheme = [e.scheme, e.repsDone != null ? e.repsDone + ' reps done' : '', e.detail,
+                      e.projected ? 'projected ' + e.projected : '', e.note ? '“' + e.note + '”' : ''].filter(Boolean).join(' · ');
         return '<div class="log-ex"><div class="log-ex-name">' + esc(e.name || '') + '</div>' +
                '<div class="log-ex-wt">' + esc(wt) + '</div>' +
                (scheme ? '<div class="log-ex-scheme">' + esc(scheme) + '</div>' : '') + '</div>';

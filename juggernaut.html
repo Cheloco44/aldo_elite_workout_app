@@ -580,11 +580,14 @@ function enteredMaxes(){
 
 function juggSummaryOpts(results){
     return {
+        projected:  projectedMaxes(),
+        completed:  completed,
+        onRecorded: function() { saveProgress(); },
         program: 'Juggernaut Method',
         length: '4 waves · 16 weeks',
         note: 'Start a new cycle with these as your maxes' + (document.getElementById('useTM').checked ? ' (90% training max applied).' : '.'),
         nextLabel: 'Start next cycle',
-        onNext: function(){ startNextCycle(results); }
+        onNext: function(withHits){ startNextCycle(withHits || results); }
     };
 }
 
@@ -669,5 +672,24 @@ EATT.init().then(function() {
     </div>
   </div>
 </div>
+<script>
+// Projected end-of-program 1RM: the program loads +10% per wave, so after the
+// 3s wave you're handling ~1.33× your starting max if every wave goes to plan.
+function enteredNow() {
+    return { Squat: (parseInt(document.getElementById('squat1rm').value) || 0), Bench: (parseInt(document.getElementById('bench1rm').value) || 0), Deadlift: (parseInt(document.getElementById('dead1rm').value) || 0), OHP: (parseInt(document.getElementById('ohp1rm').value) || 0) };
+}
+function projectedMaxes() {
+    var now = enteredNow(), out = {};
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = Math.round(now[k] * Math.pow(1 + weeklyJump, 3) / 5) * 5; });
+    return out;
+}
+
+// ── Setup screen: projected 1RM preview ──────────────────────────────────────
+E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
+    var proj = projectedMaxes();
+    return { length: '16 weeks', note: 'Juggernaut adds ~10% per wave. That assumes every wave goes to plan — your real number gets recorded at the end.',
+             rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
+});
+</script>
 </body>
 </html>

@@ -363,6 +363,9 @@ function finishOpts() {
         newMaxes[k] = inp[k.toLowerCase()] + (jumps[k] * waves);
     });
     return {
+        projected:  projectedMaxes(),
+        completed:  completed,
+        onRecorded: function() { saveProgress(); },
         program:   '5/3/1',
         length:    waves + (waves === 1 ? ' wave' : ' waves') + ' · ' + (waves * 4) + ' weeks',
         note:      'Next cycle training maxes: ' + Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
@@ -857,5 +860,28 @@ EATT.init().then(function() {
     <button class="popup-start" onclick="dismissPopup()">LET'S GET TO WORK</button>
   </div>
 </div>
+<script>
+// Projected end-of-program 1RM: entered 1RM + Wendler's flat jump per wave
+// (+10 lower body, +5 upper body) — what the program builds toward.
+function enteredNow() {
+    var o = {};
+    o['Squat'] = (parseInt(document.getElementById('squat1rm').value) || 0); o['Deadlift'] = (parseInt(document.getElementById('deadlift1rm').value) || 0); o['Bench'] = (parseInt(document.getElementById('bench1rm').value) || 0); o['OHP'] = (parseInt(document.getElementById('ohp1rm').value) || 0);
+    return o;
+}
+function projectedMaxes() {
+    var waves = parseInt(document.getElementById('numWaves').value) || 3;
+    var jumps = {}; jumps['Squat'] = 10; jumps['Deadlift'] = 10; jumps['Bench'] = 5; jumps['OHP'] = 5;
+    var now = enteredNow(), out = {};
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = now[k] + jumps[k] * waves; });
+    return out;
+}
+
+// ── Setup screen: projected 1RM preview ──────────────────────────────────────
+E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
+    var proj = projectedMaxes();
+    return { length: (parseInt(document.getElementById('numWaves').value) || 3) * 4 + ' weeks', note: 'If you hit every session. Your real number gets recorded at the end.',
+             rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
+});
+</script>
 </body>
 </html>

@@ -320,7 +320,10 @@ function getLastNormalWeight(key) {
 
 function completionOpts() {
     var m = window._nextCycleMaxes || {};
-    return { program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
+    return {
+        projected:  projectedMaxes(),
+        completed:  completed,
+        onRecorded: function() { saveProgress(); }, program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
              note: 'Next block starts at: ' + Object.keys(m).map(function(n) { return n + ' ' + m[n]; }).join(' · ') + ' lbs',
              nextLabel: 'Start next block →', onNext: startFresh };
 }
@@ -877,6 +880,37 @@ EATT.init().then(function() {
     if (saved && saved.inputs) {
         restoreFromSave(saved);
     }
+});
+</script>
+<script>
+// Projected end-of-block 1RM: each lift adds its increment every session it
+// appears in weeks 1–8 (squat every session, the others every other one),
+// then the final 5-rep weight converts to a 1RM with Epley.
+var PREVIEW_LIFTS = { squat: 'Squat', bench: 'Bench Press', dead: 'Deadlift', ohp: 'Overhead Press', row: 'Barbell Row' };
+function enteredNow() {
+    var o = {};
+    Object.keys(PREVIEW_LIFTS).forEach(function(k) {
+        var w = parseInt(document.getElementById(k + '_w').value) || 0;
+        o[PREVIEW_LIFTS[k]] = w > 0 ? E1RM.epley(w, 5) : 0;
+    });
+    return o;
+}
+function projectedMaxes() {
+    var sessions = 8 * 3, out = {};
+    Object.keys(PREVIEW_LIFTS).forEach(function(k) {
+        var w = parseInt(document.getElementById(k + '_w').value) || 0;
+        if (!(w > 0)) return;
+        var appearances = k === 'squat' ? sessions : sessions / 2;
+        out[PREVIEW_LIFTS[k]] = E1RM.epley(w + INC[k] * (appearances - 1), 5);
+    });
+    return out;
+}
+
+// ── Setup screen: projected 1RM preview ──────────────────────────────────────
+E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
+    var proj = projectedMaxes();
+    return { length: TOTAL_WEEKS + ' weeks', note: 'Estimated from your 5-rep weights if every session goes to plan. Week 9 tests it for real.',
+             rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
 });
 </script>
 </body>
