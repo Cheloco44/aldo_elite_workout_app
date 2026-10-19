@@ -305,14 +305,16 @@ function getInputs() {
     };
 }
 
-function saveProgress() {
-    EATT.save({
-        id:         PROG_ID,
-        name:       '5/3/1',
-        page:       '531workout.html',
-        inputs:     getInputs(),
-        cursor:     cursor,
-        cycleCount: (EATT.loadAll().find(function(p){return p.id===PROG_ID;})||{}).cycleCount || 1
+// cur (optional) = the day to resume on; defaults to the current day.
+function saveProgress(cur) {
+    return EATT.save({
+        id:           PROG_ID,
+        name:         '5/3/1',
+        page:         '531workout.html',
+        inputs:       getInputs(),
+        cursor:       cur != null ? cur : cursor,
+        cycleCount:   (EATT.loadAll().find(function(p){return p.id===PROG_ID;})||{}).cycleCount || 1,
+        amrapResults: amrapResults
     });
 }
 
@@ -328,6 +330,7 @@ function restoreFromSave(state) {
     document.getElementById('bench1rm').value    = inp.bench;
     document.getElementById('ohp1rm').value      = inp.ohp;
     document.getElementById('numWaves').value    = inp.numWaves;
+    amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
     generateProgram();
     cursor = Math.min(state.cursor || 0, program.length - 1);
     resetDayBoost();
@@ -340,42 +343,44 @@ function logWorkout(programName, sessionName, exerciseList) {
 
 function saveActiveProgram() { saveProgress(); }
 
-// ── Cycle complete modal ──────────────────────────────────────────────────────
+// ── Program complete: estimated 1RMs + next cycle ─────────────────────────────
+// Best Epley estimate for a lift from logged AMRAP sets of `wave` (0 = any wave).
+function bestAmrap(lift, wave) {
+    var best = null;
+    amrapResults.forEach(function(r) {
+        if (r.lift !== lift || (wave && r.wave !== wave)) return;
+        var e = E1RM.epley(r.weight, r.reps);
+        if (e != null && (!best || e > best.e1rm)) best = { e1rm: e, r: r };
+    });
+    return best;
+}
+
 function checkCycleComplete() {
     if (cursor < program.length - 1) return;
-    var last = program[program.length - 1];
     var newMaxes = {};
     var jumps = { Squat: 10, Deadlift: 10, Bench: 5, OHP: 5 };
     var inp = getInputs();
+    var waves = inp.numWaves || 3;
     Object.keys(jumps).forEach(function(k) {
-        var key = k.toLowerCase(); if (key === 'deadlift') key = 'deadlift';
-        newMaxes[k] = (inp[key] || inp[k.toLowerCase()]) + (jumps[k] * (inp.numWaves || 3));
+        newMaxes[k] = inp[k.toLowerCase()] + (jumps[k] * waves);
     });
-    showCycleModal(newMaxes, inp.numWaves || 3);
-}
-
-function showCycleModal(newMaxes, waves) {
-    var existing = document.getElementById('cycleModal');
-    if (existing) existing.remove();
-    var modal = document.createElement('div');
-    modal.id = 'cycleModal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
-    window._nextCycleMaxes = newMaxes;
-    modal.innerHTML = '<div style="background:linear-gradient(145deg,#1a2540,#0f1a2e);border:1px solid rgba(255,140,66,0.3);border-radius:20px;padding:38px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,0.7)">' +
-        '<div style="font-size:2.5rem;margin-bottom:12px">🏆</div>' +
-        '<div style="font-size:1.1rem;font-weight:900;letter-spacing:3px;color:#ff8c42;margin-bottom:8px">CYCLE COMPLETE</div>' +
-        '<div style="font-size:0.85rem;opacity:0.6;margin-bottom:24px">'+waves+' waves done. Your new training maxes:</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">' +
-        Object.entries(newMaxes).map(function(e){ return '<div style="background:rgba(255,140,66,0.08);border:1px solid rgba(255,140,66,0.2);border-radius:10px;padding:10px"><div style="font-size:0.62rem;letter-spacing:2px;opacity:0.55;text-transform:uppercase">'+e[0]+'</div><div style="font-size:1.2rem;font-weight:900;color:#ff8c42">'+e[1]+' lbs</div></div>'; }).join('') +
-        '</div>' +
-        '<button onclick="startNextCycle(window._nextCycleMaxes)" style="width:100%;padding:14px;background:linear-gradient(135deg,#ff512f,#dd2476);border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-bottom:10px">START NEXT CYCLE →</button>' +
-        '<button onclick="document.getElementById(\'cycleModal\').remove()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer">Not yet — keep reviewing</button>' +
-        '</div>';
-    document.body.appendChild(modal);
+    var results = split.map(function(lift) {
+        var b = bestAmrap(lift, waves) || bestAmrap(lift, 0);
+        if (b) return { lift: lift, e1rm: b.e1rm, detail: b.r.weight + ' × ' + b.r.reps + ' AMRAP (wave ' + b.r.wave + ')' };
+        var last = program.filter(function(d) { return d.lift === lift && d.wave === waves; })[0] || {};
+        return { lift: lift, e1rm: Math.round((last.tm || 0) / 0.9 / 5) * 5,
+                 detail: 'projected from training max — log AMRAP reps for a real estimate' };
+    });
+    E1RM.finish(results, {
+        program:   '5/3/1',
+        length:    waves + (waves === 1 ? ' wave' : ' waves') + ' · ' + (waves * 4) + ' weeks',
+        note:      'Next cycle training maxes: ' + Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
+        nextLabel: 'Start next cycle →',
+        onNext:    function() { startNextCycle(newMaxes); }
+    });
 }
 
 function startNextCycle(newMaxes) {
-    document.getElementById('cycleModal').remove();
     var saved = EATT.loadAll().find(function(p){return p.id===PROG_ID;}) || {};
     document.getElementById('squat1rm').value    = newMaxes.Squat;
     document.getElementById('deadlift1rm').value = newMaxes.Deadlift;
@@ -383,8 +388,9 @@ function startNextCycle(newMaxes) {
     document.getElementById('ohp1rm').value      = newMaxes.OHP;
     generateProgram();
     cursor = 0;
+    amrapResults = [];
     resetDayBoost();
-    EATT.save({ id: PROG_ID, name: '5/3/1', page: '531workout.html', inputs: getInputs(), cursor: 0, cycleCount: (saved.cycleCount || 1) + 1 });
+    EATT.save({ id: PROG_ID, name: '5/3/1', page: '531workout.html', inputs: getInputs(), cursor: 0, cycleCount: (saved.cycleCount || 1) + 1, amrapResults: [] });
     render();
 }
 function flashBtn(btn, success) {
@@ -479,6 +485,8 @@ var dayNames  = {"OHP":"Overhead Push Press","Deadlift":"Deadlift","Bench":"Benc
 var program    = [];
 var cursor     = 0;
 var baseTM     = {};
+var amrapResults = [];   // [{ lift, weight, reps, wave, week, ts }] from logged AMRAP top sets
+var builtCursor  = -1;   // day currently drawn, so a re-render keeps reps already typed
 
 // WENDLER'S ACTUAL METHODOLOGY:
 // TM = 90% of true 1RM (conservative by design - that's the point)
@@ -623,6 +631,14 @@ function buildBreadcrumb(current){
 
 function buildWorkout(day){
     var area = document.getElementById("workoutArea");
+    // Keep AMRAP reps already typed when the same day re-renders (e.g. boost
+    // toggle); otherwise prefill what was logged for this day.
+    var typedReps = builtCursor === cursor ? E1RM.readReps('amrapReps') : null;
+    if (typedReps == null) {
+        var prev = amrapResults.filter(function(r){ return r.wave === day.wave && r.week === day.week && r.lift === day.lift; }).pop();
+        typedReps = prev ? prev.reps : null;
+    }
+    builtCursor = cursor;
     area.innerHTML = "";
     area.classList.remove("slide-in");
     void area.offsetWidth;
@@ -666,6 +682,7 @@ function buildWorkout(day){
             "<div class=\"set-right\">" +
                 (isTop ? "<span class=\"top-badge\">TOP SET</span>" : "") +
                 "<div class=\"set-weight\">" + boostedWeight(s.weight) + "<small>lbs</small>" + boostTag + "</div>" +
+                (isTop ? E1RM.repsInput('amrapReps', typedReps) : "") +
             "</div>";
         mainWrap.appendChild(card);
     });
@@ -713,18 +730,33 @@ function buildWorkout(day){
 function logDay531(){
     var day = program[cursor];
     var sessionName = 'Wave ' + day.wave + ' · ' + weekNames[day.week] + ' · Day ' + day.dayNum + ' — ' + day.lift;
+    // AMRAP = last main set of weeks 1–3 (deload has none)
+    var mainSets = day.sets.filter(function(s){ return s.type === 'main'; });
+    var topSet   = day.week !== 'Deload' ? mainSets[mainSets.length - 1] : null;
+    var reps     = topSet ? E1RM.readReps('amrapReps') : null;
     var exList = day.sets.map(function(s){
         var wt = s.weight;
         if (typeof wt === 'number' && (s.type === 'main' || s.type === 'alt')) wt = round5(wt * (1 + dayBoost));
-        return { name: s.exercise || day.lift, type: s.type, scheme: s.scheme || (s.pct ? Math.round(s.pct*100)+'% × '+s.reps : ''), weight: wt || '' };
+        var ex = { name: s.exercise || day.lift, type: s.type, scheme: s.scheme || (s.pct ? Math.round(s.pct*100)+'% × '+s.reps : ''), weight: wt || '' };
+        if (s === topSet && reps) ex.reps = reps;
+        return ex;
     });
+    if (reps) {
+        // Re-logging a day replaces its earlier AMRAP entry
+        amrapResults = amrapResults.filter(function(r){ return !(r.wave === day.wave && r.week === day.week && r.lift === day.lift); });
+        amrapResults.push({ lift: day.lift, weight: boostedWeight(topSet.weight), reps: reps, wave: day.wave, week: day.week, ts: Date.now() });
+    }
     var btn = document.getElementById('logBtn');
     var ok = logWorkout('5/3/1', sessionName, exList);
-    saveProgress();
+    var isLast = cursor >= program.length - 1;
+    // Save pointing at the NEXT session so the program resumes there
+    saveProgress(isLast ? cursor : cursor + 1);
     flashBtn(btn, ok);
-    // Advance to next day
-    if (cursor < program.length - 1) {
+    if (!ok) return;
+    if (!isLast) {
         setTimeout(function() { goToDay(cursor + 1); }, 1500);
+    } else {
+        setTimeout(checkCycleComplete, 1500);
     }
 }
 

@@ -114,6 +114,12 @@ tr:last-child td { border-bottom: none; }
 .t-exp { color: #93c5fd; font-weight: 700; }
 .t-rep { color: #86efac; font-weight: 700; }
 .t-acc { color: #aaa; }
+td.perf-row { padding: 6px 10px 12px; }
+.perf-hint { font-size: 0.72rem; opacity: 0.5; margin-left: 6px; }
+.day-footer { padding: 12px 14px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); }
+.btn-log { background: rgba(56,239,157,0.12); border: 1px solid rgba(56,239,157,0.35); color: #38ef9d; padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+.btn-log:hover { background: rgba(56,239,157,0.22); }
+.logged-tag { font-size: 0.72rem; font-weight: 700; color: #38ef9d; margin-left: 6px; }
 
 @media (max-width:600px) {
     .header-text { font-size: 1.3rem; }
@@ -282,10 +288,19 @@ function getInputs() {
     };
 }
 
-function saveProgress() {
-    var wi = parseInt(document.getElementById('weekSel').value) || 1;
-    EATT.save({ id: PROG_ID, name: 'Cube Method', page: 'cube.html',
-        inputs: getInputs(), week: wi, savedAt: Date.now() });
+// Performance + resume tracking (persisted on the saved state).
+//   amrapResults: [{ lift, weight, reps, week, mode, ts }] — heavy-day top sets
+//                 and rep-day sets, used for the end-of-program e1RM.
+//   loggedLifts:  { "<week>": ["Squat", ...] } — which lifts were logged per week.
+var amrapResults = [];
+var loggedLifts  = {};
+var repsDraft    = {}; // typed-but-unlogged reps, so re-renders don't wipe them
+
+function saveProgress(weekOverride) {
+    var wi = weekOverride || parseInt(document.getElementById('weekSel').value) || 1;
+    return EATT.save({ id: PROG_ID, name: 'Cube Method', page: 'cube.html',
+        inputs: getInputs(), week: wi, savedAt: Date.now(),
+        amrapResults: amrapResults, loggedLifts: loggedLifts });
 }
 
 function loadProgress() {
@@ -299,6 +314,9 @@ function restoreFromSave(state) {
     document.getElementById('dead1rm').value  = inp.dead;
     if (inp.useTM !== undefined) document.getElementById('useTM').checked = inp.useTM;
     document.getElementById('numWeeks').value = inp.numWeeks;
+    amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
+    loggedLifts  = (state.loggedLifts && typeof state.loggedLifts === 'object') ? state.loggedLifts : {};
+    repsDraft    = {};
     generateProgram();
     var ws = document.getElementById('weekSel');
     if (ws && state.week) { ws.value = state.week; ws.dispatchEvent(new Event('change')); }
@@ -354,6 +372,10 @@ function showBuildPopup(){
 
 function dismissPopup(){
     document.getElementById('buildPopup').classList.remove('active');
+    // Fresh build = fresh program: drop the old run's logged reps and progress.
+    amrapResults = [];
+    loggedLifts  = {};
+    repsDraft    = {};
     generateProgram();
 }
 
@@ -380,32 +402,73 @@ function generateProgram(){
     renderWeek();
 }
 
-function buildDayHTML(liftName, baseTmVal, mode, weekNum, accs){
+// The prescribed main-lift sets for one lift/mode/week, as data — rendered by
+// buildDayHTML and logged by logDayCube so both always agree. Weights include
+// today's "push it" boost, since that's what's on the bar.
+// `perf` marks the set whose reps feed the e1RM: the heavy-day top single
+// (closest to a true max) and the rep-day sets (an rep-max at a known load).
+// Speed-day doubles are deliberately submaximal, so they're not used.
+function mainSets(baseTmVal, mode, weekNum){
     var cycle       = Math.floor((weekNum - 1) / 3);
     var weekInCycle = (weekNum - 1) % 3;
     var tm = Math.round(baseTmVal * Math.pow(1 + weeklyJump, cycle));
     if (dayBoost) tm = Math.round(tm * (1 + dayBoost)); // today's optional "push it" boost — display-only
-    var html = "";
 
     if(mode === "Heavy"){
         var pct    = heavyPcts[Math.min(weekInCycle, heavyPcts.length - 1)];
         var topPct = Math.min(pct + 0.05 * cycle, 0.97);
-        html += '<tr><td class="t-heavy">Warm-up</td><td>' + liftName + '</td><td>5 × 3</td><td>' + round5(tm * 0.70) + ' lbs</td></tr>';
-        html += '<tr><td class="t-heavy">Heavy Set</td><td>' + liftName + '</td><td>Work to 1</td><td>' + round5(tm * topPct) + ' lbs (' + Math.round(topPct * 100) + '%)</td></tr>';
+        return [
+            { label:'Warm-up',   cls:'t-heavy', sets:5, reps:3, scheme:'5 × 3',     weight:round5(tm * 0.70) },
+            { label:'Heavy Set', cls:'t-heavy', sets:1, reps:1, scheme:'Work to 1', weight:round5(tm * topPct), pct:Math.round(topPct * 100), perf:'top set' }
+        ];
     } else if(mode === "Explosive"){
         var ePct = expPcts[Math.min(cycle, expPcts.length - 1)];
-        html += '<tr><td class="t-exp">Dynamic Effort</td><td>' + liftName + '</td><td>8 × 2 — MAX SPEED</td><td>' + round5(tm * ePct) + ' lbs (' + Math.round(ePct * 100) + '%)</td></tr>';
-    } else {
-        var reps = repReps[weekInCycle % repReps.length] + cycle * 2;
-        var rPct = 0.65 + cycle * 0.03;
-        html += '<tr><td class="t-rep">Rep Set</td><td>' + liftName + '</td><td>3 × ' + reps + '</td><td>' + round5(tm * rPct) + ' lbs (' + Math.round(rPct * 100) + '%)</td></tr>';
+        return [
+            { label:'Dynamic Effort', cls:'t-exp', sets:8, reps:2, scheme:'8 × 2 — MAX SPEED', weight:round5(tm * ePct), pct:Math.round(ePct * 100) }
+        ];
     }
+    var reps = repReps[weekInCycle % repReps.length] + cycle * 2;
+    var rPct = 0.65 + cycle * 0.03;
+    return [
+        { label:'Rep Set', cls:'t-rep', sets:3, reps:reps, scheme:'3 × ' + reps, weight:round5(tm * rPct), pct:Math.round(rPct * 100), perf:'best set' }
+    ];
+}
 
-    // Accessory intensity follows Cube's own day-type logic: heavy days
-    // already taxed the CNS with a near-max single, so ease off; speed days
-    // are submaximal, so there's room to push; rep days are already volume
-    // work, so stay moderate.
-    var accIntensity = { Heavy: "Light", Explosive: "Push Hard", Rep: "Moderate" }[mode] || "Moderate";
+// Accessory intensity follows Cube's own day-type logic: heavy days
+// already taxed the CNS with a near-max single, so ease off; speed days
+// are submaximal, so there's room to push; rep days are already volume
+// work, so stay moderate.
+function accIntensityFor(mode){
+    return { Heavy: "Light", Explosive: "Push Hard", Rep: "Moderate" }[mode] || "Moderate";
+}
+
+function isLogged(weekNum, liftName){
+    return (loggedLifts[weekNum] || []).indexOf(liftName) >= 0;
+}
+
+// Reps last logged for this lift in this week (prefills the box on revisit).
+function loggedReps(weekNum, liftName){
+    for (var i = amrapResults.length - 1; i >= 0; i--) {
+        var r = amrapResults[i];
+        if (r.week === weekNum && r.lift === liftName) return r.reps;
+    }
+    return null;
+}
+
+function buildDayHTML(liftName, key, baseTmVal, mode, weekNum, accs){
+    var html = "";
+    mainSets(baseTmVal, mode, weekNum).forEach(function(s){
+        html += '<tr><td class="' + s.cls + '">' + s.label + '</td><td>' + liftName + '</td><td>' + s.scheme + '</td><td>' +
+                s.weight + ' lbs' + (s.pct ? ' (' + s.pct + '%)' : '') + '</td></tr>';
+        if (s.perf) {
+            var id = 'reps-' + key;
+            var val = repsDraft[id] != null ? repsDraft[id] : loggedReps(weekNum, liftName);
+            html += '<tr><td colspan="4" class="perf-row">' + E1RM.repsInput(id, val) +
+                    '<span class="perf-hint">at ' + s.weight + ' lbs (' + s.perf + ')</span></td></tr>';
+        }
+    });
+
+    var accIntensity = accIntensityFor(mode);
     accs.forEach(function(a){
         html += '<tr><td class="t-acc">Accessory</td><td>' + a[0] + '<div style="opacity:0.5;font-size:0.75rem;font-weight:400">' + a[2] + '</div></td><td>' + a[1] + '</td><td>' + accIntensity + '</td></tr>';
     });
@@ -431,27 +494,114 @@ function renderWeek(){
         card.className = "day-card";
         var headerCls = l.mode === "Heavy" ? "day-heavy" : l.mode === "Explosive" ? "day-explosive" : "day-reps";
         var badge     = l.mode === "Heavy" ? "🔥 Top set day" : l.mode === "Explosive" ? "⚡ Speed day" : "💪 Volume day";
+        var logged    = isLogged(week, l.name);
         card.innerHTML =
-            '<div class="day-header ' + headerCls + '">' + l.name + ' — ' + l.mode.toUpperCase() + ' DAY<br>' +
+            '<div class="day-header ' + headerCls + '">' + l.name + ' — ' + l.mode.toUpperCase() + ' DAY' +
+            (logged ? '<span class="logged-tag">✓ LOGGED</span>' : '') + '<br>' +
             '<span style="font-size:0.8rem;font-weight:400;opacity:0.85">' + badge + boostTag + '</span></div>' +
             '<table><thead><tr><th>Type</th><th>Exercise</th><th>Sets / Reps</th><th>Weight</th></tr></thead><tbody>' +
-            buildDayHTML(l.name, baseTms[l.key], l.mode, week, l.accs) +
-            '</tbody></table>';
+            buildDayHTML(l.name, l.key, baseTms[l.key], l.mode, week, l.accs) +
+            '</tbody></table>' +
+            '<div class="day-footer"><button class="btn-log" id="logbtn-' + l.name + '" onclick="logDayCube(\'' + l.key + '\')">' +
+            (logged ? '✓ Log Again' : '✓ Log ' + l.name) + '</button></div>';
         grid.appendChild(card);
     });
 }
 
-function logDayCube(liftName, weekLabel){
-    var exList = [{ name: liftName, scheme: weekLabel }];
-    getAccs(liftName === "Squat" ? "squat" : liftName === "Bench" ? "bench" : "dead").forEach(function(acc){
-        exList.push({ name: acc[0], scheme: acc[1] });
+// Keep typed reps across re-renders (boost toggle, shuffle).
+document.getElementById('weekGrid').addEventListener('input', function(e){
+    if (e.target && e.target.id && e.target.id.indexOf('reps-') === 0) repsDraft[e.target.id] = e.target.value;
+});
+
+var LIFT_NAMES = { squat: "Squat", bench: "Bench", dead: "Deadlift" };
+
+function logDayCube(key){
+    var liftName = LIFT_NAMES[key];
+    var wi       = parseInt(document.getElementById("weekSel").value) || 1;
+    var mode     = rotations[(wi - 1) % 3][key];
+    var weeks    = parseInt(document.getElementById("numWeeks").value) || 12;
+    var reps     = E1RM.readReps('reps-' + key);
+
+    var exList = mainSets(baseTms[key], mode, wi).map(function(s){
+        var ex = { name: liftName, type: 'main', mode: mode, set: s.label, scheme: s.label + ' ' + s.scheme,
+                   sets: s.sets, reps: s.reps, weight: s.weight + ' lbs' + (s.pct ? ' (' + s.pct + '%)' : '') };
+        if (s.perf && reps != null) {
+            ex.repsDone = reps;
+            ex.scheme  += ' · ' + reps + ' reps done';
+            amrapResults.push({ lift: liftName, weight: s.weight, reps: reps, week: wi, mode: mode, ts: Date.now() });
+        }
+        return ex;
     });
-    var wi = parseInt(document.getElementById("weekSel").value)||1;
-    var sessionName = 'Week ' + wi + ' · ' + weekLabel + ' — ' + liftName;
+    var accIntensity = accIntensityFor(mode);
+    getAccs(key).forEach(function(acc){
+        exList.push({ name: acc[0], type: 'accessory', scheme: acc[1], weight: accIntensity });
+    });
+
+    var sessionName = 'Week ' + wi + ' · ' + mode + ' Day — ' + liftName;
     var ok = logWorkout('Cube Method', sessionName, exList);
     var btn = document.getElementById('logbtn-' + liftName);
     if(btn) flashBtn(btn, ok);
-    saveProgress();
+
+    // Resume tracking: once all three lifts of this week are in, move on.
+    var wasComplete = (loggedLifts[wi] || []).length >= 3;
+    if (!isLogged(wi, liftName)) loggedLifts[wi] = (loggedLifts[wi] || []).concat(liftName);
+    delete repsDraft['reps-' + key];
+    var weekDone = loggedLifts[wi].length >= 3;
+
+    if (weekDone && !wasComplete && wi < weeks) {
+        saveProgress(wi + 1); // Current Programs resumes on the next unlogged week
+        setTimeout(function(){
+            var ws = document.getElementById("weekSel");
+            ws.value = wi + 1;
+            changeDay();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1500);
+    } else {
+        saveProgress(wi);
+        setTimeout(renderWeek, 1500); // show the ✓ LOGGED state
+        if (weekDone && !wasComplete && wi === weeks) setTimeout(finishProgram, 1600);
+    }
+}
+
+// End of program: one e1RM per lift. Prefer sets from the final cycle (the
+// peak), then anything logged, then a projection from the entered numbers.
+function finishProgram(){
+    var weeks      = parseInt(document.getElementById("numWeeks").value) || 12;
+    var useTM      = document.getElementById("useTM").checked;
+    var finalStart = weeks - 2;
+    function best(liftName, fromWeek){
+        var top = null;
+        amrapResults.forEach(function(r){
+            if (r.lift !== liftName || r.week < fromWeek) return;
+            var e = E1RM.epley(r.weight, r.reps);
+            if (e != null && (!top || e > top.e1rm)) top = { e1rm: e, r: r };
+        });
+        return top;
+    }
+    var results = ["squat", "bench", "dead"].map(function(key){
+        var liftName = LIFT_NAMES[key];
+        var b = best(liftName, finalStart) || best(liftName, 1);
+        if (b) {
+            return { lift: liftName, e1rm: b.e1rm,
+                     detail: b.r.weight + ' × ' + b.r.reps + ' ' + String(b.r.mode).toLowerCase() + ' day (week ' + b.r.week + ')' };
+        }
+        // baseTms is the cycle-1 TM (before Cube's +10%/cycle loading jumps)
+        var proj = useTM ? Math.round(baseTms[key] / 0.9 / 5) * 5 : baseTms[key];
+        return { lift: liftName, e1rm: proj, detail: 'projected — log your reps for a real estimate' };
+    });
+    E1RM.finish(results, {
+        program:   'Cube Method',
+        length:    weeks + ' weeks · ' + (weeks / 3) + ' cycles',
+        note:      'Run it again: your new estimated maxes will be filled in as the starting numbers.',
+        nextLabel: 'Start next Cube',
+        onNext:    function(){
+            document.getElementById('squat1rm').value = results[0].e1rm;
+            document.getElementById('bench1rm').value = results[1].e1rm;
+            document.getElementById('dead1rm').value  = results[2].e1rm;
+            resetSetup();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
 }
 
 function shuffleCube(){

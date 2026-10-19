@@ -219,6 +219,7 @@ tr:hover { background: rgba(255,255,255,0.06); }
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleJugg()">&#x21bb; Shuffle Accessories</button>
+        <button class="btn-shuffle" id="logBtn" onclick="logDayJugg()">&#x2713; Log This Day</button>
     <div class="jump-toggle">
         <span class="jump-toggle-label">⚡ Push It Today</span>
         <div class="jump-toggle-options">
@@ -249,7 +250,27 @@ var weekNames = ["Accumulation","Intensification","Realization","Deload"];
 // ── Supabase ──────────────────────────────────────────────────────────────────
 // ── Program save/restore ─────────────────────────────────────────────────────
 var PROG_ID = 'eatt_jugg';
+// Sessions run wave → week → lift: cursor = wave*16 + week*4 + day (0..63).
+// The cursor is the next unlogged session; the selectors are derived from it
+// on restore/advance, and the session being logged is read from the selectors.
+var SESSIONS = 64;
 var cursor  = 0;
+var amrapResults = []; // [{ lift, weight, reps, wave, week, ts }] — wave/week are 0-based
+var cycleCount = 1;
+
+function sessionIndex(wi, wki, di) { return wi * 16 + wki * 4 + di; }
+function sessionPos(idx) { return { wave: Math.floor(idx / 16), week: Math.floor(idx / 4) % 4, day: idx % 4 }; }
+function selectedIndex() {
+    return sessionIndex(parseInt(document.getElementById('waveSel').value) || 0,
+                        parseInt(document.getElementById('weekSel').value) || 0,
+                        parseInt(document.getElementById('daySel').value)  || 0);
+}
+function setSelectors(idx) {
+    var pos = sessionPos(idx);
+    document.getElementById('waveSel').value = pos.wave;
+    document.getElementById('weekSel').value = pos.week;
+    document.getElementById('daySel').value  = pos.day;
+}
 
 function getInputs() {
     return {
@@ -261,11 +282,13 @@ function getInputs() {
     };
 }
 
+// Saves the resume point (cursor = next unlogged session), not whatever the
+// selectors happen to show.
 function saveProgress() {
-    var wi = parseInt(document.getElementById('waveSel').value) || 0;
-    var di = parseInt(document.getElementById('daySel').value)  || 0;
-    EATT.save({ id: PROG_ID, name: 'Juggernaut Method', page: 'juggernaut.html',
-        inputs: getInputs(), wave: wi, day: di, savedAt: Date.now() });
+    var pos = sessionPos(cursor);
+    return EATT.save({ id: PROG_ID, name: 'Juggernaut Method', page: 'juggernaut.html',
+        inputs: getInputs(), cursor: cursor, wave: pos.wave, week: pos.week, day: pos.day,
+        cycleCount: cycleCount, amrapResults: amrapResults.slice(), savedAt: Date.now() });
 }
 
 function loadProgress() {
@@ -279,12 +302,13 @@ function restoreFromSave(state) {
     document.getElementById('dead1rm').value  = inp.deadlift;
     document.getElementById('ohp1rm').value   = inp.ohp;
     if (inp.useTM !== undefined) document.getElementById('useTM').checked = inp.useTM;
+    amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
+    cycleCount   = state.cycleCount || 1;
+    if (typeof state.cursor === 'number') cursor = state.cursor;
+    else cursor = sessionIndex(state.wave || 0, state.week || 0, state.day || 0); // older saves: wave/day only
+    cursor = Math.max(0, Math.min(SESSIONS - 1, cursor || 0));
     generateProgram();
-    // Restore wave/day selectors
-    var ws = document.getElementById('waveSel');
-    var ds = document.getElementById('daySel');
-    if (ws && state.wave !== undefined) ws.value = state.wave;
-    if (ds && state.day  !== undefined) ds.value  = state.day;
+    setSelectors(cursor);
     resetDayBoost();
     renderTable();
 }
@@ -367,6 +391,12 @@ function showBuildPopup(){
 
 function dismissPopup(){
     document.getElementById('buildPopup').classList.remove('active');
+    // Starting over: fresh cycle from Wave 1 / Accumulation / Squat
+    cursor = 0;
+    amrapResults = [];
+    cycleCount = 1;
+    setSelectors(0);
+    resetDayBoost();
     generateProgram();
 }
 
@@ -388,58 +418,75 @@ function generateProgram(){
     renderTable();
 }
 
+// Training max for a lift in a given wave (+10% per wave), plus today's
+// optional "push it" boost (display-only, resets on day change)
+function waveTm(lift, wi, boost){
+    var tm = Math.round(baseTms[lift] * Math.pow(1 + weeklyJump, wi));
+    if (boost) tm = Math.round(tm * (1 + boost));
+    return tm;
+}
+
+// Prescribed main-lift sets for one session — shared by the table and the log
+// so Archives records exactly what was shown.
+function mainSets(wi, wki, tm){
+    var wave = waves[wi], out = [];
+    function set(label, sets, reps, scheme, p, showPct, amrap){
+        out.push({ label: label, sets: sets, reps: reps, scheme: scheme, pct: Math.round(p*100),
+                   weight: round5(tm*p), showPct: showPct, amrap: amrap });
+    }
+    if(wki === 0) {
+        // Accumulation — straight sets only, no top-set test
+        wave.pcts.slice(0, -1).forEach(function(p){ set('Main Lift', p[1], wave.rep, p[1]+' × '+wave.rep, p[0], true, false); });
+    } else if(wki === 1) {
+        // Intensification — straight sets, then a single top-set AMRAP
+        // (target scales with the wave's rep range: 10+/8+/5+/3+)
+        wave.pcts.slice(0, -1).forEach(function(p){ set('Main Lift', p[1], wave.rep, p[1]+' × '+wave.rep, p[0], true, false); });
+        var top = wave.pcts[wave.pcts.length - 1];
+        set('TOP SET AMRAP', 1, wave.rep+'+', '1 × '+wave.rep+'+', top[0], true, true);
+    } else if(wki === 2) {
+        // Realization — warm-ups, then top set AMRAP
+        wave.pcts.forEach(function(p){ set('Warm-up', 1, wave.rep, '1 × '+wave.rep, p[0], false, false); });
+        var rl = wave.real;
+        set('TOP SET AMRAP', 1, rl[1], rl[1], rl[0], true, true);
+    } else {
+        // Deload
+        var dl = wave.deload;
+        set('Deload', 3, dl[1], '3 × '+dl[1], dl[0], false, false);
+    }
+    return out;
+}
+
+function findAmrap(lift, wi, wki){
+    for (var i = 0; i < amrapResults.length; i++) {
+        var r = amrapResults[i];
+        if (r.lift === lift && r.wave === wi && r.week === wki) return r;
+    }
+    return null;
+}
+
 function renderTable(){
     var wi = parseInt(document.getElementById("waveSel").value)||0;
     var wki = parseInt(document.getElementById("weekSel").value)||0;
     var di = parseInt(document.getElementById("daySel").value)||0;
     var wave = waves[wi];
     var lift = liftNames[di];
-    // Scale TM based on which wave we're viewing, then apply today's
-    // optional "push it" boost (display-only, resets on day change)
-    var tm = Math.round(baseTms[lift] * Math.pow(1 + weeklyJump, wi));
-    if (dayBoost) tm = Math.round(tm * (1 + dayBoost));
+    var tm = waveTm(lift, wi, dayBoost);
     var tb = document.querySelector("#workoutTable tbody");
+    // Keep reps already typed if we're only re-rendering the same session (boost/shuffle)
+    var key = String(sessionIndex(wi, wki, di));
+    var typed = tb.getAttribute('data-session') === key ? E1RM.readReps('amrapReps') : null;
+    var prev = findAmrap(lift, wi, wki);
+    tb.setAttribute('data-session', key);
     tb.innerHTML = "";
 
     // Main lift rows
-    if(wki === 0) {
-        // Accumulation — straight sets only, no top-set test
-        wave.pcts.slice(0, -1).forEach(function(p){
-            var tr = document.createElement("tr");
-            tr.innerHTML = '<td class="type-main">Main Lift</td><td>'+lift+'</td><td>'+p[1]+' × '+wave.rep+'</td><td>'+round5(tm*p[0])+' lbs ('+Math.round(p[0]*100)+'%)</td>';
-            tb.appendChild(tr);
-        });
-    } else if(wki === 1) {
-        // Intensification — straight sets, then a single top-set AMRAP
-        // (target scales with the wave's rep range: 10+/8+/5+/3+)
-        wave.pcts.slice(0, -1).forEach(function(p){
-            var tr = document.createElement("tr");
-            tr.innerHTML = '<td class="type-main">Main Lift</td><td>'+lift+'</td><td>'+p[1]+' × '+wave.rep+'</td><td>'+round5(tm*p[0])+' lbs ('+Math.round(p[0]*100)+'%)</td>';
-            tb.appendChild(tr);
-        });
-        var top = wave.pcts[wave.pcts.length - 1];
-        var trTop = document.createElement("tr");
-        trTop.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>1 × '+wave.rep+'+</td><td>'+round5(tm*top[0])+' lbs ('+Math.round(top[0]*100)+'%)</td>';
-        tb.appendChild(trTop);
-    } else if(wki === 2) {
-        // Realization — top set AMRAP
-        var reps = wave.pcts;
-        reps.forEach(function(p){
-            var tr = document.createElement("tr");
-            tr.innerHTML = '<td class="type-main">Warm-up</td><td>'+lift+'</td><td>1 × '+wave.rep+'</td><td>'+round5(tm*p[0])+' lbs</td>';
-            tb.appendChild(tr);
-        });
-        var rl = wave.real;
-        var tr2 = document.createElement("tr");
-        tr2.innerHTML = '<td class="type-main" style="color:#ffd700">TOP SET AMRAP</td><td>'+lift+'</td><td>'+rl[1]+'</td><td>'+round5(tm*rl[0])+' lbs ('+Math.round(rl[0]*100)+'%)</td>';
-        tb.appendChild(tr2);
-    } else {
-        // Deload
-        var dl = wave.deload;
-        var trD = document.createElement("tr");
-        trD.innerHTML = '<td class="type-main">Deload</td><td>'+lift+'</td><td>3 × '+dl[1]+'</td><td>'+round5(tm*dl[0])+' lbs</td>';
-        tb.appendChild(trD);
-    }
+    mainSets(wi, wki, tm).forEach(function(s){
+        var tr = document.createElement("tr");
+        tr.innerHTML = '<td class="type-main"'+(s.amrap ? ' style="color:#ffd700"' : '')+'>'+s.label+'</td><td>'+lift+'</td>' +
+            '<td>'+s.scheme+(s.amrap ? E1RM.repsInput('amrapReps', typed || (prev && prev.reps)) : '')+'</td>' +
+            '<td>'+s.weight+' lbs'+(s.showPct ? ' ('+s.pct+'%)' : '')+'</td>';
+        tb.appendChild(tr);
+    });
 
     // Accessories — intensity runs opposite the main lift: push harder on
     // light main-lift days, ease off when the main lift just took you to a
@@ -460,20 +507,86 @@ function renderTable(){
 
 function logDayJugg(){
     var wi = parseInt(document.getElementById("waveSel").value)||0;
-    var wk = document.getElementById("weekSel").value;
+    var wki = parseInt(document.getElementById("weekSel").value)||0;
     var di = parseInt(document.getElementById("daySel").value)||0;
-    var liftNames = ["Squat","Bench","Deadlift","OHP"];
+    var idx = sessionIndex(wi, wki, di);
     var lift = liftNames[di];
-    var sessionName = 'Wave ' + (wi+1) + ' · ' + wk + ' · ' + lift;
-    var exList = [{ name: lift, scheme: wk + ' sets' }];
-    getAccs(di).forEach(function(acc){ exList.push({ name: acc[0], scheme: acc[1] }); });
+    var sessionName = 'Wave ' + (wi+1) + ' (' + waves[wi].name + ') · ' + weekNames[wki] + ' · ' + lift;
+    var amrapReps = E1RM.readReps('amrapReps');
+    var accIntensity = ["Push Hard", "Moderate", "Light", "Light — Recovery"];
+
+    var exList = mainSets(wi, wki, waveTm(lift, wi, dayBoost)).map(function(s){
+        var ex = { name: lift, type: s.amrap ? 'amrap' : (s.label === 'Warm-up' ? 'warmup' : 'main'),
+                   scheme: s.scheme, sets: s.sets, reps: s.reps, weight: s.weight, pct: s.pct, amrap: s.amrap };
+        if (s.amrap) { ex.target = s.reps; ex.reps = amrapReps; }
+        return ex;
+    });
+    getAccs(di).forEach(function(acc){
+        exList.push({ name: acc[0], type: 'accessory', scheme: acc[1], intensity: accIntensity[wki] });
+    });
+
+    exList.forEach(function(ex){
+        if (!ex.amrap || !amrapReps) return;
+        // Re-logging the same session replaces its earlier AMRAP result
+        amrapResults = amrapResults.filter(function(r){ return !(r.lift === lift && r.wave === wi && r.week === wki); });
+        amrapResults.push({ lift: lift, weight: ex.weight, reps: amrapReps, wave: wi, week: wki, ts: Date.now() });
+    });
+
     var btn = document.getElementById('logBtn');
     var ok = logWorkout('Juggernaut Method', sessionName, exList);
+    // Resume point = next unlogged session (never moves backwards when an
+    // earlier day is re-logged; stays on the last session once it's done).
+    cursor = Math.max(cursor, Math.min(idx + 1, SESSIONS - 1));
     saveProgress();
     flashBtn(btn, ok);
-    if (ok && cursor < program.length - 1) {
-        setTimeout(function() { cursor++; saveProgress(); render(); }, 1500);
+    if (idx === SESSIONS - 1) {
+        finishJugg();
+    } else if (cursor !== idx) {
+        setTimeout(function() { setSelectors(cursor); resetDayBoost(); renderTable(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 1500);
     }
+}
+
+// Final session logged → estimated 1RM per lift for the "Program complete" summary
+function finishJugg(){
+    var useTM = document.getElementById('useTM').checked;
+    var lastWave = waves.length - 1;
+    var results = liftNames.map(function(lift){
+        function best(filter){
+            var b = null;
+            amrapResults.forEach(function(r){
+                if (r.lift !== lift || !filter(r)) return;
+                var e = E1RM.epley(r.weight, r.reps);
+                if (e != null && (!b || e > b.e1rm)) b = { e1rm: e, r: r };
+            });
+            return b;
+        }
+        var b = best(function(r){ return r.wave === lastWave && r.week === 2; }) || best(function(){ return true; });
+        if (b) return { lift: lift, e1rm: b.e1rm,
+            detail: b.r.weight + ' × ' + b.r.reps + ' ' + weekNames[b.r.week] + ' AMRAP (' + waves[b.r.wave].name + ' wave)' };
+        var tm = waveTm(lift, lastWave, 0);
+        return { lift: lift, e1rm: round5(useTM ? tm / 0.9 : tm), detail: 'projected — log AMRAP reps for a real estimate' };
+    });
+    E1RM.finish(results, {
+        program: 'Juggernaut Method',
+        length: '4 waves · 16 weeks',
+        note: 'Start a new cycle with these as your maxes' + (useTM ? ' (90% training max applied).' : '.'),
+        nextLabel: 'Start next cycle',
+        onNext: function(){ startNextCycle(results); }
+    });
+}
+
+function startNextCycle(results){
+    var ids = { Squat: 'squat1rm', Bench: 'bench1rm', Deadlift: 'dead1rm', OHP: 'ohp1rm' };
+    results.forEach(function(r){ document.getElementById(ids[r.lift]).value = r.e1rm; });
+    cursor = 0;
+    amrapResults = [];
+    cycleCount += 1;
+    currentAccs = {};
+    setSelectors(0);
+    resetDayBoost();
+    generateProgram();
+    saveProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function shuffleJugg(){
