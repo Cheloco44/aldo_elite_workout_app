@@ -45,13 +45,17 @@ begin
 end $$;
 
 -- ── 3. Users can never change their own subscription plan ──────────────────
--- Only the server (service_role, e.g. a future Stripe webhook) may set it.
+-- Browser roles (anon / authenticated, which includes anonymous users) can't
+-- touch plan fields; only server roles (service_role, e.g. a future Stripe
+-- webhook, or the dashboard) can. Checks current_user rather than the
+-- deprecated auth.role().
 create or replace function public.protect_profile_plan()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
-  if coalesce(auth.role(), '') <> 'service_role' then
+  if current_user in ('anon', 'authenticated') then
     if tg_op = 'INSERT' then
       new.plan := 'free';
       new.plan_expires_at := null;
@@ -97,6 +101,13 @@ create policy "delete own program state" on public.eatt_program_state for delete
 
 -- Dedupe key for synced logs
 alter table public.workout_logs add column if not exists client_ts bigint;
+
+-- Index the columns every policy filters on, so RLS stays fast as data grows.
+-- (eatt_program_state is covered by its primary key.)
+create index if not exists workout_logs_user_id_idx     on public.workout_logs (user_id);
+create index if not exists personal_records_user_id_idx on public.personal_records (user_id);
+create index if not exists program_history_user_id_idx  on public.program_history (user_id);
+create index if not exists program_sessions_user_id_idx on public.program_sessions (user_id);
 
 -- ── 5. Only now: let signed-in users reach the tables (RLS still applies) ──
 grant select, insert, update, delete on
