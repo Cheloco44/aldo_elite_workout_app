@@ -118,7 +118,10 @@ var EATT = (function() {
             cycleCount: row.cycle_count, savedAt: row.saved_at
         };
         if (inputs.__extra) {
-            Object.keys(inputs.__extra).forEach(function(k) { p[k] = inputs.__extra[k]; });
+            // Extras can never override the validated core fields.
+            Object.keys(inputs.__extra).forEach(function(k) {
+                if (CORE_FIELDS.indexOf(k) < 0 && !/^(__proto__|constructor|prototype)$/.test(k)) p[k] = inputs.__extra[k];
+            });
             p.inputs = Object.assign({}, inputs);
             delete p.inputs.__extra;
         }
@@ -203,9 +206,25 @@ var EATT = (function() {
     }
 
     // ── Load all saved program states ─────────────────────────────────────────
+    // Saved programs end up in links and onclick handlers, so everything read
+    // back is re-checked here (localStorage is shared by the whole github.io
+    // origin, and cloud rows sync between devices).
+    var APP_PAGES = ['5x5.html', '531workout.html', 'strongman531.html', 'juggernaut.html', 'cube.html',
+                     'arnoldsplit.html', 'brosplit.html', 'deckofcards.html', 'nutrition.html'];
+
+    function num(v) { var n = Number(v); return v == null || v === '' || isNaN(n) ? undefined : n; }
+
     function loadAll() {
-        try { return JSON.parse(localStorage.getItem(PROGRAMS_KEY) || '[]'); }
-        catch(e) { return []; }
+        var raw;
+        try { raw = JSON.parse(localStorage.getItem(PROGRAMS_KEY) || '[]'); } catch(e) { return []; }
+        if (!Array.isArray(raw)) return [];
+        return raw.filter(function(p) {
+            return p && SAFE_ID.test(p.id || '') && APP_PAGES.indexOf(p.page) >= 0;
+        }).map(function(p) {
+            p.name = String(p.name == null ? '' : p.name);
+            ['cursor', 'week', 'day', 'wave', 'cycleCount', 'savedAt'].forEach(function(k) { p[k] = num(p[k]); });
+            return p;
+        });
     }
 
     // ── Get most recent program ───────────────────────────────────────────────

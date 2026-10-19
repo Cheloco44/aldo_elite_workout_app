@@ -574,7 +574,7 @@ function initContinuePopup() {
         '<div class="cp-continue">' +
         '<div class="cp-continue-click" onclick="resumeProgram(\'' + recent.page + '\')">' +
         '<div class="cp-prog-name">' + esc(recent.name) + '</div>' +
-        '<div class="cp-prog-meta">' + (progress ? progress + ' · ' : '') + 'Last used ' + formatDate(recent.savedAt) + '</div></div>' +
+        '<div class="cp-prog-meta">' + (progress ? esc(progress) + ' · ' : '') + 'Last used ' + formatDate(recent.savedAt) + '</div></div>' +
         '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + recent.id + '\', event)" title="Remove saved program">🗑</button>' +
         '<div class="cp-arrow" onclick="resumeProgram(\'' + recent.page + '\')">▶</div></div>';
 
@@ -586,7 +586,7 @@ function initContinuePopup() {
             var item = document.createElement('div');
             item.className = 'cp-other-btn';
             item.innerHTML =
-                '<span class="cp-other-click" onclick="resumeProgram(\'' + p.page + '\')">' + esc(p.name) + (prog ? ' <span style="opacity:0.4;font-weight:400">· ' + prog + '</span>' : '') + '</span>' +
+                '<span class="cp-other-click" onclick="resumeProgram(\'' + p.page + '\')">' + esc(p.name) + (prog ? ' <span style="opacity:0.4;font-weight:400">· ' + esc(prog) + '</span>' : '') + '</span>' +
                 '<span class="cp-other-date">' + formatDate(p.savedAt) + '</span>' +
                 '<button class="cp-trash" onclick="confirmDeleteProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>';
             otherList.appendChild(item);
@@ -658,7 +658,7 @@ function loadCurrentPrograms() {
         card.innerHTML =
             '<div class="prog-info" onclick="closeDashboard(); window.location.href=\'' + p.page + '\'">' +
             '<div class="prog-name">' + esc(p.name) + '</div>' +
-            '<div class="prog-meta">Last used ' + formatDate(p.savedAt) + (progress ? ' · ' + progress : '') + '</div></div>' +
+            '<div class="prog-meta">Last used ' + formatDate(p.savedAt) + (progress ? ' · ' + esc(progress) : '') + '</div></div>' +
             '<button class="prog-trash" onclick="confirmDeleteCurrentProgram(\'' + p.id + '\', event)" title="Remove saved program">🗑</button>' +
             '<div class="prog-badge active">Resume →</div>';
         listEl.appendChild(card);

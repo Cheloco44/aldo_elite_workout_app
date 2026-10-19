@@ -283,7 +283,13 @@ function restoreFromSave(state) {
     document.getElementById('dead_w').value   = inp.dead;
     failStreaks   = state.failStreaks   || { squat:0, bench:0, ohp:0, dead:0, row:0 };
     deloadEvents  = state.deloadEvents  || [];
-    week9Results  = state.week9Results  || { squat: null, bench: null, dead: null };
+    week9Results  = { squat: null, bench: null, dead: null };
+    // Synced data: keep only well-formed numeric test results
+    PL_LIFTS.forEach(function(k) {
+        var r = state.week9Results && state.week9Results[k];
+        var two = r && Number(r.twoRepMax);
+        if (two > 0) week9Results[k] = computeMaxTest(two);
+    });
     generateProgram();
     cursor = Math.min(state.cursor || 0, program.length - 1);
     resetMissedToday();

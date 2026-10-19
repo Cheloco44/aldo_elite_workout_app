@@ -145,6 +145,11 @@ create policy eatt_program_state_delete on public.eatt_program_state for delete 
 alter table public.workout_logs add column if not exists client_ts bigint;
 
 -- ── 6. Only now: let signed-in users reach the tables (RLS still applies) ──
+-- Start from nothing so default privileges (TRUNCATE, TRIGGER, ...) don't linger.
+revoke all on
+  public.profiles, public.workout_logs, public.personal_records,
+  public.program_history, public.program_sessions, public.eatt_program_state
+  from authenticated;
 grant select, insert, update, delete on
   public.profiles, public.workout_logs, public.personal_records,
   public.program_history, public.program_sessions, public.eatt_program_state
