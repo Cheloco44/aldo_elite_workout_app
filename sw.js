@@ -4,7 +4,10 @@
 // - Supabase (auth + data): always network, never cached.
 // Bump CACHE when shipping changes so phones pick up the new files.
 
-var CACHE = 'eatt-v1';
+// Prefix scopes cleanup to THIS app's caches: other sites on the same origin
+// (e.g. the staging copy on cheloco44.github.io) keep their own.
+var CACHE_PREFIX = 'eatt-app-';
+var CACHE = CACHE_PREFIX + 'v1';
 
 var APP_SHELL = [
     './',
@@ -37,7 +40,7 @@ self.addEventListener('install', function(event) {
 self.addEventListener('activate', function(event) {
     event.waitUntil(
         caches.keys().then(function(keys) {
-            return Promise.all(keys.filter(function(k) { return k !== CACHE; })
+            return Promise.all(keys.filter(function(k) { return k.indexOf(CACHE_PREFIX) === 0 && k !== CACHE; })
                                    .map(function(k) { return caches.delete(k); }));
         }).then(function() { return self.clients.claim(); })
     );
