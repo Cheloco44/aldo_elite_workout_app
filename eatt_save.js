@@ -13,7 +13,7 @@ var EATT = (function() {
     var PROGRAMS_KEY = 'eatt_programs';  // array of saved program states
     var LOGS_KEY     = 'eatt_logs';
     var SYNC_KEY     = PROGRAMS_KEY + '_lastsync';  // when this device last merged with the cloud
-    var DELETED_KEY  = PROGRAMS_KEY + '_deleted';   // deletes not yet confirmed by the cloud
+    var DELETED_KEY  = PROGRAMS_KEY + '_deleted';   // deletes the cloud hasn't confirmed yet
     var MAX_PROGRAMS   = 3;     // Current Programs slots
     var MAX_LOCAL_LOGS = 1000;  // device copy; the cloud keeps everything
 
@@ -110,6 +110,11 @@ var EATT = (function() {
             merged.push(winner);
             seen[remote.id] = true;
         });
+        // A delete is only confirmed once a sync no longer sees the row (a save
+        // still in flight can land after the delete request).
+        Object.keys(deleted).forEach(function(id) {
+            if (!rows.some(function(r) { return r.prog_id === id; })) setDeleted(id, null);
+        });
         local.forEach(function(p) {
             if (seen[p.id]) return;
             if ((p.savedAt || 0) > lastSync) { merged.push(p); pushProgram(userId, p); }
@@ -203,7 +208,6 @@ var EATT = (function() {
         supa.from('eatt_program_state').delete().eq('user_id', userId).eq('prog_id', progId)
             .then(function(res) {
                 if (res.error) console.warn('EATT cloud delete failed:', res.error.message);
-                else setDeleted(progId, null);
             });
     }
 
