@@ -104,6 +104,8 @@ body::before {
 .nav-actions { display: flex; gap: 8px; justify-content: center; }
 .btn-new { background: none; border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.55); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
 .btn-new:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+.btn-finish { border-color: rgba(255,215,0,0.45); color: #ffd700; }
+.complete-banner { display: block; width: 100%; margin: 0 0 16px; padding: 12px 16px; background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.4); border-radius: 10px; color: #ffd700; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
 .btn-shuffle { background: rgba(106,48,147,0.2); border: 1px solid rgba(206,147,216,0.3); color: rgba(206,147,216,0.85); padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
 .btn-shuffle:hover { background: rgba(106,48,147,0.35); }
 
@@ -233,10 +235,12 @@ body::before {
                 <button class="btn-new" onclick="resetSetup()">↩ New Program</button>
                 <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleAux()">↻ Shuffle</button>
                 <button class="btn-new" id="logBtn" onclick="logDaySM()">✓ Log This Day</button>
+                <button class="btn-new btn-finish" id="finishBtn" onclick="finishProgram()" style="display:none">🏁 Finish Program</button>
             </div>
         </div>
         <button class="nav-btn" id="btnNext" onclick="navigate(1)">Next →</button>
     </div>
+    <button type="button" class="complete-banner" id="completeBanner" onclick="showResults()" style="display:none">🏆 Program complete — view results</button>
     <div class="workout-area" id="workoutArea"></div>
 </div>
 
@@ -277,11 +281,12 @@ function getInputs() {
     };
 }
 
-// cur (optional) = the day to resume on; defaults to the current day.
+// cur (optional) = the day to resume on; defaults to the current resume
+// position (browsing to another day doesn't move it — logging does).
 function saveProgress(cur) {
     return EATT.save({ id: PROG_ID, name: '5/3/1 Strongman', page: 'strongman531.html',
-        inputs: getInputs(), cursor: cur != null ? cur : cursor, savedAt: Date.now(),
-        amrapResults: amrapResults });
+        inputs: getInputs(), cursor: (resumeAt = cur != null ? cur : resumeAt), savedAt: Date.now(),
+        cycleCount: cycleCount, amrapResults: amrapResults, completed: completed });
 }
 
 function loadProgress() {
@@ -297,8 +302,10 @@ function restoreFromSave(state) {
     document.getElementById('squat1rm').value    = inp.squat;
     document.getElementById('numWaves').value    = inp.numWaves;
     amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
+    cycleCount   = state.cycleCount || 1;
+    completed    = state.completed && state.completed.cycle === cycleCount && Array.isArray(state.completed.results) ? state.completed : null;
     generateProgram();
-    cursor = Math.min(state.cursor || 0, program.length - 1);
+    cursor = resumeAt = Math.min(state.cursor || 0, program.length - 1);
     resetDayBoost();
     render();
 }
@@ -310,46 +317,64 @@ function logWorkout(programName, sessionName, exerciseList) {
 function saveActiveProgram() { saveProgress(); }
 
 // ── Program complete: estimated 1RMs + next cycle ─────────────────────────────
-// Best Epley estimate for a lift from logged AMRAP sets of `wave` (0 = any wave).
-function bestAmrap(lift, wave) {
-    var best = null;
-    amrapResults.forEach(function(r) {
-        if (r.lift !== lift || (wave && r.wave !== wave)) return;
-        var e = E1RM.epley(r.weight, r.reps);
-        if (e != null && (!best || e > best.e1rm)) best = { e1rm: e, r: r };
-    });
-    return best;
-}
-
-function checkCycleComplete() {
-    if (cursor < program.length - 1) return;
+// Summary options (also used to re-show saved results). Next-cycle maxes are
+// the entered 1RMs + Wendler's flat jumps per wave.
+function finishOpts() {
     var inp = getInputs();
     var waves = inp.numWaves;
     var newMaxes = { OHP: inp.ohp + 5 * waves, Deadlift: inp.deadlift + 10 * waves,
                      Bench: inp.bench + 5 * waves, Squat: inp.squat + 10 * waves };
-    var results = split.map(function(lift) {
-        var b = bestAmrap(lift, waves) || bestAmrap(lift, 0);
-        if (b) return { lift: dayNames[lift], e1rm: b.e1rm, detail: b.r.weight + ' × ' + b.r.reps + ' AMRAP (wave ' + b.r.wave + ')' };
-        var last = program.filter(function(d) { return d.lift === lift && d.wave === waves; })[0] || {};
-        return { lift: dayNames[lift], e1rm: Math.round((last.tm || 0) / 0.9 / 5) * 5,
-                 detail: 'projected from training max — log AMRAP reps for a real estimate' };
-    });
-    E1RM.finish(results, {
+    return {
         program:   '5/3/1 Strongman',
         length:    waves + (waves === 1 ? ' wave' : ' waves') + ' · ' + (waves * 4) + ' weeks',
         note:      'Next cycle training maxes: ' + Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
         nextLabel: 'Start next cycle →',
         onNext:    function() { startNextCycle(newMaxes); }
+    };
+}
+
+function isCompleted() { return !!(completed && completed.cycle === cycleCount); }
+
+// One e1RM per main lift (shared rule in eatt_1rm.js), logged to Archives once
+// per cycle; after that it only re-shows the saved results.
+function finishProgram() {
+    if (isCompleted()) { showResults(); return; }
+    var inp = getInputs();
+    var waves = inp.numWaves;
+    var finalSets = amrapResults.filter(function(r) { return r.wave === waves; });
+    var describe = function(s) { return s.weight + ' × ' + s.reps + ' AMRAP (wave ' + s.wave + ')'; };
+    var results = split.map(function(lift) {
+        var r = E1RM.pick(lift, finalSets, amrapResults, inp[lift.toLowerCase()], describe);
+        r.lift = dayNames[lift];
+        return r;
     });
+    completed = { cycle: cycleCount, at: Date.now(), results: results };
+    saveProgress();
+    E1RM.finish(results, finishOpts());
+    updateFinishUI();
+}
+
+function showResults() {
+    if (isCompleted()) E1RM.showSummary(completed.results, finishOpts());
+}
+
+// "Finish program" during the final wave until done; "view results" banner after.
+function updateFinishUI() {
+    var done = isCompleted();
+    var day  = program[cursor];
+    document.getElementById('finishBtn').style.display      = !done && day && day.wave === getInputs().numWaves ? '' : 'none';
+    document.getElementById('completeBanner').style.display = done ? '' : 'none';
 }
 
 function startNextCycle(newMaxes) {
     amrapResults = [];
+    completed    = null;
+    cycleCount  += 1;
     document.getElementById('ohp1rm').value      = newMaxes.OHP;
     document.getElementById('deadlift1rm').value = newMaxes.Deadlift;
     document.getElementById('bench1rm').value    = newMaxes.Bench;
     document.getElementById('squat1rm').value    = newMaxes.Squat;
-    generateProgram(); cursor = 0; resetDayBoost(); saveProgress(); render();
+    generateProgram(true); resetDayBoost(); saveProgress(0); render();
 }
 function flashBtn(btn, success) {
     var orig = btn.textContent;
@@ -515,6 +540,9 @@ var cursor    = 0;
 var baseTM    = {};
 var amrapResults = [];   // [{ lift, weight, reps, wave, week, ts }] from logged AMRAP top sets
 var builtCursor  = -1;   // day currently drawn, so a re-render keeps reps already typed
+var resumeAt     = 0;    // saved resume position (cursor after the last logged day)
+var cycleCount   = 1;
+var completed    = null; // { cycle, at, results } once this cycle's e1RMs were logged
 
 function getIncrement(isLower){
     return isLower ? flatInc.lower : flatInc.upper;
@@ -561,10 +589,16 @@ function showBuildPopup(){
 
 function dismissPopup(){
     document.getElementById('buildPopup').classList.remove('active');
-    generateProgram();
+    // A NEW program: nothing carries over from the previous one
+    amrapResults = [];
+    completed    = null;
+    cycleCount   = 1;
+    resetDayBoost();
+    generateProgram(true);
 }
 
-function generateProgram(){
+// fresh = start at day 1 (new program / next cycle) instead of the saved cursor
+function generateProgram(fresh){
     var raw = {
         OHP:      parseInt(document.getElementById("ohp1rm").value)||185,
         Deadlift: parseInt(document.getElementById("deadlift1rm").value)||500,
@@ -615,7 +649,7 @@ function generateProgram(){
         }
     }
 
-    cursor = Math.min(loadProgress(), program.length - 1 || 0);
+    cursor = resumeAt = fresh ? 0 : Math.min(loadProgress(), program.length - 1 || 0);
     document.getElementById("setupPanel").style.display  = "none";
     document.getElementById("workoutView").style.display = "block";
     render();
@@ -634,6 +668,7 @@ function render(){
 
     buildBreadcrumb(day);
     buildWorkout(day);
+    updateFinishUI();
 }
 
 function buildBreadcrumb(current){
@@ -779,13 +814,7 @@ function logDaySM(){
     var mainSets = day.sets.filter(function(s){ return s.type === 'main'; });
     var topSet   = day.week !== 'Deload' ? mainSets[mainSets.length - 1] : null;
     var reps     = topSet ? E1RM.readReps('amrapReps') : null;
-    var exList = day.sets.map(function(s){
-        var wt = s.weight;
-        if (typeof wt === 'number' && (s.type === 'main' || s.type === 'alt')) wt = round5(wt * (1 + dayBoost));
-        var ex = { name: s.exercise || dayNames[day.lift], type: s.type, scheme: s.scheme || (s.pct ? Math.round(s.pct*100)+'% × '+s.reps : ''), weight: wt || '' };
-        if (s === topSet && reps) ex.reps = reps;
-        return ex;
-    });
+    var exList = day.sets.map(function(s){ return archiveSet(s, day, s === topSet, reps); });
     if (reps) {
         // Re-logging a day replaces its earlier AMRAP entry
         amrapResults = amrapResults.filter(function(r){ return !(r.wave === day.wave && r.week === day.week && r.lift === day.lift); });
@@ -794,14 +823,35 @@ function logDaySM(){
     var btn = document.getElementById('logBtn');
     var ok = logWorkout('5/3/1 Strongman', sessionName, exList);
     var isLast = cursor >= program.length - 1;
-    // Save pointing at the NEXT session so the program resumes there
+    // Final day reached in order (it was the resume position) → finish
+    var autoFinish = isLast && resumeAt === cursor && !isCompleted();
+    // Save once, now, pointing at the NEXT session so the program resumes there
     saveProgress(isLast ? cursor : cursor + 1);
     flashBtn(btn, ok);
     if (ok) {
         if (!isLast) {
             setTimeout(function() { goToDay(cursor + 1); }, 1500);
-        } else { setTimeout(checkCycleComplete, 1500); }
+        } else if (autoFinish) { setTimeout(finishProgram, 1500); }
     }
+}
+
+// Archive schema (shared by all programs): name, type, scheme, weight (lbs,
+// number, omitted if none), pct, target (prescribed reps, text), repsDone.
+function archiveSet(s, day, isAmrap, repsDone) {
+    var deload = day.week === 'Deload';
+    if (s.type === 'main') {
+        var ex = { name: dayNames[day.lift], type: isAmrap ? 'amrap' : 'main',
+                   scheme: (deload ? '3' : '1') + ' × ' + s.reps + ' @ ' + Math.round(s.pct*100) + '% TM',
+                   weight: boostedWeight(s.weight), pct: Math.round(s.pct*100), target: s.reps };
+        if (isAmrap && repsDone) ex.repsDone = repsDone;
+        return ex;
+    }
+    var out = { name: s.exercise, type: s.type === 'acc' ? 'accessory' : s.type, scheme: s.scheme };
+    if (typeof s.weight === 'number') out.weight = boostedWeight(s.weight);
+    var m = /×\s*(.+)$/.exec(s.scheme || '');
+    if (m) out.target = m[1].trim();
+    if (s.note) out.note = s.note;
+    return out;
 }
 
 function navigate(dir){
