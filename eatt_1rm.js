@@ -54,7 +54,7 @@ var E1RM = (function() {
         function bestSet(sets) {
             var best = null;
             (sets || []).forEach(function(s) {
-                if (s.lift !== lift) return;
+                if (!s || s.lift !== lift) return;
                 var e = epley(s.weight, s.reps);
                 if (e != null && (!best || e > best.e1rm)) best = { e1rm: e, set: s };
             });
@@ -97,6 +97,7 @@ var E1RM = (function() {
     // Archives gets one "Program complete" entry when the user saves the form.
     function finish(results, opts) {
         opts = opts || {};
+        results = (Array.isArray(results) ? results : []).filter(function(r) { return r && typeof r === 'object'; });
         if (opts.completed && opts.completed.recorded) return showRecorded(results, opts);
         showForm(results, opts);
     }
@@ -132,7 +133,7 @@ var E1RM = (function() {
                      '<label class="e1rm-hit">Max hit <input type="number" inputmode="numeric" min="0" max="2000" id="e1rmHit' + i + '" placeholder="lbs"></label>' +
                      (hints.length ? '<div class="e1rm-detail">' + esc(hints.join(' · ')) + '</div>' : '') +
                      '<input type="text" class="e1rm-notein" id="e1rmNote' + i + '" maxlength="160" ' +
-                       'placeholder="Note — e.g. felt good, could have hit more but not safe">' +
+                       'placeholder="How it felt — e.g. smooth, could have hit more (skip injury details)">' +
                    '</div>';
         }).join('');
         var modal = openModal(
@@ -171,7 +172,7 @@ var E1RM = (function() {
     }
 
     function showRecorded(results, opts) {
-        var recorded = (opts.completed && opts.completed.recorded) || [];
+        var recorded = opts.completed && Array.isArray(opts.completed.recorded) ? opts.completed.recorded : [];
         var rows = recorded.map(function(x) {
             return '<div class="e1rm-row"><div class="e1rm-lift">' + esc(x.lift) + '</div>' +
                    '<div class="e1rm-val">' + (x.hit ? esc(x.hit) + ' <span>lbs</span>' : '<span>not tested</span>') + '</div>' +

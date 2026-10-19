@@ -12,7 +12,7 @@ var EATT = (function() {
 
     var PROGRAMS_KEY = 'eatt_programs';  // array of saved program states
     var LOGS_KEY     = 'eatt_logs';
-    var SYNC_KEY     = PROGRAMS_KEY + '_lastsync';  // when this device last merged with the cloud
+    var SYNC_KEY     = PROGRAMS_KEY + '_synced';    // { userId, ids } the cloud last confirmed having
     var DELETED_KEY  = PROGRAMS_KEY + '_deleted';   // deletes the cloud hasn't confirmed yet
     var MAX_PROGRAMS   = 3;     // Current Programs slots
     var MAX_LOCAL_LOGS = 1000;  // device copy; the cloud keeps everything
@@ -88,11 +88,15 @@ var EATT = (function() {
     }
 
     // Programs: newer copy wins. A program this device has but the cloud doesn't
-    // is either new here since the last sync (push it) or was deleted on another
-    // device (drop it). Sync itself never deletes cloud rows — only an explicit
-    // delete/replace does — so one device can't silently remove another's program.
+    // is dropped only if the cloud confirmed having it before for this same user
+    // (so it was deleted on another device). Anything never confirmed — new here,
+    // a failed push, or a new anonymous identity after a lost session — is kept
+    // and pushed. Sync itself never deletes cloud rows; only an explicit
+    // delete/replace does, so one device can't silently remove another's program.
     function mergePrograms(userId, rows) {
-        var lastSync = Number(localStorage.getItem(SYNC_KEY)) || 0;
+        var synced = {};
+        try { synced = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}') || {}; } catch(e) {}
+        var confirmed = synced.userId === userId && Array.isArray(synced.ids) ? synced.ids : [];
         var deleted = getDeleted();
         var local = loadAll();
         var merged = [], seen = {};
@@ -117,12 +121,12 @@ var EATT = (function() {
         });
         local.forEach(function(p) {
             if (seen[p.id]) return;
-            if ((p.savedAt || 0) > lastSync) { merged.push(p); pushProgram(userId, p); }
+            if (confirmed.indexOf(p.id) < 0) { merged.push(p); pushProgram(userId, p); }
         });
 
         merged.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
         localStorage.setItem(PROGRAMS_KEY, JSON.stringify(merged.slice(0, MAX_PROGRAMS)));
-        localStorage.setItem(SYNC_KEY, String(Date.now()));
+        localStorage.setItem(SYNC_KEY, JSON.stringify({ userId: userId, ids: Object.keys(seen) }));
     }
 
     function getDeleted() {
@@ -147,6 +151,7 @@ var EATT = (function() {
     // Page-specific extras (5x5 deloads/max tests, AMRAP results, ...) ride
     // along inside the inputs jsonb, so they sync without new columns.
     var CORE_FIELDS = ['id', 'name', 'page', 'inputs', 'cursor', 'week', 'day', 'wave', 'cycleCount', 'savedAt'];
+    var UNSAFE_KEY  = /^(__proto__|constructor|prototype)$/;
 
     function rowToProgram(row) {
         var inputs = row.inputs || {};
@@ -155,14 +160,16 @@ var EATT = (function() {
             cursor: row.cursor, week: row.week, day: row.day, wave: row.wave,
             cycleCount: row.cycle_count, savedAt: row.saved_at
         };
-        if (inputs.__extra) {
+        if (inputs.__extra && typeof inputs.__extra === 'object') {
             // Extras can never override the validated core fields.
             Object.keys(inputs.__extra).forEach(function(k) {
-                if (CORE_FIELDS.indexOf(k) < 0 && !/^(__proto__|constructor|prototype)$/.test(k)) p[k] = inputs.__extra[k];
+                if (CORE_FIELDS.indexOf(k) < 0 && !UNSAFE_KEY.test(k)) p[k] = inputs.__extra[k];
             });
-            p.inputs = Object.assign({}, inputs);
-            delete p.inputs.__extra;
         }
+        p.inputs = {};
+        Object.keys(inputs).forEach(function(k) {
+            if (k !== '__extra' && !UNSAFE_KEY.test(k)) p.inputs[k] = inputs[k];
+        });
         return p;
     }
 
@@ -287,6 +294,29 @@ var EATT = (function() {
         }).map(function(p) {
             p.name = String(p.name == null ? '' : p.name);
             ['cursor', 'week', 'day', 'wave', 'cycleCount', 'savedAt'].forEach(function(k) { p[k] = num(p[k]); });
+            if (!p.inputs || typeof p.inputs !== 'object') p.inputs = {};
+            if (p.amrapResults !== undefined) {
+                p.amrapResults = (Array.isArray(p.amrapResults) ? p.amrapResults : []).filter(function(r) {
+                    return r && typeof r === 'object' && typeof r.lift === 'string' && Number(r.weight) > 0 && Number(r.reps) > 0;
+                });
+            }
+            if (p.deloadEvents !== undefined && !Array.isArray(p.deloadEvents)) p.deloadEvents = [];
+            if (p.failStreaks !== undefined) {
+                var fs = {};
+                if (p.failStreaks && typeof p.failStreaks === 'object') {
+                    Object.keys(p.failStreaks).forEach(function(k) { if (!UNSAFE_KEY.test(k)) fs[k] = Number(p.failStreaks[k]) || 0; });
+                }
+                p.failStreaks = fs;
+            }
+            if (p.completed !== undefined && p.completed !== null) {
+                var c = p.completed;
+                if (!c || typeof c !== 'object' || !Array.isArray(c.results)) p.completed = null;
+                else {
+                    c.results = c.results.filter(function(r) { return r && typeof r === 'object' && typeof r.lift === 'string'; });
+                    if (c.recorded !== undefined && !Array.isArray(c.recorded)) delete c.recorded;
+                    if (Array.isArray(c.recorded)) c.recorded = c.recorded.filter(function(x) { return x && typeof x === 'object'; });
+                }
+            }
             return p;
         });
     }

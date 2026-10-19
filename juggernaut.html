@@ -598,7 +598,7 @@ function finishJugg(){
     var lastWave = waves.length - 1;
     var maxes = enteredMaxes();
     var finalSets = amrapResults.filter(function(r){ return r.wave === lastWave && r.week === 2; });
-    function describe(r){ return r.weight + ' × ' + r.reps + ' ' + weekNames[r.week] + ' AMRAP (' + waves[r.wave].name + ' wave)'; }
+    function describe(r){ return r.weight + ' × ' + r.reps + ' ' + weekNames[r.week] + ' AMRAP (' + (waves[r.wave] ? waves[r.wave].name : '?') + ' wave)'; }
     var results = liftNames.map(function(lift){
         return E1RM.pick(lift, finalSets, amrapResults, maxes[lift], describe);
     });
