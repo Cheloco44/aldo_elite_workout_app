@@ -22,6 +22,7 @@ var APP_SHELL = [
     'deckofcards.html',
     'nutrition.html',
     'eatt_save.js',
+    'eatt_1rm.js',
     'pwa.js',
     'manifest.webmanifest',
     'icons/icon-192.png',

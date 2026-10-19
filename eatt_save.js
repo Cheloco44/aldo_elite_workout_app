@@ -12,6 +12,8 @@ var EATT = (function() {
 
     var PROGRAMS_KEY = 'eatt_programs';  // array of saved program states
     var LOGS_KEY     = 'eatt_logs';
+    var MAX_PROGRAMS   = 3;     // Current Programs slots
+    var MAX_LOCAL_LOGS = 1000;  // device copy; the cloud keeps everything
 
     // ── Supabase ──────────────────────────────────────────────────────────────
     var SUPA_URL  = 'https://paecbytkqkhevexmfdmq.supabase.co';
@@ -48,7 +50,7 @@ var EATT = (function() {
     function syncFromCloud(userId) {
         return Promise.all([
             supa.from('eatt_program_state').select('*').eq('user_id', userId),
-            supa.from('workout_logs').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(200)
+            supa.from('workout_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(MAX_LOCAL_LOGS)
         ]).then(function(results) {
             var stateRes = results[0], logRes = results[1];
 
@@ -61,11 +63,15 @@ var EATT = (function() {
                     if (idx < 0) local.push(remote);
                     else if ((remote.savedAt || 0) > (local[idx].savedAt || 0)) local[idx] = remote;
                 });
-                localStorage.setItem(PROGRAMS_KEY, JSON.stringify(local.slice(0, 10)));
-                local.forEach(function(p) {
-                    var onServer = stateRes.data.some(function(row) { return row.prog_id === p.id; });
-                    if (!onServer) pushProgram(userId, p);
+                local.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+                var keep = local.slice(0, MAX_PROGRAMS);
+                localStorage.setItem(PROGRAMS_KEY, JSON.stringify(keep));
+                keep.forEach(function(p) {
+                    var row = stateRes.data.find(function(r) { return r.prog_id === p.id; });
+                    if (!row || (p.savedAt || 0) > (row.saved_at || 0)) pushProgram(userId, p);
                 });
+                // Programs that fell out of the slots (e.g. replaced on another device)
+                local.slice(MAX_PROGRAMS).forEach(function(p) { deleteCloudProgram(userId, p.id); });
             }
 
             if (!logRes.error && logRes.data) {
@@ -77,7 +83,7 @@ var EATT = (function() {
                     if (!haveKey[key]) { localLogs.push(rowToLog(row, key)); haveKey[key] = true; }
                 });
                 localLogs.sort(function(a, b) { return b.ts - a.ts; });
-                localStorage.setItem(LOGS_KEY, JSON.stringify(localLogs.slice(0, 200)));
+                localStorage.setItem(LOGS_KEY, JSON.stringify(localLogs.slice(0, MAX_LOCAL_LOGS)));
 
                 var onServerKey = {};
                 logRes.data.forEach(function(row) {
@@ -100,12 +106,29 @@ var EATT = (function() {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    // Page-specific extras (5x5 deloads/max tests, AMRAP results, ...) ride
+    // along inside the inputs jsonb, so they sync without new columns.
+    var CORE_FIELDS = ['id', 'name', 'page', 'inputs', 'cursor', 'week', 'day', 'wave', 'cycleCount', 'savedAt'];
+
     function rowToProgram(row) {
-        return {
-            id: row.prog_id, name: row.name, page: row.page, inputs: row.inputs,
+        var inputs = row.inputs || {};
+        var p = {
+            id: row.prog_id, name: row.name, page: row.page, inputs: inputs,
             cursor: row.cursor, week: row.week, day: row.day, wave: row.wave,
             cycleCount: row.cycle_count, savedAt: row.saved_at
         };
+        if (inputs.__extra) {
+            Object.keys(inputs.__extra).forEach(function(k) { p[k] = inputs.__extra[k]; });
+            p.inputs = Object.assign({}, inputs);
+            delete p.inputs.__extra;
+        }
+        return p;
+    }
+
+    function packInputs(state) {
+        var extra = {};
+        Object.keys(state).forEach(function(k) { if (CORE_FIELDS.indexOf(k) < 0) extra[k] = state[k]; });
+        return Object.keys(extra).length ? Object.assign({}, state.inputs, { __extra: extra }) : state.inputs;
     }
 
     function rowToLog(row, key) {
@@ -116,7 +139,7 @@ var EATT = (function() {
         if (!supa) return;
         supa.from('eatt_program_state').upsert({
             user_id: userId, prog_id: state.id, name: state.name, page: state.page,
-            inputs: state.inputs, cursor: state.cursor, week: state.week, day: state.day,
+            inputs: packInputs(state), cursor: state.cursor, week: state.week, day: state.day,
             wave: state.wave, cycle_count: state.cycleCount, saved_at: state.savedAt
         }, { onConflict: 'user_id,prog_id' }).then(function(res) {
             if (res.error) console.warn('EATT cloud save failed:', res.error.message);
@@ -133,6 +156,14 @@ var EATT = (function() {
         });
     }
 
+    function deleteCloudProgram(userId, progId) {
+        if (!supa) return;
+        supa.from('eatt_program_state').delete().eq('user_id', userId).eq('prog_id', progId)
+            .then(function(res) {
+                if (res.error) console.warn('EATT cloud delete failed:', res.error.message);
+            });
+    }
+
     function withUser(fn) {
         if (!supa) return;
         supa.auth.getSession().then(function(res) {
@@ -142,19 +173,33 @@ var EATT = (function() {
     }
 
     // ── Save a full program state ─────────────────────────────────────────────
+    // Pages call this when a workout is logged (and when a new cycle starts),
+    // so savedAt = "last logged" and cursor = where to resume.
+    // Keeps up to MAX_PROGRAMS. Saving another one asks to free the least
+    // recently logged slot; returns false if the user says no.
     function save(state) {
-        // state = { id, name, page, inputs, cursor, savedAt, cycleCount }
+        // state = { id, name, page, inputs, cursor, savedAt, cycleCount, ...extras }
         var programs = loadAll();
         var idx = programs.findIndex(function(p) { return p.id === state.id; });
         state.savedAt = Date.now();
         if (idx >= 0) {
             programs[idx] = state;
         } else {
+            if (programs.length >= MAX_PROGRAMS) {
+                programs.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+                var oldest = programs[programs.length - 1];
+                if (!confirm('You already have ' + MAX_PROGRAMS + ' current programs. Saving ' + state.name +
+                             ' will remove "' + oldest.name + '" (least recently logged) from Current Programs.' +
+                             ' Its logged workouts stay in Archives.\n\nContinue?')) return false;
+                deleteProgram(oldest.id);
+                programs = loadAll();
+            }
             programs.unshift(state);
         }
-        // Keep max 10 saved programs
-        localStorage.setItem(PROGRAMS_KEY, JSON.stringify(programs.slice(0, 10)));
+        programs.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+        localStorage.setItem(PROGRAMS_KEY, JSON.stringify(programs.slice(0, MAX_PROGRAMS)));
         withUser(function(userId) { pushProgram(userId, state); });
+        return true;
     }
 
     // ── Load all saved program states ─────────────────────────────────────────
@@ -173,13 +218,7 @@ var EATT = (function() {
     function deleteProgram(progId) {
         var programs = loadAll().filter(function(p) { return p.id !== progId; });
         localStorage.setItem(PROGRAMS_KEY, JSON.stringify(programs));
-        withUser(function(userId) {
-            if (!supa) return;
-            supa.from('eatt_program_state').delete().eq('user_id', userId).eq('prog_id', progId)
-                .then(function(res) {
-                    if (res.error) console.warn('EATT cloud delete failed:', res.error.message);
-                });
-        });
+        withUser(function(userId) { deleteCloudProgram(userId, progId); });
     }
 
     // ── Log a completed workout ───────────────────────────────────────────────
@@ -194,7 +233,7 @@ var EATT = (function() {
             exercises: exerciseList
         };
         logs.unshift(entry);
-        localStorage.setItem(LOGS_KEY, JSON.stringify(logs.slice(0, 200)));
+        localStorage.setItem(LOGS_KEY, JSON.stringify(logs.slice(0, MAX_LOCAL_LOGS)));
         withUser(function(userId) { pushLog(userId, entry); });
         return true;
     }
@@ -203,5 +242,40 @@ var EATT = (function() {
         try { return JSON.parse(localStorage.getItem(LOGS_KEY) || '[]'); } catch(e) { return []; }
     }
 
-    return { init: init, save: save, loadAll: loadAll, getMostRecent: getMostRecent, deleteProgram: deleteProgram, logWorkout: logWorkout, getLogs: getLogs };
+    // ── Full history for Archives: every logged workout in the cloud (paged),
+    //    merged with this device's copy. Falls back to local when offline.
+    function getAllLogs() {
+        var local = getLogs();
+        if (!supa) return Promise.resolve(local);
+        return init().then(function() { return supa.auth.getSession(); }).then(function(res) {
+            var session = res.data && res.data.session;
+            if (!session) return local;
+            var PAGE = 1000, rows = [];
+            function page(from) {
+                return supa.from('workout_logs').select('*').eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false }).range(from, from + PAGE - 1)
+                    .then(function(r) {
+                        if (r.error) throw r.error;
+                        rows = rows.concat(r.data);
+                        return r.data.length === PAGE ? page(from + PAGE) : rows;
+                    });
+            }
+            return page(0).then(function(all) {
+                var byKey = {};
+                local.forEach(function(l) { byKey[l.ts] = l; });
+                all.forEach(function(row) {
+                    var key = row.client_ts != null ? row.client_ts : Date.parse(row.created_at || row.date);
+                    if (!byKey[key]) byKey[key] = rowToLog(row, key);
+                });
+                return Object.keys(byKey).map(function(k) { return byKey[k]; })
+                    .sort(function(a, b) { return b.ts - a.ts; });
+            });
+        }).catch(function(err) {
+            console.warn('EATT archive fetch failed, showing this device only:', err && err.message || err);
+            return local;
+        });
+    }
+
+    return { init: init, save: save, loadAll: loadAll, getMostRecent: getMostRecent, deleteProgram: deleteProgram,
+             logWorkout: logWorkout, getLogs: getLogs, getAllLogs: getAllLogs, MAX_PROGRAMS: MAX_PROGRAMS };
 })();
