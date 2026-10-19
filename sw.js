@@ -7,7 +7,7 @@
 // Prefix scopes cleanup to THIS app's caches: other sites on the same origin
 // (e.g. the staging copy on cheloco44.github.io) keep their own.
 var CACHE_PREFIX = 'eatt-app-';
-var CACHE = CACHE_PREFIX + 'v1';
+var CACHE = CACHE_PREFIX + 'v2';
 
 var APP_SHELL = [
     './',
@@ -26,7 +26,7 @@ var APP_SHELL = [
     'manifest.webmanifest',
     'icons/icon-192.png',
     'icons/icon-512.png',
-    'images/gorillavsbull.png',
+    'images/gorillavsbull.webp',
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'
 ];
 
