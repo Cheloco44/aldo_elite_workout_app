@@ -40,6 +40,38 @@ var E1RM = (function() {
         return best;
     }
 
+    // The one rule every program uses for its end-of-program number:
+    //   1. best set logged in the FINAL block (last wave / last cycle) — current evidence
+    //   2. else a set from earlier in the program, but only if it beats the max the
+    //      user started this cycle with (proof of improvement)
+    //   3. else the starting max carries over — never a projection, so an
+    //      unlogged program can't inflate (or deflate) next cycle's numbers.
+    // finalSets/allSets: [{ lift, weight, reps, ... }]; startMax: the 1RM entered
+    // for this cycle; describe(set) → e.g. "225 × 8 AMRAP (wave 3)".
+    // Returns { lift, e1rm, detail, source: 'final' | 'earlier' | 'carried' }.
+    function pick(lift, finalSets, allSets, startMax, describe) {
+        describe = describe || function(s) { return s.weight + ' × ' + s.reps; };
+        function bestSet(sets) {
+            var best = null;
+            (sets || []).forEach(function(s) {
+                if (s.lift !== lift) return;
+                var e = epley(s.weight, s.reps);
+                if (e != null && (!best || e > best.e1rm)) best = { e1rm: e, set: s };
+            });
+            return best;
+        }
+        var f = bestSet(finalSets);
+        if (f) return { lift: lift, e1rm: f.e1rm, detail: describe(f.set), source: 'final' };
+        var start = round5(Number(startMax) || 0);
+        var a = bestSet(allSets);
+        if (a && a.e1rm > start) {
+            return { lift: lift, e1rm: a.e1rm, source: 'earlier',
+                     detail: describe(a.set) + ' — earlier in the program; log final-block reps for a current estimate' };
+        }
+        return { lift: lift, e1rm: start, source: 'carried',
+                 detail: 'no reps logged in the final block — starting max carried over' };
+    }
+
     // HTML for a "reps done" box on an AMRAP / top set. `id` must be unique on
     // the page; read it back with readReps(id).
     function repsInput(id, value) {
@@ -125,5 +157,5 @@ var E1RM = (function() {
         document.head.appendChild(css);
     })();
 
-    return { epley: epley, bestByLift: bestByLift, repsInput: repsInput, readReps: readReps, finish: finish, showSummary: showSummary };
+    return { epley: epley, bestByLift: bestByLift, pick: pick, repsInput: repsInput, readReps: readReps, finish: finish, showSummary: showSummary };
 })();

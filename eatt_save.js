@@ -12,6 +12,8 @@ var EATT = (function() {
 
     var PROGRAMS_KEY = 'eatt_programs';  // array of saved program states
     var LOGS_KEY     = 'eatt_logs';
+    var SYNC_KEY     = PROGRAMS_KEY + '_lastsync';  // when this device last merged with the cloud
+    var DELETED_KEY  = PROGRAMS_KEY + '_deleted';   // deletes not yet confirmed by the cloud
     var MAX_PROGRAMS   = 3;     // Current Programs slots
     var MAX_LOCAL_LOGS = 1000;  // device copy; the cloud keeps everything
 
@@ -50,28 +52,13 @@ var EATT = (function() {
     function syncFromCloud(userId) {
         return Promise.all([
             supa.from('eatt_program_state').select('*').eq('user_id', userId),
-            supa.from('workout_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(MAX_LOCAL_LOGS)
+            supa.from('workout_logs').select('*').eq('user_id', userId)
+                .order('client_ts', { ascending: false, nullsFirst: false }).limit(MAX_LOCAL_LOGS)
         ]).then(function(results) {
             var stateRes = results[0], logRes = results[1];
 
             if (!stateRes.error && stateRes.data) {
-                var local = loadAll();
-                stateRes.data.forEach(function(row) {
-                    if (!SAFE_ID.test(row.prog_id || '') || !SAFE_PAGE.test(row.page || '')) return;
-                    var remote = rowToProgram(row);
-                    var idx = local.findIndex(function(p) { return p.id === remote.id; });
-                    if (idx < 0) local.push(remote);
-                    else if ((remote.savedAt || 0) > (local[idx].savedAt || 0)) local[idx] = remote;
-                });
-                local.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
-                var keep = local.slice(0, MAX_PROGRAMS);
-                localStorage.setItem(PROGRAMS_KEY, JSON.stringify(keep));
-                keep.forEach(function(p) {
-                    var row = stateRes.data.find(function(r) { return r.prog_id === p.id; });
-                    if (!row || (p.savedAt || 0) > (row.saved_at || 0)) pushProgram(userId, p);
-                });
-                // Programs that fell out of the slots (e.g. replaced on another device)
-                local.slice(MAX_PROGRAMS).forEach(function(p) { deleteCloudProgram(userId, p.id); });
+                mergePrograms(userId, stateRes.data);
             }
 
             if (!logRes.error && logRes.data) {
@@ -85,21 +72,67 @@ var EATT = (function() {
                 localLogs.sort(function(a, b) { return b.ts - a.ts; });
                 localStorage.setItem(LOGS_KEY, JSON.stringify(localLogs.slice(0, MAX_LOCAL_LOGS)));
 
+                // Only push what's newer than the cloud window we fetched, so old
+                // local logs outside it aren't re-inserted on every load.
+                var oldestFetched = logRes.data.length >= MAX_LOCAL_LOGS
+                    ? logRes.data[logRes.data.length - 1].client_ts || 0 : 0;
                 var onServerKey = {};
                 logRes.data.forEach(function(row) {
                     onServerKey[row.client_ts != null ? row.client_ts : Date.parse(row.created_at || row.date)] = true;
                 });
                 localLogs.forEach(function(l) {
-                    if (!onServerKey[l.ts]) pushLog(userId, l);
+                    if (!onServerKey[l.ts] && l.ts > oldestFetched) pushLog(userId, l);
                 });
             }
         });
     }
 
+    // Programs: newer copy wins. A program this device has but the cloud doesn't
+    // is either new here since the last sync (push it) or was deleted on another
+    // device (drop it). Sync itself never deletes cloud rows — only an explicit
+    // delete/replace does — so one device can't silently remove another's program.
+    function mergePrograms(userId, rows) {
+        var lastSync = Number(localStorage.getItem(SYNC_KEY)) || 0;
+        var deleted = getDeleted();
+        var local = loadAll();
+        var merged = [], seen = {};
+
+        rows.forEach(function(row) {
+            if (!SAFE_ID.test(row.prog_id || '') || APP_PAGES.indexOf(row.page) < 0) return;
+            if (deleted[row.prog_id] && deleted[row.prog_id] >= (row.saved_at || 0)) {
+                deleteCloudProgram(userId, row.prog_id);   // a delete that didn't reach the cloud yet
+                return;
+            }
+            var remote = rowToProgram(row);
+            var mine = local.find(function(p) { return p.id === remote.id; });
+            var winner = mine && (mine.savedAt || 0) > (remote.savedAt || 0) ? mine : remote;
+            if (winner === mine) pushProgram(userId, mine);
+            merged.push(winner);
+            seen[remote.id] = true;
+        });
+        local.forEach(function(p) {
+            if (seen[p.id]) return;
+            if ((p.savedAt || 0) > lastSync) { merged.push(p); pushProgram(userId, p); }
+        });
+
+        merged.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+        localStorage.setItem(PROGRAMS_KEY, JSON.stringify(merged.slice(0, MAX_PROGRAMS)));
+        localStorage.setItem(SYNC_KEY, String(Date.now()));
+    }
+
+    function getDeleted() {
+        try { return JSON.parse(localStorage.getItem(DELETED_KEY) || '{}') || {}; } catch(e) { return {}; }
+    }
+
+    function setDeleted(progId, at) {
+        var d = getDeleted();
+        if (at) d[progId] = at; else delete d[progId];
+        localStorage.setItem(DELETED_KEY, JSON.stringify(d));
+    }
+
     // Program ids/pages end up in links and onclick handlers, so only accept
     // the shapes the app itself produces.
     var SAFE_ID   = /^[\w-]+$/;
-    var SAFE_PAGE = /^[\w-]+\.html$/;
 
     function localISODate() {
         var d = new Date();
@@ -151,12 +184,18 @@ var EATT = (function() {
 
     function pushLog(userId, log) {
         if (!supa) return;
-        supa.from('workout_logs').insert({
+        var row = {
             user_id: userId, date: log.date, program_name: log.program,
             session_name: log.session, exercises: log.exercises, client_ts: log.ts
-        }).then(function(res) {
-            if (res.error) console.warn('EATT cloud log failed:', res.error.message);
-        });
+        };
+        supa.from('workout_logs').upsert(row, { onConflict: 'user_id,client_ts', ignoreDuplicates: true })
+            .then(function(res) {
+                // 42P10 = the unique index isn't there yet (03 migration not run): plain insert
+                if (res.error && res.error.code === '42P10') return supa.from('workout_logs').insert(row);
+                return res;
+            }).then(function(res) {
+                if (res && res.error) console.warn('EATT cloud log failed:', res.error.message);
+            });
     }
 
     function deleteCloudProgram(userId, progId) {
@@ -164,6 +203,7 @@ var EATT = (function() {
         supa.from('eatt_program_state').delete().eq('user_id', userId).eq('prog_id', progId)
             .then(function(res) {
                 if (res.error) console.warn('EATT cloud delete failed:', res.error.message);
+                else setDeleted(progId, null);
             });
     }
 
@@ -173,6 +213,21 @@ var EATT = (function() {
             var session = res.data && res.data.session;
             if (session) fn(session.user.id);
         });
+    }
+
+    var declined = {};
+
+    function showNotSavedBanner(name) {
+        if (document.getElementById('eattNotSaved')) return;
+        var b = document.createElement('div');
+        b.id = 'eattNotSaved';
+        b.setAttribute('role', 'status');
+        b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;background:#3a1d1d;' +
+            'border:1px solid #ff6b6b;color:#fff;border-radius:12px;padding:12px 14px;font-size:0.82rem;' +
+            'box-shadow:0 8px 30px rgba(0,0,0,.5)';
+        b.textContent = 'Progress on ' + name + ' is not being saved: Current Programs is full (' + MAX_PROGRAMS +
+            '). Workouts you log still go to Archives. Remove a program under My Programs to save this one.';
+        document.body.appendChild(b);
     }
 
     // ── Save a full program state ─────────────────────────────────────────────
@@ -191,9 +246,14 @@ var EATT = (function() {
             if (programs.length >= MAX_PROGRAMS) {
                 programs.sort(function(a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
                 var oldest = programs[programs.length - 1];
+                if (declined[state.id]) return false;
                 if (!confirm('You already have ' + MAX_PROGRAMS + ' current programs. Saving ' + state.name +
                              ' will remove "' + oldest.name + '" (least recently logged) from Current Programs.' +
-                             ' Its logged workouts stay in Archives.\n\nContinue?')) return false;
+                             ' Its logged workouts stay in Archives.\n\nContinue?')) {
+                    declined[state.id] = true;   // don't ask again on every log this visit
+                    showNotSavedBanner(state.name);
+                    return false;
+                }
                 deleteProgram(oldest.id);
                 programs = loadAll();
             }
@@ -237,6 +297,7 @@ var EATT = (function() {
     function deleteProgram(progId) {
         var programs = loadAll().filter(function(p) { return p.id !== progId; });
         localStorage.setItem(PROGRAMS_KEY, JSON.stringify(programs));
+        setDeleted(progId, Date.now());
         withUser(function(userId) { deleteCloudProgram(userId, progId); });
     }
 
@@ -272,11 +333,13 @@ var EATT = (function() {
             var PAGE = 1000, rows = [];
             function page(from) {
                 return supa.from('workout_logs').select('*').eq('user_id', session.user.id)
-                    .order('created_at', { ascending: false }).range(from, from + PAGE - 1)
+                    .order('created_at', { ascending: false }).order('id', { ascending: true })
+                    .range(from, from + PAGE - 1)
                     .then(function(r) {
                         if (r.error) throw r.error;
                         rows = rows.concat(r.data);
-                        return r.data.length === PAGE ? page(from + PAGE) : rows;
+                        // the server may cap pages below PAGE, so stop only on an empty page
+                        return r.data.length ? page(from + r.data.length) : rows;
                     });
             }
             return page(0).then(function(all) {

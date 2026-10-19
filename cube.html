@@ -119,6 +119,9 @@ td.perf-row { padding: 6px 10px 12px; }
 .day-footer { padding: 12px 14px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); }
 .btn-log { background: rgba(56,239,157,0.12); border: 1px solid rgba(56,239,157,0.35); color: #38ef9d; padding: 8px 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
 .btn-log:hover { background: rgba(56,239,157,0.22); }
+.finish-bar { margin-top: 14px; }
+.finish-bar:empty { display: none; }
+.finish-bar .complete-note { font-size: 0.8rem; font-weight: 700; color: #ffd200; margin-right: 8px; }
 .logged-tag { font-size: 0.72rem; font-weight: 700; color: #38ef9d; margin-left: 6px; }
 
 @media (max-width:600px) {
@@ -223,6 +226,7 @@ td.perf-row { padding: 6px 10px 12px; }
     <br><br>
     <button class="btn btn-sm" onclick="resetSetup()" style="color:#111">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleCube()">&#x21bb; Shuffle Accessories</button>
+    <div class="finish-bar" id="finishBar"></div>
     <div class="jump-toggle">
         <span class="jump-toggle-label">⚡ Push It Today</span>
         <div class="jump-toggle-options">
@@ -292,15 +296,21 @@ function getInputs() {
 //   amrapResults: [{ lift, weight, reps, week, mode, ts }] — heavy-day top sets
 //                 and rep-day sets, used for the end-of-program e1RM.
 //   loggedLifts:  { "<week>": ["Squat", ...] } — which lifts were logged per week.
+//   completed:    { cycle, at, results } once the e1RM summary has been produced.
 var amrapResults = [];
 var loggedLifts  = {};
 var repsDraft    = {}; // typed-but-unlogged reps, so re-renders don't wipe them
+var completed    = null;
+var savedWeek    = 1;  // resume week — only ever moves forward
+var runCount     = 1;  // how many times this program has been run (saved as cycleCount)
+var nextRunCount = 0;
 
-function saveProgress(weekOverride) {
-    var wi = weekOverride || parseInt(document.getElementById('weekSel').value) || 1;
+// Saving can return false (user declined to free a slot); eatt_save.js shows
+// its own notice, so callers just carry on.
+function saveProgress() {
     return EATT.save({ id: PROG_ID, name: 'Cube Method', page: 'cube.html',
-        inputs: getInputs(), week: wi, savedAt: Date.now(),
-        amrapResults: amrapResults, loggedLifts: loggedLifts });
+        inputs: getInputs(), week: savedWeek, cycleCount: runCount, savedAt: Date.now(),
+        amrapResults: amrapResults, loggedLifts: loggedLifts, completed: completed });
 }
 
 function loadProgress() {
@@ -317,9 +327,12 @@ function restoreFromSave(state) {
     amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
     loggedLifts  = (state.loggedLifts && typeof state.loggedLifts === 'object') ? state.loggedLifts : {};
     repsDraft    = {};
+    completed    = (state.completed && Array.isArray(state.completed.results)) ? state.completed : null;
+    savedWeek    = Math.min(Math.max(parseInt(state.week) || 1, 1), parseInt(inp.numWeeks) || 12);
+    runCount     = state.cycleCount || 1;
     generateProgram();
     var ws = document.getElementById('weekSel');
-    if (ws && state.week) { ws.value = state.week; ws.dispatchEvent(new Event('change')); }
+    if (ws && state.week) { ws.value = savedWeek; ws.dispatchEvent(new Event('change')); }
     else resetDayBoost();
 }
 
@@ -376,6 +389,10 @@ function dismissPopup(){
     amrapResults = [];
     loggedLifts  = {};
     repsDraft    = {};
+    completed    = null;
+    savedWeek    = 1;
+    runCount     = nextRunCount || 1; // "Start next Cube" carries the run count forward
+    nextRunCount = 0;
     generateProgram();
 }
 
@@ -506,6 +523,32 @@ function renderWeek(){
             (logged ? '✓ Log Again' : '✓ Log ' + l.name) + '</button></div>';
         grid.appendChild(card);
     });
+    renderFinishBar(week);
+}
+
+// Completed → "view results" banner. Final cycle, not completed → "Finish
+// program" (covers a skipped lift in the final week). Otherwise nothing.
+function renderFinishBar(week){
+    var bar   = document.getElementById("finishBar");
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+    if (completed) {
+        bar.innerHTML = '<span class="complete-note">🏆 Program complete</span>' +
+                        '<button class="btn-log" onclick="viewResults()">View results</button>';
+    } else if (week > weeks - 3) {
+        bar.innerHTML = '<button class="btn-log" onclick="finishEarly()">🏁 Finish program</button>';
+    } else {
+        bar.innerHTML = '';
+    }
+}
+
+function viewResults(){
+    if (completed) E1RM.showSummary(completed.results, finishOpts(completed.results));
+}
+
+function finishEarly(){
+    if (completed) return viewResults();
+    if (!confirm('Finish the Cube now and calculate your estimated 1RMs? Lifts you haven\'t logged won\'t count.')) return;
+    finishProgram();
 }
 
 // Keep typed reps across re-renders (boost toggle, shuffle).
@@ -522,86 +565,97 @@ function logDayCube(key){
     var weeks    = parseInt(document.getElementById("numWeeks").value) || 12;
     var reps     = E1RM.readReps('reps-' + key);
 
+    // Archive schema: weight is a number (lbs), target = prescribed reps,
+    // repsDone only when entered. Never a `reps` field (Archives reads repsDone).
     var exList = mainSets(baseTms[key], mode, wi).map(function(s){
-        var ex = { name: liftName, type: 'main', mode: mode, set: s.label, scheme: s.label + ' ' + s.scheme,
-                   sets: s.sets, reps: s.reps, weight: s.weight + ' lbs' + (s.pct ? ' (' + s.pct + '%)' : '') };
-        if (s.perf && reps != null) {
-            ex.repsDone = reps;
-            ex.scheme  += ' · ' + reps + ' reps done';
-            amrapResults.push({ lift: liftName, weight: s.weight, reps: reps, week: wi, mode: mode, ts: Date.now() });
-        }
+        var ex = { name: liftName, type: 'main', mode: mode, scheme: s.label + ' · ' + s.scheme,
+                   weight: s.weight, target: String(s.reps) };
+        if (s.pct) ex.pct = s.pct;
+        if (s.perf && reps != null) ex.repsDone = reps;
         return ex;
     });
     var accIntensity = accIntensityFor(mode);
     getAccs(key).forEach(function(acc){
-        exList.push({ name: acc[0], type: 'accessory', scheme: acc[1], weight: accIntensity });
+        exList.push({ name: acc[0], type: 'accessory', mode: mode, scheme: acc[1] + ' · ' + accIntensity, target: acc[1] });
     });
+
+    // "Log Again" replaces this week's entry for the lift (fixes typos).
+    amrapResults = amrapResults.filter(function(r){ return !(r.week === wi && r.lift === liftName); });
+    var perfSet = mainSets(baseTms[key], mode, wi).filter(function(s){ return s.perf; })[0];
+    if (perfSet && reps != null) {
+        amrapResults.push({ lift: liftName, weight: perfSet.weight, reps: reps, week: wi, mode: mode, ts: Date.now() });
+    }
 
     var sessionName = 'Week ' + wi + ' · ' + mode + ' Day — ' + liftName;
     var ok = logWorkout('Cube Method', sessionName, exList);
     var btn = document.getElementById('logbtn-' + liftName);
     if(btn) flashBtn(btn, ok);
 
-    // Resume tracking: once all three lifts of this week are in, move on.
+    // Resume tracking: once all three lifts of a week are in, resume on the
+    // next week — but never move the saved week backwards (re-logging an
+    // earlier week).
     var wasComplete = (loggedLifts[wi] || []).length >= 3;
     if (!isLogged(wi, liftName)) loggedLifts[wi] = (loggedLifts[wi] || []).concat(liftName);
     delete repsDraft['reps-' + key];
     var weekDone = loggedLifts[wi].length >= 3;
+    var before   = savedWeek;
+    savedWeek    = Math.max(savedWeek, weekDone && wi < weeks ? wi + 1 : wi);
+    saveProgress();
 
-    if (weekDone && !wasComplete && wi < weeks) {
-        saveProgress(wi + 1); // Current Programs resumes on the next unlogged week
+    if (weekDone && !wasComplete && wi === weeks && !completed) {
+        setTimeout(renderWeek, 1500);
+        setTimeout(finishProgram, 1600);
+    } else if (weekDone && !wasComplete && savedWeek > before && savedWeek > wi) {
         setTimeout(function(){
             var ws = document.getElementById("weekSel");
-            ws.value = wi + 1;
+            ws.value = savedWeek;
             changeDay();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 1500);
     } else {
-        saveProgress(wi);
         setTimeout(renderWeek, 1500); // show the ✓ LOGGED state
-        if (weekDone && !wasComplete && wi === weeks) setTimeout(finishProgram, 1600);
     }
 }
 
-// End of program: one e1RM per lift. Prefer sets from the final cycle (the
-// peak), then anything logged, then a projection from the entered numbers.
-function finishProgram(){
-    var weeks      = parseInt(document.getElementById("numWeeks").value) || 12;
-    var useTM      = document.getElementById("useTM").checked;
-    var finalStart = weeks - 2;
-    function best(liftName, fromWeek){
-        var top = null;
-        amrapResults.forEach(function(r){
-            if (r.lift !== liftName || r.week < fromWeek) return;
-            var e = E1RM.epley(r.weight, r.reps);
-            if (e != null && (!top || e > top.e1rm)) top = { e1rm: e, r: r };
-        });
-        return top;
-    }
-    var results = ["squat", "bench", "dead"].map(function(key){
-        var liftName = LIFT_NAMES[key];
-        var b = best(liftName, finalStart) || best(liftName, 1);
-        if (b) {
-            return { lift: liftName, e1rm: b.e1rm,
-                     detail: b.r.weight + ' × ' + b.r.reps + ' ' + String(b.r.mode).toLowerCase() + ' day (week ' + b.r.week + ')' };
-        }
-        // baseTms is the cycle-1 TM (before Cube's +10%/cycle loading jumps)
-        var proj = useTM ? Math.round(baseTms[key] / 0.9 / 5) * 5 : baseTms[key];
-        return { lift: liftName, e1rm: proj, detail: 'projected — log your reps for a real estimate' };
-    });
-    E1RM.finish(results, {
+function finishOpts(results){
+    var weeks = parseInt(document.getElementById("numWeeks").value) || 12;
+    return {
         program:   'Cube Method',
         length:    weeks + ' weeks · ' + (weeks / 3) + ' cycles',
-        note:      'Run it again: your new estimated maxes will be filled in as the starting numbers.',
+        note:      'Start next Cube to run it again with these as your starting maxes.',
         nextLabel: 'Start next Cube',
         onNext:    function(){
             document.getElementById('squat1rm').value = results[0].e1rm;
             document.getElementById('bench1rm').value = results[1].e1rm;
             document.getElementById('dead1rm').value  = results[2].e1rm;
+            nextRunCount = runCount + 1;
             resetSetup();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    };
+}
+
+// End of program (final lift of the final week logged, or "Finish program"):
+// one e1RM per lift via the shared E1RM.pick rule — final-cycle sets, else an
+// earlier set that beats the entered max, else the entered max carries over.
+// Runs once per program; afterwards the banner re-shows the stored results.
+function finishProgram(){
+    if (completed) return viewResults();
+    var weeks      = parseInt(document.getElementById("numWeeks").value) || 12;
+    var finalStart = weeks - 2;
+    var entered    = getInputs();
+    var finalSets  = amrapResults.filter(function(r){ return r.week >= finalStart; });
+    function describe(s){
+        return s.weight + ' × ' + s.reps + ' ' + String(s.mode).toLowerCase() + ' day (week ' + s.week + ')';
+    }
+    var results = ["squat", "bench", "dead"].map(function(key){
+        var r = E1RM.pick(LIFT_NAMES[key], finalSets, amrapResults, entered[key], describe);
+        return { lift: r.lift, e1rm: r.e1rm, detail: r.detail, source: r.source };
     });
+    completed = { cycle: runCount, at: Date.now(), results: results };
+    saveProgress();
+    renderFinishBar(parseInt(document.getElementById("weekSel").value) || 1);
+    E1RM.finish(results, finishOpts(results));
 }
 
 function shuffleCube(){

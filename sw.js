@@ -7,7 +7,7 @@
 // Prefix scopes cleanup to THIS app's caches: other sites on the same origin
 // (e.g. the staging copy on cheloco44.github.io) keep their own.
 var CACHE_PREFIX = 'eatt-app-';
-var CACHE = CACHE_PREFIX + 'v2';
+var CACHE = CACHE_PREFIX + 'v3';
 
 var APP_SHELL = [
     './',
@@ -33,7 +33,10 @@ var APP_SHELL = [
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
-        caches.open(CACHE).then(function(cache) { return cache.addAll(APP_SHELL); })
+        caches.open(CACHE).then(function(cache) {
+            // bypass the HTTP cache so one install never mixes old and new files
+            return cache.addAll(APP_SHELL.map(function(u) { return new Request(u, { cache: 'reload' }); }));
+        })
             .then(function() { return self.skipWaiting(); })
     );
 });

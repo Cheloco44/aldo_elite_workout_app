@@ -220,6 +220,10 @@ tr:hover { background: rgba(255,255,255,0.06); }
     <button class="btn btn-sm" onclick="resetSetup()">&larr; New Program</button>
         <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleJugg()">&#x21bb; Shuffle Accessories</button>
         <button class="btn-shuffle" id="logBtn" onclick="logDayJugg()">&#x2713; Log This Day</button>
+        <button class="btn-shuffle" id="finishBtn" onclick="finishEarlyJugg()" style="display:none">&#x1F3C6; Finish Program</button>
+    <div id="completeBanner" style="display:none;margin-top:14px">
+        <button class="btn-shuffle" onclick="showCompletedJugg()" style="color:#ffd700;border-color:rgba(255,215,0,0.5)">&#x1F3C6; Program complete — view results</button>
+    </div>
     <div class="jump-toggle">
         <span class="jump-toggle-label">⚡ Push It Today</span>
         <div class="jump-toggle-options">
@@ -257,6 +261,9 @@ var SESSIONS = 64;
 var cursor  = 0;
 var amrapResults = []; // [{ lift, weight, reps, wave, week, ts }] — wave/week are 0-based
 var cycleCount = 1;
+var completed = null;  // { cycle, at, results } once this cycle's e1RM summary was written
+
+function isCompleted() { return !!(completed && completed.cycle === (cycleCount || 1)); }
 
 function sessionIndex(wi, wki, di) { return wi * 16 + wki * 4 + di; }
 function sessionPos(idx) { return { wave: Math.floor(idx / 16), week: Math.floor(idx / 4) % 4, day: idx % 4 }; }
@@ -288,7 +295,7 @@ function saveProgress() {
     var pos = sessionPos(cursor);
     return EATT.save({ id: PROG_ID, name: 'Juggernaut Method', page: 'juggernaut.html',
         inputs: getInputs(), cursor: cursor, wave: pos.wave, week: pos.week, day: pos.day,
-        cycleCount: cycleCount, amrapResults: amrapResults.slice(), savedAt: Date.now() });
+        cycleCount: cycleCount, amrapResults: amrapResults.slice(), completed: completed, savedAt: Date.now() });
 }
 
 function loadProgress() {
@@ -304,6 +311,8 @@ function restoreFromSave(state) {
     if (inp.useTM !== undefined) document.getElementById('useTM').checked = inp.useTM;
     amrapResults = Array.isArray(state.amrapResults) ? state.amrapResults : [];
     cycleCount   = state.cycleCount || 1;
+    completed    = (state.completed && state.completed.cycle === cycleCount && Array.isArray(state.completed.results))
+                   ? state.completed : null;
     if (typeof state.cursor === 'number') cursor = state.cursor;
     else cursor = sessionIndex(state.wave || 0, state.week || 0, state.day || 0); // older saves: wave/day only
     cursor = Math.max(0, Math.min(SESSIONS - 1, cursor || 0));
@@ -395,6 +404,7 @@ function dismissPopup(){
     cursor = 0;
     amrapResults = [];
     cycleCount = 1;
+    completed = null;
     setSelectors(0);
     resetDayBoost();
     generateProgram();
@@ -503,6 +513,15 @@ function renderTable(){
     var waveDesc = ["Build volume & muscle with 10s","Transition heavier with 8s","Pure strength with 5s","Peak intensity with 3s"];
     var boostTag = dayBoost ? ' &nbsp;|&nbsp; <span class="boost-tag">+' + Math.round(dayBoost*100) + '% today</span>' : '';
     banner.innerHTML = '🌊 <strong>Wave '+(wi+1)+' — '+wave.name+'</strong> &nbsp;|&nbsp; <strong>'+weekNames[wki]+'</strong> &nbsp;|&nbsp; <strong>'+lift+'</strong> Day &nbsp;|&nbsp; <span style="opacity:0.7">'+waveDesc[wi]+'</span>' + boostTag;
+    updateFinishUi();
+}
+
+// "Finish program" while the resume point is in wave 4 and the cycle isn't done;
+// "Program complete — view results" once it is.
+function updateFinishUi(){
+    var done = isCompleted();
+    document.getElementById('finishBtn').style.display = (!done && sessionPos(cursor).wave === waves.length - 1) ? '' : 'none';
+    document.getElementById('completeBanner').style.display = done ? 'block' : 'none';
 }
 
 function logDayJugg(){
@@ -510,77 +529,101 @@ function logDayJugg(){
     var wki = parseInt(document.getElementById("weekSel").value)||0;
     var di = parseInt(document.getElementById("daySel").value)||0;
     var idx = sessionIndex(wi, wki, di);
+    var inOrder = idx === cursor;   // logging the resume session, i.e. reached in order
     var lift = liftNames[di];
     var sessionName = 'Wave ' + (wi+1) + ' (' + waves[wi].name + ') · ' + weekNames[wki] + ' · ' + lift;
     var amrapReps = E1RM.readReps('amrapReps');
     var accIntensity = ["Push Hard", "Moderate", "Light", "Light — Recovery"];
 
+    // Shared Archives schema: name, type, scheme, weight (number, lbs), pct,
+    // target (prescribed reps text), repsDone (only when entered)
     var exList = mainSets(wi, wki, waveTm(lift, wi, dayBoost)).map(function(s){
         var ex = { name: lift, type: s.amrap ? 'amrap' : (s.label === 'Warm-up' ? 'warmup' : 'main'),
-                   scheme: s.scheme, sets: s.sets, reps: s.reps, weight: s.weight, pct: s.pct, amrap: s.amrap };
-        if (s.amrap) { ex.target = s.reps; ex.reps = amrapReps; }
+                   scheme: s.scheme, weight: s.weight, pct: s.pct, target: String(s.reps) };
+        if (s.amrap && amrapReps) ex.repsDone = amrapReps;
         return ex;
     });
     getAccs(di).forEach(function(acc){
-        exList.push({ name: acc[0], type: 'accessory', scheme: acc[1], intensity: accIntensity[wki] });
+        exList.push({ name: acc[0], type: 'accessory', scheme: acc[1] + ' · ' + accIntensity[wki] });
     });
 
     exList.forEach(function(ex){
-        if (!ex.amrap || !amrapReps) return;
+        if (ex.type !== 'amrap' || !ex.repsDone) return;
         // Re-logging the same session replaces its earlier AMRAP result
         amrapResults = amrapResults.filter(function(r){ return !(r.lift === lift && r.wave === wi && r.week === wki); });
-        amrapResults.push({ lift: lift, weight: ex.weight, reps: amrapReps, wave: wi, week: wki, ts: Date.now() });
+        amrapResults.push({ lift: lift, weight: ex.weight, reps: ex.repsDone, wave: wi, week: wki, ts: Date.now() });
     });
 
     var btn = document.getElementById('logBtn');
     var ok = logWorkout('Juggernaut Method', sessionName, exList);
-    // Resume point = next unlogged session (never moves backwards when an
-    // earlier day is re-logged; stays on the last session once it's done).
-    cursor = Math.max(cursor, Math.min(idx + 1, SESSIONS - 1));
+    // Resume point only advances when the resume session itself is logged;
+    // back-filling or jumping ahead leaves it where it is.
+    if (ok && inOrder) cursor = Math.min(idx + 1, SESSIONS - 1);
     saveProgress();
     flashBtn(btn, ok);
-    if (idx === SESSIONS - 1) {
-        finishJugg();
-    } else if (cursor !== idx) {
+    if (ok && inOrder && idx === SESSIONS - 1) {
+        if (!isCompleted()) finishJugg();
+        updateFinishUi();
+    } else if (ok && inOrder) {
+        updateFinishUi();
         setTimeout(function() { setSelectors(cursor); resetDayBoost(); renderTable(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 1500);
+    } else {
+        updateFinishUi();
     }
 }
 
-// Final session logged → estimated 1RM per lift for the "Program complete" summary
-function finishJugg(){
-    var useTM = document.getElementById('useTM').checked;
-    var lastWave = waves.length - 1;
-    var results = liftNames.map(function(lift){
-        function best(filter){
-            var b = null;
-            amrapResults.forEach(function(r){
-                if (r.lift !== lift || !filter(r)) return;
-                var e = E1RM.epley(r.weight, r.reps);
-                if (e != null && (!b || e > b.e1rm)) b = { e1rm: e, r: r };
-            });
-            return b;
-        }
-        var b = best(function(r){ return r.wave === lastWave && r.week === 2; }) || best(function(){ return true; });
-        if (b) return { lift: lift, e1rm: b.e1rm,
-            detail: b.r.weight + ' × ' + b.r.reps + ' ' + weekNames[b.r.week] + ' AMRAP (' + waves[b.r.wave].name + ' wave)' };
-        var tm = waveTm(lift, lastWave, 0);
-        return { lift: lift, e1rm: round5(useTM ? tm / 0.9 : tm), detail: 'projected — log AMRAP reps for a real estimate' };
-    });
-    E1RM.finish(results, {
+// The maxes the user entered for this cycle (raw 1RMs, not training maxes)
+function enteredMaxes(){
+    var inp = getInputs();
+    return { Squat: inp.squat, Bench: inp.bench, Deadlift: inp.deadlift, OHP: inp.ohp };
+}
+
+function juggSummaryOpts(results){
+    return {
         program: 'Juggernaut Method',
         length: '4 waves · 16 weeks',
-        note: 'Start a new cycle with these as your maxes' + (useTM ? ' (90% training max applied).' : '.'),
+        note: 'Start a new cycle with these as your maxes' + (document.getElementById('useTM').checked ? ' (90% training max applied).' : '.'),
         nextLabel: 'Start next cycle',
         onNext: function(){ startNextCycle(results); }
+    };
+}
+
+// End of cycle → estimated 1RM per lift via the shared rule (E1RM.pick).
+// Writes Archives once per cycle; afterwards it only re-shows the summary.
+function finishJugg(){
+    if (isCompleted()) { showCompletedJugg(); return; }
+    var lastWave = waves.length - 1;
+    var maxes = enteredMaxes();
+    var finalSets = amrapResults.filter(function(r){ return r.wave === lastWave && r.week === 2; });
+    function describe(r){ return r.weight + ' × ' + r.reps + ' ' + weekNames[r.week] + ' AMRAP (' + waves[r.wave].name + ' wave)'; }
+    var results = liftNames.map(function(lift){
+        return E1RM.pick(lift, finalSets, amrapResults, maxes[lift], describe);
     });
+    completed = { cycle: cycleCount || 1, at: Date.now(), results: results };
+    saveProgress();
+    updateFinishUi();
+    E1RM.finish(results, juggSummaryOpts(results));
+}
+
+// Wave 4 without logging the final deload — same finish path
+function finishEarlyJugg(){
+    if (isCompleted()) { showCompletedJugg(); return; }
+    if (!confirm('Finish this Juggernaut cycle now and save your estimated 1RMs to Archives?')) return;
+    finishJugg();
+}
+
+function showCompletedJugg(){
+    if (!isCompleted()) return;
+    E1RM.showSummary(completed.results, juggSummaryOpts(completed.results));
 }
 
 function startNextCycle(results){
     var ids = { Squat: 'squat1rm', Bench: 'bench1rm', Deadlift: 'dead1rm', OHP: 'ohp1rm' };
-    results.forEach(function(r){ document.getElementById(ids[r.lift]).value = r.e1rm; });
+    results.forEach(function(r){ if (ids[r.lift] && r.e1rm > 0) document.getElementById(ids[r.lift]).value = r.e1rm; });
     cursor = 0;
     amrapResults = [];
-    cycleCount += 1;
+    cycleCount = (cycleCount || 1) + 1;
+    completed = null;
     currentAccs = {};
     setSelectors(0);
     resetDayBoost();

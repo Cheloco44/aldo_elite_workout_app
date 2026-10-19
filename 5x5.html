@@ -221,6 +221,7 @@ body::before {
                 <button class="btn-new"     onclick="resetSetup()">↩ New Program</button>
                 <button class="btn-shuffle" id="shuffleBtn" onclick="shuffleSL()">↻ Shuffle</button>
                 <button class="btn-log"     id="logBtn"     onclick="logDaySL()">✓ Log This Day</button>
+                <button class="btn-log"     id="finishBtn"  onclick="finishProgram()" style="display:none">🏁 Finish Program</button>
             </div>
         </div>
         <button class="nav-btn" id="btnNext" onclick="navigate(1)">Next →</button>
@@ -263,10 +264,14 @@ function getInputs() {
     };
 }
 
-function saveProgress() {
+// completed = { at, results } once this block's Estimated 1RM was recorded
+var completed = null;
+
+function saveProgress(cur) {
     EATT.save({ id: PROG_ID, name: 'StrongLifts 5×5', page: '5x5.html',
-        inputs: getInputs(), cursor: cursor, savedAt: Date.now(),
-        failStreaks: failStreaks, deloadEvents: deloadEvents, week9Results: week9Results });
+        inputs: getInputs(), cursor: cur == null ? cursor : cur, savedAt: Date.now(),
+        failStreaks: failStreaks, deloadEvents: deloadEvents, week9Results: week9Results,
+        completed: completed });
 }
 
 function loadProgress() {
@@ -290,6 +295,7 @@ function restoreFromSave(state) {
         var two = r && Number(r.twoRepMax);
         if (two > 0) week9Results[k] = computeMaxTest(two);
     });
+    completed = state.completed && Array.isArray(state.completed.results) ? state.completed : null;
     generateProgram();
     cursor = Math.min(state.cursor || 0, program.length - 1);
     resetMissedToday();
@@ -312,8 +318,25 @@ function getLastNormalWeight(key) {
     return null;
 }
 
-function checkCycleComplete() {
-    if (cursor < program.length - 1) return;
+function completionOpts() {
+    var m = window._nextCycleMaxes || {};
+    return { program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
+             note: 'Next block starts at: ' + Object.keys(m).map(function(n) { return n + ' ' + m[n]; }).join(' · ') + ' lbs',
+             nextLabel: 'Start next block →', onNext: startFresh };
+}
+
+function finishProgram() {
+    if (completed) {
+        window._nextCycleMaxes = completed.nextMaxes || window._nextCycleMaxes;
+        E1RM.showSummary(completed.results, completionOpts());
+        return;
+    }
+    if (!confirm('Finish this block now and record your Estimated 1RM?')) return;
+    checkCycleComplete(true);
+}
+
+function checkCycleComplete(force) {
+    if (!force && cursor < program.length - 1) return;
     // Week 10's displayed weight is a deload, not a real number to restart
     // from. Squat/bench/deadlift restart from 80% of the tested max (typical
     // conservative 5x5 restart point — leaves headroom for 8 weeks of
@@ -342,10 +365,12 @@ function checkCycleComplete() {
                  detail: 'projected from last working weight ' + w + ' lbs × 5' +
                          (PL_LIFTS.indexOf(key) >= 0 ? ' (week 9 test skipped)' : '') };
     });
-    var startNote = 'Next block starts at: ' + Object.keys(newMaxes).map(function(n) { return n + ' ' + newMaxes[n]; }).join(' · ') + ' lbs';
     window._nextCycleMaxes = newMaxes;
-    E1RM.finish(results, { program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
-                           note: startNote, nextLabel: 'Start next block →', onNext: startFresh });
+    if (completed) { E1RM.showSummary(completed.results, completionOpts()); return; }
+    completed = { at: Date.now(), results: results, nextMaxes: newMaxes };
+    saveProgress();
+    E1RM.finish(results, completionOpts());
+    render();
 }
 
 function startFresh() {
@@ -360,6 +385,7 @@ function startFresh() {
     failStreaks  = { squat:0, bench:0, ohp:0, dead:0, row:0 };
     deloadEvents = [];
     week9Results = { squat: null, bench: null, dead: null };
+    completed    = null;
     generateProgram(); cursor = 0; resetMissedToday(); saveProgress(); render();
 }
 function flashBtn(btn, success) {
@@ -482,10 +508,10 @@ var MEET_PCTS = { aggressive: [0.87, 0.95, 1.00], confident: [0.82, 0.87, 0.95] 
 
 var week9Results = { squat: null, bench: null, dead: null };
 
-// 2-rep max → estimated 1RM: the weight you can do for exactly 2 reps
-// (can't complete a 3rd) is taken as ~91% of a true 1RM, so add 10% back.
+// 2-rep max → estimated 1RM with the same Epley formula every program uses,
+// so 5x5 numbers compare cleanly with the others in Archives.
 function computeMaxTest(twoRepWeight) {
-    var estMax = round5(twoRepWeight * 1.10);
+    var estMax = E1RM.epley(twoRepWeight, 2);
     return {
         twoRepMax:  twoRepWeight,
         estMax:     estMax,
@@ -532,7 +558,10 @@ function dismissPopup() {
     failStreaks  = { squat:0, bench:0, ohp:0, dead:0, row:0 };
     deloadEvents = [];
     week9Results = { squat: null, bench: null, dead: null };
+    completed    = null;
     generateProgram();
+    cursor = 0;   // generateProgram resumes the saved cursor; a new program starts at session 1
+    render();
 }
 
 function generateProgram() {
@@ -608,6 +637,11 @@ function render() {
     document.getElementById("navProgress").textContent  = "Session " + (cursor+1) + " of " + total;
     document.getElementById("btnPrev").disabled = cursor === 0;
     document.getElementById("btnNext").disabled = cursor === total-1;
+    // Final two weeks (max test + deload): offer to finish, so skipping the
+    // deload still records the Estimated 1RM. Afterwards it shows the results.
+    var finishBtn = document.getElementById("finishBtn");
+    finishBtn.style.display = (completed || day.week >= 9) ? "" : "none";
+    finishBtn.textContent   = completed ? "🏆 View Results" : "🏁 Finish Program";
 
     buildBreadcrumb(day);
     buildWorkout(day);
@@ -785,9 +819,12 @@ function logDaySL() {
     var exList  = day.exercises.map(function(ex) {
         if (ex.isMaxTest) {
             var r = week9Results[ex.key];
-            return { name: ex.name, scheme: "2-rep max test", weight: r ? (r.twoRepMax + " lbs (2RM) → est. max " + r.estMax + " lbs") : "Not tested" };
+            return r ? { name: ex.name, type: "maxtest", scheme: "2-rep max test → est. 1RM " + r.estMax + " lbs",
+                         weight: r.twoRepMax, target: "2", repsDone: 2, e1rm: r.estMax }
+                     : { name: ex.name, type: "maxtest", scheme: "2-rep max test — not tested" };
         }
-        return { name: ex.name, scheme: ex.sets + " × " + ex.reps, weight: ex.weight + " lbs" };
+        return { name: ex.name, type: ex.isDeload ? "deload" : "main", scheme: ex.sets + " × " + ex.reps,
+                 weight: ex.weight, target: String(ex.reps) };
     });
 
     // Process today's "missed a rep?" marks into each lift's fail streak —
@@ -809,17 +846,22 @@ function logDaySL() {
         }
     });
 
-    var btn = document.getElementById("logBtn");
+    var btn    = document.getElementById("logBtn");
+    var isLast = cursor === program.length - 1;
+    var saved  = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
+    var inOrder = !saved || saved.cursor === cursor;
     var ok  = logWorkout("Strong Lifts 5×5", session, exList);
-    saveProgress();
+    saveProgress(isLast ? cursor : cursor + 1);
     flashBtn(btn, ok);
     if (deloaded.length) {
         setTimeout(function(){ alert('Deloaded ' + deloaded.join(' & ') + ' by 10% — 3 missed sessions in a row. Building back up from here.'); }, 300);
     }
     if (ok) {
-        if (cursor < program.length - 1) {
-            setTimeout(function() { goToDay(cursor + 1); saveProgress(); }, 1500);
-        } else { setTimeout(checkCycleComplete, 1500); }
+        if (!isLast) {
+            setTimeout(function() { goToDay(cursor + 1); }, 1500);
+        } else if (inOrder && !completed) {
+            setTimeout(checkCycleComplete, 1500);
+        }
     }
 }
 
