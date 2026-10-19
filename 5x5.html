@@ -323,31 +323,28 @@ function checkCycleComplete() {
             newMaxes[nameMap[key]] = getLastNormalWeight(key);
         }
     });
-    showCycleModal(newMaxes);
-}
 
-function showCycleModal(newMaxes) {
+    // Estimated 1RM for every lift: the week-9 test where it was done,
+    // otherwise projected from the last real 5-rep working weight (Epley).
+    var results = Object.keys(nameMap).map(function(key) {
+        var t = week9Results[key];
+        if (PL_LIFTS.indexOf(key) >= 0 && t) {
+            return { lift: nameMap[key], e1rm: t.estMax, detail: t.twoRepMax + ' lbs × 2 (week 9 test)' };
+        }
+        var w = getLastNormalWeight(key);
+        return { lift: nameMap[key], e1rm: E1RM.epley(w, 5),
+                 detail: 'projected from last working weight ' + w + ' lbs × 5' +
+                         (PL_LIFTS.indexOf(key) >= 0 ? ' (week 9 test skipped)' : '') };
+    });
+    var startNote = 'Next block starts at: ' + Object.keys(newMaxes).map(function(n) { return n + ' ' + newMaxes[n]; }).join(' · ') + ' lbs';
     window._nextCycleMaxes = newMaxes;
-    var existing = document.getElementById('cycleModal');
-    if (existing) existing.remove();
-    var modal = document.createElement('div');
-    modal.id = 'cycleModal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
-    var rows = Object.entries(newMaxes).map(function(e){
-        return '<div style="background:rgba(56,239,157,0.06);border:1px solid rgba(56,239,157,0.2);border-radius:10px;padding:10px"><div style="font-size:0.62rem;letter-spacing:2px;opacity:0.55;text-transform:uppercase">'+e[0]+'</div><div style="font-size:1.1rem;font-weight:900;color:#38ef9d">'+e[1]+' lbs</div></div>';
-    }).join('');
-    modal.innerHTML = '<div style="background:linear-gradient(145deg,#141e30,#1a2a3a);border:1px solid rgba(56,239,157,0.25);border-radius:20px;padding:38px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,0.7)">' +
-        '<div style="font-size:2.5rem;margin-bottom:12px">🏆</div>' +
-        '<div style="font-size:1.1rem;font-weight:900;letter-spacing:3px;color:#38ef9d;margin-bottom:8px">BLOCK COMPLETE</div>' +
-        '<div style="font-size:0.85rem;opacity:0.6;margin-bottom:24px">New starting weights for your next 10-week block:</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px">'+rows+'</div>' +
-        '<button onclick="startFresh()" style="width:100%;padding:14px;background:linear-gradient(135deg,#11998e,#38ef9d);border:none;border-radius:10px;color:#000;font-size:0.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-bottom:10px">START NEXT BLOCK →</button>' +
-        '<button onclick="document.getElementById(\'cycleModal\').remove()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer">Not yet</button></div>';
-    document.body.appendChild(modal);
+    E1RM.finish(results, { program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
+                           note: startNote, nextLabel: 'Start next block →', onNext: startFresh });
 }
 
 function startFresh() {
-    document.getElementById('cycleModal').remove();
+    var oldModal = document.getElementById('cycleModal');
+    if (oldModal) oldModal.remove();
     var newMaxes = window._nextCycleMaxes || {};
     var map = { Squat: 'squat_w', 'Bench Press': 'bench_w', 'Barbell Row': 'row_w', 'Overhead Press': 'ohp_w', Deadlift: 'dead_w' };
     Object.keys(map).forEach(function(name) {

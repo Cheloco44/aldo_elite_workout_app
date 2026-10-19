@@ -328,6 +328,23 @@ h1 {
 .log-date { font-size: 0.72rem; opacity: 0.4; }
 .log-session { font-size: 0.78rem; opacity: 0.6; margin-bottom: 6px; }
 .log-exercises { font-size: 0.72rem; opacity: 0.38; line-height: 1.6; }
+.log-card { cursor: pointer; }
+.log-card.e1rm-log { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.05); }
+.log-detail { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; }
+.log-card.open .log-detail { display: block; }
+.log-card.open .log-exercises { display: none; }
+.log-ex { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; font-size: 0.75rem; padding: 4px 0; }
+.log-ex-name { font-weight: 600; opacity: 0.85; }
+.log-ex-wt { font-weight: 700; color: #f0d080; text-align: right; }
+.log-ex-scheme { grid-column: 1 / -1; opacity: 0.45; font-size: 0.7rem; }
+.arch-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.arch-stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center; }
+.arch-stat b { display: block; font-size: 1.2rem; }
+.arch-stat span { font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; }
+.arch-filter { width: 100%; margin-bottom: 14px; padding: 9px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.15); font-size: 0.85rem; }
+.arch-year { font-size: 1rem; font-weight: 800; letter-spacing: 2px; margin: 18px 0 6px; color: #f0d080; }
+.arch-month { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; margin: 12px 0 8px; }
+.slot-note { font-size: 0.72rem; opacity: 0.45; text-align: center; margin-top: 12px; }
 
 /* ── Continue Popup ─────────────────────────────────────────────── */
 #continuePopup {
@@ -646,6 +663,10 @@ function loadCurrentPrograms() {
             '<div class="prog-badge active">Resume →</div>';
         listEl.appendChild(card);
     });
+    var note = document.createElement('div');
+    note.className = 'slot-note';
+    note.textContent = all.length + ' of ' + EATT.MAX_PROGRAMS + ' program slots used · each resumes where you last logged';
+    listEl.appendChild(note);
 }
 
 function confirmDeleteCurrentProgram(id, evt) {
@@ -655,33 +676,107 @@ function confirmDeleteCurrentProgram(id, evt) {
     loadCurrentPrograms();
 }
 
+// ── Archives: every logged workout, newest first, grouped by year/month ─────
+var archiveLogs = [];
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
 function loadArchives() {
     var listEl = document.getElementById('list-archives');
     var loadEl = document.getElementById('loading-archives');
-    loadEl.style.display = 'none';
+    loadEl.style.display = 'block';
+    listEl.innerHTML = '';
+    EATT.getAllLogs().then(function(logs) {
+        loadEl.style.display = 'none';
+        archiveLogs = logs;
+        renderArchives('');
+    });
+}
+
+function logYear(log)  { return String(log.date || '').slice(0, 4) || new Date(log.ts).getFullYear(); }
+function logMonth(log) { var m = parseInt(String(log.date || '').slice(5, 7), 10); return isNaN(m) ? new Date(log.ts).getMonth() : m - 1; }
+
+function renderArchives(filter) {
+    var listEl = document.getElementById('list-archives');
     listEl.innerHTML = '';
 
-    var logs = JSON.parse(localStorage.getItem('eatt_logs') || '[]');
-
-    if (!logs.length) {
+    if (!archiveLogs.length) {
         listEl.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">🗄️</div>' +
             '<div class="dash-empty-msg">No workouts logged yet.<br>Complete a session to see your history here.</div></div>';
         return;
     }
 
-    logs.forEach(function(log) {
-        var exList = Array.isArray(log.exercises)
-            ? log.exercises.slice(0,4).map(function(e){ return e.name || e; }).filter(Boolean).join(' · ')
-            : '';
-        var card = document.createElement('div');
-        card.className = 'log-card';
-        card.innerHTML =
-            '<div class="log-top"><div class="log-program">' + esc(log.program || 'Workout') + '</div>' +
-            '<div class="log-date">' + esc(log.date) + '</div></div>' +
-            (log.session ? '<div class="log-session">' + esc(log.session) + '</div>' : '') +
-            (exList ? '<div class="log-exercises">' + esc(exList) + (log.exercises.length > 4 ? ' +' + (log.exercises.length-4) + ' more' : '') + '</div>' : '');
-        listEl.appendChild(card);
+    var thisYear = String(new Date().getFullYear());
+    var workouts = archiveLogs.filter(function(l) { return !isE1rmLog(l); });
+    var programs = {};
+    archiveLogs.forEach(function(l) { programs[l.program || 'Workout'] = true; });
+
+    var stats = document.createElement('div');
+    stats.className = 'arch-stats';
+    stats.innerHTML =
+        '<div class="arch-stat"><b>' + workouts.length + '</b><span>Workouts</span></div>' +
+        '<div class="arch-stat"><b>' + workouts.filter(function(l) { return String(logYear(l)) === thisYear; }).length + '</b><span>This year</span></div>' +
+        '<div class="arch-stat"><b>' + archiveLogs.filter(isE1rmLog).length + '</b><span>Programs done</span></div>';
+    listEl.appendChild(stats);
+
+    var sel = document.createElement('select');
+    sel.className = 'arch-filter';
+    sel.setAttribute('aria-label', 'Filter by program');
+    sel.innerHTML = '<option value="">All programs</option>' + Object.keys(programs).sort().map(function(p) {
+        return '<option value="' + esc(p) + '"' + (p === filter ? ' selected' : '') + '>' + esc(p) + '</option>';
+    }).join('');
+    sel.onchange = function() { renderArchives(sel.value); };
+    listEl.appendChild(sel);
+
+    var lastYear = null, lastMonth = null;
+    archiveLogs.forEach(function(log) {
+        if (filter && (log.program || 'Workout') !== filter) return;
+        var y = String(logYear(log)), m = logMonth(log);
+        if (y !== lastYear) { addHeading('arch-year', y); lastYear = y; lastMonth = null; }
+        if (m !== lastMonth) { addHeading('arch-month', MONTHS[m] || ''); lastMonth = m; }
+        listEl.appendChild(buildLogCard(log));
     });
+
+    function addHeading(cls, text) {
+        var h = document.createElement('div');
+        h.className = cls;
+        h.textContent = text;
+        listEl.appendChild(h);
+    }
+}
+
+function isE1rmLog(log) {
+    return Array.isArray(log.exercises) && log.exercises.length > 0 &&
+           log.exercises.every(function(e) { return e && e.type === 'e1rm'; });
+}
+
+function fmtWeight(w) {
+    if (w === '' || w == null) return '';
+    return typeof w === 'number' ? w + ' lbs' : String(w);
+}
+
+function buildLogCard(log) {
+    var ex = Array.isArray(log.exercises) ? log.exercises : [];
+    var e1rm = isE1rmLog(log);
+    var summary = ex.slice(0, 4).map(function(e) { return e && (e.name || e); }).filter(Boolean).join(' · ');
+    var detail = ex.map(function(e) {
+        if (!e || typeof e !== 'object') return '<div class="log-ex"><div class="log-ex-name">' + esc(e) + '</div></div>';
+        var wt = e.type === 'e1rm' ? fmtWeight(e.e1rm) : fmtWeight(e.weight);
+        var scheme = [e.scheme, e.reps != null ? e.reps + ' reps done' : '', e.detail].filter(Boolean).join(' · ');
+        return '<div class="log-ex"><div class="log-ex-name">' + esc(e.name || '') + '</div>' +
+               '<div class="log-ex-wt">' + esc(wt) + '</div>' +
+               (scheme ? '<div class="log-ex-scheme">' + esc(scheme) + '</div>' : '') + '</div>';
+    }).join('');
+
+    var card = document.createElement('div');
+    card.className = 'log-card' + (e1rm ? ' e1rm-log' : '');
+    card.innerHTML =
+        '<div class="log-top"><div class="log-program">' + (e1rm ? '🏆 ' : '') + esc(log.program || 'Workout') + '</div>' +
+        '<div class="log-date">' + esc(log.date) + '</div></div>' +
+        (log.session ? '<div class="log-session">' + esc(log.session) + '</div>' : '') +
+        (summary ? '<div class="log-exercises">' + esc(summary) + (ex.length > 4 ? ' +' + (ex.length - 4) + ' more' : '') + '</div>' : '') +
+        (detail ? '<div class="log-detail">' + detail + '</div>' : '');
+    card.onclick = function() { card.classList.toggle('open'); };
+    return card;
 }
 </script>
 
