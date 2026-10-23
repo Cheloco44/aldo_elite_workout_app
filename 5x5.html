@@ -323,7 +323,7 @@ function completionOpts() {
     return {
         projected:  projectedMaxes(),
         completed:  completed,
-        onRecorded: function() { saveProgress(); }, program: 'Strong Lifts 5×5', length: TOTAL_WEEKS + '-week block',
+        onRecorded: function() { saveProgress(); }, program: 'StrongLifts 5×5', length: TOTAL_WEEKS + '-week block',
              note: 'Next block starts at: ' + Object.keys(m).map(function(n) { return n + ' ' + m[n]; }).join(' · ') + ' lbs',
              nextLabel: 'Start next block →', onNext: startFresh };
 }
@@ -853,7 +853,7 @@ function logDaySL() {
     var isLast = cursor === program.length - 1;
     var saved  = EATT.loadAll().find(function(p){ return p.id === PROG_ID; });
     var inOrder = !saved || saved.cursor === cursor;
-    var ok  = logWorkout("Strong Lifts 5×5", session, exList);
+    var ok  = logWorkout("StrongLifts 5×5", session, exList);
     saveProgress(isLast ? cursor : cursor + 1);
     flashBtn(btn, ok);
     if (deloaded.length) {

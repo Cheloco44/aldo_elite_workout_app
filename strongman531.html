@@ -331,7 +331,7 @@ function finishOpts() {
         program:   '5/3/1 Strongman',
         length:    waves + (waves === 1 ? ' wave' : ' waves') + ' · ' + (waves * 4) + ' weeks',
         note:       'Next cycle: lifts you record start from the max you hit (training max = 90%). ' +
-                    'Untested lifts move up Wendler-style: ' +
+                    'Lifts without a recorded max move up Wendler-style instead: ' +
                     Object.keys(newMaxes).map(function(k) { return k + ' ' + newMaxes[k]; }).join(' · ') + ' lbs',
         nextLabel: 'Start next cycle →',
         onNext:    function(withHits) {
