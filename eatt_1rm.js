@@ -72,6 +72,24 @@ var E1RM = (function() {
                  detail: 'no reps logged in the final block — starting max carried over' };
     }
 
+    // ── Realistic projection cap ──────────────────────────────────────────────
+    // A program's own progression math assumes every session goes to plan,
+    // which over-promises (e.g. +10 lb per 5x5 session for 8 weeks). The preview
+    // never shows more than a realistic weekly gain on the current 1RM:
+    //   novice (5x5): lower body 5%/wk, upper body 3%/wk
+    //   intermediate (5/3/1, Juggernaut, Cube, Strongman): lower 1%/wk, upper 0.6%/wk
+    // lift: name (squat/deadlift/... count as lower body); level: 'novice' | 'intermediate'.
+    var WEEKLY_RATE = { novice: { lower: 0.05, upper: 0.03 }, intermediate: { lower: 0.01, upper: 0.006 } };
+
+    function realistic(now, target, weeks, lift, level) {
+        now = Number(now); target = Number(target); weeks = Number(weeks) || 0;
+        if (!(now > 0)) return 0;
+        var rates = WEEKLY_RATE[level] || WEEKLY_RATE.intermediate;
+        var rate = /squat|dead|pull|hinge|leg/i.test(String(lift)) ? rates.lower : rates.upper;
+        var cap = now * (1 + rate * weeks);
+        return round5(Math.min(target > 0 ? target : cap, cap));
+    }
+
     // HTML for a "reps done" box on an AMRAP / top set. `id` must be unique on
     // the page; read it back with readReps(id).
     function repsInput(id, value) {
@@ -271,6 +289,6 @@ var E1RM = (function() {
         document.head.appendChild(css);
     })();
 
-    return { epley: epley, bestByLift: bestByLift, pick: pick, repsInput: repsInput, readReps: readReps,
+    return { epley: epley, bestByLift: bestByLift, pick: pick, realistic: realistic, repsInput: repsInput, readReps: readReps,
              finish: finish, showSummary: showSummary, mountPreview: mountPreview };
 })();

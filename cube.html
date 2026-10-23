@@ -700,21 +700,21 @@ EATT.init().then(function() {
   </div>
 </div>
 <script>
-// Projected end-of-program 1RM: the Cube adds ~10% per 3-week cycle.
+// Projected end-of-program 1RM: the Cube's ~10% per 3-week cycle, capped (E1RM.realistic).
 function enteredNow() {
     return { Squat: (parseInt(document.getElementById('squat1rm').value) || 0), Bench: (parseInt(document.getElementById('bench1rm').value) || 0), Deadlift: (parseInt(document.getElementById('dead1rm').value) || 0) };
 }
 function projectedMaxes() {
     var cycles = (parseInt(document.getElementById('numWeeks').value) || 12) / 3;
     var now = enteredNow(), out = {};
-    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = Math.round(now[k] * Math.pow(1 + weeklyJump, cycles - 1) / 5) * 5; });
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = E1RM.realistic(now[k], now[k] * Math.pow(1 + weeklyJump, cycles - 1), cycles * 3, k, 'intermediate'); });
     return out;
 }
 
 // ── Setup screen: projected 1RM preview ──────────────────────────────────────
 E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
     var proj = projectedMaxes();
-    return { length: (parseInt(document.getElementById('numWeeks').value) || 12) + ' weeks', note: 'The Cube adds ~10% per cycle if every cycle goes to plan. Your real number gets recorded at the end.',
+    return { length: (parseInt(document.getElementById('numWeeks').value) || 12) + ' weeks', note: 'If training goes well: the program math, capped at a realistic weekly gain for your level. Your real number gets recorded at the end.',
              rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
 });
 </script>

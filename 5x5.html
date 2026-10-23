@@ -901,7 +901,7 @@ function projectedMaxes() {
         var w = parseInt(document.getElementById(k + '_w').value) || 0;
         if (!(w > 0)) return;
         var appearances = k === 'squat' ? sessions : sessions / 2;
-        out[PREVIEW_LIFTS[k]] = E1RM.epley(w + INC[k] * (appearances - 1), 5);
+        out[PREVIEW_LIFTS[k]] = E1RM.realistic(E1RM.epley(w, 5), E1RM.epley(w + INC[k] * (appearances - 1), 5), TOTAL_WEEKS, PREVIEW_LIFTS[k], 'novice');
     });
     return out;
 }
@@ -909,7 +909,7 @@ function projectedMaxes() {
 // ── Setup screen: projected 1RM preview ──────────────────────────────────────
 E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
     var proj = projectedMaxes();
-    return { length: TOTAL_WEEKS + ' weeks', note: 'Estimated from your 5-rep weights if every session goes to plan. Week 9 tests it for real.',
+    return { length: TOTAL_WEEKS + ' weeks', note: 'Estimated from your 5-rep weights if training goes well, capped at a realistic beginner rate. Week 9 tests it for real.',
              rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
 });
 </script>

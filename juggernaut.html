@@ -680,14 +680,14 @@ function enteredNow() {
 }
 function projectedMaxes() {
     var now = enteredNow(), out = {};
-    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = Math.round(now[k] * Math.pow(1 + weeklyJump, 3) / 5) * 5; });
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = E1RM.realistic(now[k], now[k] * Math.pow(1 + weeklyJump, 3), 16, k, 'intermediate'); });
     return out;
 }
 
 // ── Setup screen: projected 1RM preview ──────────────────────────────────────
 E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
     var proj = projectedMaxes();
-    return { length: '16 weeks', note: 'Juggernaut adds ~10% per wave. That assumes every wave goes to plan — your real number gets recorded at the end.',
+    return { length: '16 weeks', note: 'If training goes well: the program math, capped at a realistic weekly gain for your level. Your real number gets recorded at the end.',
              rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
 });
 </script>

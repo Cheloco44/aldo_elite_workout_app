@@ -884,14 +884,14 @@ function projectedMaxes() {
     var waves = parseInt(document.getElementById('numWaves').value) || 3;
     var jumps = {}; jumps['Squat'] = 10; jumps['Deadlift'] = 10; jumps['Bench'] = 5; jumps['OHP'] = 5;
     var now = enteredNow(), out = {};
-    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = now[k] + jumps[k] * waves; });
+    Object.keys(now).forEach(function(k) { if (now[k] > 0) out[k] = E1RM.realistic(now[k], now[k] + jumps[k] * waves, waves * 4, k, 'intermediate'); });
     return out;
 }
 
 // ── Setup screen: projected 1RM preview ──────────────────────────────────────
 E1RM.mountPreview(document.querySelector('button[onclick="showBuildPopup()"]'), function() {
     var proj = projectedMaxes();
-    return { length: (parseInt(document.getElementById('numWaves').value) || 3) * 4 + ' weeks', note: 'If you hit every session. Your real number gets recorded at the end.',
+    return { length: (parseInt(document.getElementById('numWaves').value) || 3) * 4 + ' weeks', note: 'If training goes well: the program math, capped at a realistic weekly gain for your level. Your real number gets recorded at the end.',
              rows: Object.keys(proj).map(function(k) { return { lift: k, now: enteredNow()[k], projected: proj[k] }; }) };
 });
 </script>
