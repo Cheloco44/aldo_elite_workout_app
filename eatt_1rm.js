@@ -88,7 +88,7 @@ var E1RM = (function() {
         var rate = /(squat|dead|hinge)/i.test(String(lift)) ? rates.lower : rates.upper;
         var cap = now * (1 + rate * weeks);
         // never project below what the user already lifts (rounding to 5 could)
-        return Math.max(round5(Math.min(target > 0 ? target : cap, cap)), round5(now));
+        return Math.max(round5(Math.min(target > 0 ? target : cap, cap)), now);
     }
 
     // HTML for a "reps done" box on an AMRAP / top set. `id` must be unique on
