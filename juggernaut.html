@@ -673,8 +673,8 @@ EATT.init().then(function() {
   </div>
 </div>
 <script>
-// Projected end-of-program 1RM: the program loads +10% per wave, so after the
-// 3s wave you're handling ~1.33× your starting max if every wave goes to plan.
+// Projected end-of-program 1RM: the program's +10% per wave, capped at a
+// realistic weekly gain (E1RM.realistic), since every wave rarely goes to plan.
 function enteredNow() {
     return { Squat: (parseInt(document.getElementById('squat1rm').value) || 0), Bench: (parseInt(document.getElementById('bench1rm').value) || 0), Deadlift: (parseInt(document.getElementById('dead1rm').value) || 0), OHP: (parseInt(document.getElementById('ohp1rm').value) || 0) };
 }

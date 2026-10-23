@@ -85,9 +85,10 @@ var E1RM = (function() {
         now = Number(now); target = Number(target); weeks = Number(weeks) || 0;
         if (!(now > 0)) return 0;
         var rates = WEEKLY_RATE[level] || WEEKLY_RATE.intermediate;
-        var rate = /squat|dead|pull|hinge|leg/i.test(String(lift)) ? rates.lower : rates.upper;
+        var rate = /(squat|dead|hinge)/i.test(String(lift)) ? rates.lower : rates.upper;
         var cap = now * (1 + rate * weeks);
-        return round5(Math.min(target > 0 ? target : cap, cap));
+        // never project below what the user already lifts (rounding to 5 could)
+        return Math.max(round5(Math.min(target > 0 ? target : cap, cap)), round5(now));
     }
 
     // HTML for a "reps done" box on an AMRAP / top set. `id` must be unique on
